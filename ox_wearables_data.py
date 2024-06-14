@@ -38,7 +38,10 @@ field_list_aliases = {
     "90187-0.0" : "total_reads",
     "90015-0.0" : "quality_good_wear_time",
     "90012-0.0" : "overall_activity",
-    "90011-0.0" : "date_end_accel"
+    "90011-0.0" : "date_end_accel",
+    "1309-0.0" : "fresh_fruit",
+    "1289-0.0" : "cooked_vg",
+    "1329-0.0" : "oily_fish"
     }
 
 current_df.rename(columns=field_list_aliases, inplace=True)
