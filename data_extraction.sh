@@ -1,3 +1,4 @@
+#!/bin/bash
 
 ## 1. Extract the columns we want
 
