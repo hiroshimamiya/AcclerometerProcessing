@@ -6,9 +6,9 @@
 module load rust
 export PATH=~/.cargo/bin:$PATH
 
-# Grep the "41271" UDI
+# Grep the "41281" UDI
 cd /lustre03/project/6008063/neurohub/UKB/Tabular
-xsv headers current.csv | grep 41271
+xsv headers current.csv | grep 41281
 
-# Grep the columns containing eids and  UDI 41271 
+# Grep the columns containing eids and  UDI 41281 
 xsv select 1,19562-19608 current.csv | grep
