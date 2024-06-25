@@ -65,6 +65,9 @@ cat /lustre03/project/6008063/neurohub/UKB/Tabular/RAP/ukb_field_22189.csv| head
 #*** I then merged current_subset.csv and townsend.csv using python: "pd.merge(current_df, ukb_field_22189_df, on='eid')"
 
 
+# 3. Extract only the columns that contains strokes and MI information
+cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,19757-19762,19751-19755 > /home/yalap95/current_df/strokes_mi.csv
+
 
 ## 2. Extract only the columns used by OxWearables
 
