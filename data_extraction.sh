@@ -55,14 +55,15 @@
 # Extract the columns from the "current.csv" file - only the first 1000 rows:
 
 cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,27,28,97,941,949,957,1045,7008,10795,12128,12132,19789,8425-8560,19114-19160,17991-18018,\
-18229-18258,17621,17622,17623-17652,19757-19762,19751-19755\
+18229-18258,17621,17622,17623-17652\
 > /home/yalap95/current_df/current_subset.csv
 
-#*** Does not include Townsend index ***#
+#*** Does not include Townsend index and the strokes MI data ***#
 
 # Extract the Townsend index column seperately because it is not in the "current.csv" file - first 1000 rows:
 cat /lustre03/project/6008063/neurohub/UKB/Tabular/RAP/ukb_field_22189.csv| head -1000 > /home/yalap95/current_df/townsend.csv
 #*** I then merged current_subset.csv and townsend.csv using python: "pd.merge(current_df, ukb_field_22189_df, on='eid')"
+
 
 
 # 3. Extract only the columns that contains strokes and MI information
