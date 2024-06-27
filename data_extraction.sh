@@ -13,11 +13,17 @@
 # 7008 : 6138-0.0 (Education)
 # 10795 : 20116-0.0 (Smoking status)
 # 12128 : 21000-0.0 (Education)
-# 12132 : 21001-0.0 (BMI) 
+# 12132 : 21001-0.0 (BMI)
+### Accelometery data (used by OxWearables)
 # 19789 : 90001-0.0 (Raw Accelerometry Data)
-# 8425-8560 : 20002-X.XX; Instances: [0,3]; Arrays: [0,33] (Non-cancer illness code, self-reported) 
-# 17621-1722 : 40001-0.XX; Arrays: [0,2] (Underlying (primary) cause of death)
-# 17623-17652 : 40002-0.XX; Instances: [0,1]; Arrays: [0,14] (Contributory (secondary) causes of death - ICD10)
+# 479 : 191-0.0 (Date of last follow-up)
+# 19802 : 90016-0.0 (Good quality calibration)
+# 19968 : 90183-0.0 (Clips before calibration)
+# 19970 : 90185-0.0 (Clips after calibration)
+# 19972 : 90187-0.0 (Total reads)
+# 19801 : 90015-0.0 (Quality good wear time)
+# 19799 : 90012-0.0 (Overall activity)
+# 19798 : 90011-0.0 (Date end accel)
 ### Strokes
 # 19757 : 42006-0.0 (Date of stroke)
 # 19758 : 42007-0.0 (Source of stroke report)
@@ -45,6 +51,10 @@
 # 17911-1799 : 41202-0.XX; Arrays: [0,79] (Diagnoses - main ICD10)
 # 18019-18228 : 41204-0.XXX; Arrays: [0,209] (Diagnoses - secondary ICD10)
 ####
+# 8425-8560 : 20002-X.XX; Instances: [0,3]; Arrays: [0,33] (Non-cancer illness code, self-reported) 
+# 17621-1722 : 40001-0.XX; Arrays: [0,2] (Underlying (primary) cause of death)
+# 17623-17652 : 40002-0.XX; Instances: [0,1]; Arrays: [0,14] (Contributory (secondary) causes of death - ICD10)
+
 
 
 
@@ -54,9 +64,8 @@
 
 # Extract the columns from the "current.csv" file - only the first 1000 rows:
 
-cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,27,28,97,941,949,957,1045,7008,10795,12128,12132,19789,8425-8560,19114-19160,17991-18018,\
-18229-18258,17621,17622,17623-17652\
-> /home/yalap95/current_df/current_subset.csv
+cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,27,28,97,941,949,957,1045,7008,10795,12128,12132,19789,479,19802,19968,19970,19972,19801,19799,19798\
+ > /home/yalap95/current_df/current_subset.csv
 
 #*** Does not include Townsend index and the strokes MI data ***#
 
