@@ -87,4 +87,7 @@ final_df.rename(columns=field_list_aliases, inplace=True)
 print(final_df.head(10))
 
 final_df.to_csv('/home/yalap95/current_df/final_df.csv')
-print(final_df.info())
+#print(final_df.info())
+
+print(final_df.columns)
+
