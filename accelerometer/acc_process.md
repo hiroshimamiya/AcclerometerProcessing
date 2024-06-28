@@ -59,3 +59,13 @@ mat 'yyyy-MM-dd HH:mm:ss.SSSSSS' --csvTimeXYZTempColsIndex 0,1,2,3 --outputFolde
     real    11m49.972s
     user    388m29.309s
     sys     41m13.279s
+
+
+
+TOTAL_JOBS=$(wc -l < /home/aayush/accelerometer/accprocess/all_files.txt)
+export TOTAL_JOBS
+time cat /home/aayush/accelerometer/accprocess/all_files.txt | parallel -j 10 "accProcess {} --extractFeatures True --csvTimeFormat 'yyyy-MM-dd HH:mm:ss.SSSSSS' --csvTimeXYZTempColsIndex 0,1,2,3 --epochPeriod 30 --outputFolder /home/aayush/accelerometer/compare_classification/accProcess_output/30_sec/original_features/predicted_output --deleteIntermediateFiles True --activityModel /home/aayush/accelerometer/compare_classification/accProcess_output/30_sec/original_features/model_used/30s_without_extra_model.tar; echo Job {#} of $TOTAL_JOBS" > output_log.txt 2> error_log.txt
+
+
+
+time cat /home/aayush/accelerometer/accprocess/all_files.txt | parallel -j 10 "accProcess {} --extractFeatures True --csvTimeFormat 'yyyy-MM-dd HH:mm:ss.SSSSSS' --csvTimeXYZTempColsIndex 0,1,2,3 --epochPeriod 30 --outputFolder /home/aayush/accelerometer/compare_classification/accProcess_output/30_sec/extra_features/predicted_output --deleteIntermediateFiles True --activityModel /home/aayush/accelerometer/compare_classification/accProcess_output/30_sec/extra_features/model_used/30s_extra_model.tar; echo Job {#} of $TOTAL_JOBS" > output_log.txt 2> error_log.txt
