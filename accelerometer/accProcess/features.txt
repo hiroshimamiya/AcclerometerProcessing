@@ -61,10 +61,7 @@ p2
 f625
 p625
 totalPower
-temp
-samples
 dataErrors
 clipsBeforeCalibr
 clipsAfterCalibr
 rawSamples
-participant
