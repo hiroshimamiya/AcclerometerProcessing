@@ -4,7 +4,9 @@
 #library(readr)
 
 # Import all data for participants with accelerometer data
-dat <- read.csv("/home/yalap95/current_df/final_df.csv")
+#dat <- read.csv("/home/yalap95/current_df/final_df/final_df.csv") # head -1000 sample data
+dat <- read.csv("/home/yalap95/current_df/final_df/final_df_full.csv")
+
 
 # Exclusions: these following commands will only keep the data we are not seeking to exclude
 ## 1. Low quality accelerometer data
@@ -27,20 +29,29 @@ dat <- dat[dat$overall_activity < 100, ]
 
 ### 2.1 Participants that reported having a stroke < 2013
 #### 2.1.1 stroke < 2013-01-01
-dat <- subset(dat, stroke_date >= as.Date("2013-01-01") | is.na(stroke_date))
+keep_rows <- !is.na(dat$stroke_date) & dat$stroke_date >= as.Date("2013-01-01") | is.na(dat$stroke_date)
+dat <- dat[keep_rows, ]
+
 #### 2.1.2 ischaemic stroke < 2013-01-01 
-dat <- subset(dat, ischaemic_stroke_date >= as.Date("2013-01-01") | is.na(ischaemic_stroke_date))
+keep_rows <- !is.na(dat$ischaemic_stroke_date) & dat$ischaemic_stroke_date >= as.Date("2013-01-01") | is.na(dat$ischaemic_stroke_date)
+dat <- dat[keep_rows, ]
+
 #### 2.1.3 intracerebral haemorrhage < 2013-01-01 
-dat <- subset(dat, intracerebral_haemorrhage_date >= as.Date("2013-01-01") | is.na(intracerebral_haemorrhage_date))
+keep_rows <- !is.na(dat$intracerebral_haemorrhage_date) & dat$intracerebral_haemorrhage_date >= as.Date("2013-01-01") | is.na(dat$intracerebral_haemorrhage_date)
+dat <- dat[keep_rows, ]
 
 ### 2.2 Participants that reported having a MI < 2013
 #### 2.2.1 MI < 2013-01-01
-dat <- subset(dat, myocardial_infarction_date >= as.Date("2013-01-01") | is.na(myocardial_infarction_date))
-#### 2.2.2 STEMI < 2013-01-01
-dat <- subset(dat, STEMI_date >= as.Date("2013-01-01") | is.na(STEMI_date))
-#### 2.2.3 NSTEMI < 2013-01-01
-dat <- subset(dat, NSTEMI_date >= as.Date("2013-01-01") | is.na(NSTEMI_date))
+keep_rows <- !is.na(dat$myocardial_infarction_date) & dat$myocardial_infarction_date >= as.Date("2013-01-01") | is.na(dat$myocardial_infarction_date)
+dat <- dat[keep_rows, ]
 
+#### 2.2.2 STEMI < 2013-01-01
+keep_rows <- !is.na(dat$STEMI_date) & dat$STEMI_date >= as.Date("2013-01-01") | is.na(dat$STEMI_date)
+dat <- dat[keep_rows, ]
+
+#### 2.2.3 NSTEMI < 2013-01-01
+keep_rows <- !is.na(dat$NSTEMI_date) & dat$NSTEMI_date >= as.Date("2013-01-01") | is.na(dat$NSTEMI_date)
+dat <- dat[keep_rows, ]
 
 ## 3. Missing data for ethnicity, education*, smoking status, alcohol consumption, or
 ##    Townsend Deprivation Index
