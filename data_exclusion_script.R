@@ -55,8 +55,10 @@ dat <- dat[keep_rows, ]
 
 ## 3. Missing data for ethnicity, education*, smoking status, alcohol consumption, or
 ##    Townsend Deprivation Index
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw')
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
 dat <- dat[complete.cases(dat[, keep_cols]), ]
+
+print(dat)
 
 ###### *Note: Education is currently missing
 
