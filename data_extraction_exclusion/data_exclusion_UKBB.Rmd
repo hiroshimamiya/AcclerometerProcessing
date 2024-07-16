@@ -10,6 +10,8 @@ We load and/or install the packages we will be using:
 rm(list=ls())
 library(dplyr)
 library(readr)
+library(data.table)
+library(tidyverse)
 ```
 
 We import all data for participants with accelerometer data:
@@ -143,6 +145,47 @@ final_n <- nrow(full_df)
 print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
 ```
 
+
+
+# Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
+- There are 3 diferent accelerometric measures   
+  1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
+  2. PA2 - machine-learning derived mesared, for Field ID 1020
+  3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
+
+
+#Load derived accelerometer from UKBB, PA2 data 
+```{r}
+ML_derived_PA2 <- fread("~/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+)
+
+# relabel for id, weekly light PA, weekly MVPA, weekly sleep, weekly sedentary, daily light PA, daily MVPA, daily sedentary
+names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
+
+ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
+dim(ML_derived_PA2)
+```
+
+
+
+
+# Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+```{r}
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+```
 
 
 
