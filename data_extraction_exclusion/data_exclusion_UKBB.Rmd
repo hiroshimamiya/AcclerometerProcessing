@@ -11,7 +11,8 @@ rm(list=ls())
 library(dplyr)
 library(readr)
 library(data.table)
-library(tidyverse)
+install.packages(tidyverse)
+#library(tidyverse)
 ```
 
 We import all data for participants with accelerometer data:
@@ -19,7 +20,7 @@ We import all data for participants with accelerometer data:
 ```{r}
 # Change the locations to your user folder data files
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
-full_df <- read.csv("~/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
+full_df <- read.csv("/home/yacine/final_df_full.csv")
 ```
 
 # Exclusions: these following commands will only keep the data we are not seeking to exclude
@@ -109,6 +110,18 @@ for (col in date_columns) {
 # having a CVD < 2013
 cut_off_date <- "2013-01-01"
 
+# we create an empty list that will be filled with the number of excluded participants
+exclusions <- list()
+
+# we create a function which will allow us to count the number of excluded participants
+count_and_filter_dates <- function(df, date_column, cut_off_date) {
+  initial_count <- nrow(df)
+  df <- df[is.na(df[[date_column]]) | df[[date_column]] >= as.Date(cut_off_date), ]
+  final_count <- nrow(df)
+  excluded_count <- initial_count - final_count # number of excluded rows (participants)
+  return(list(df = df, excluded_count = excluded_count))
+}
+
 # create loop to count number of participants excluded for each CVD
 total_excluded_cvd <- 0
 for (col in date_columns) {
@@ -137,6 +150,18 @@ total_excluded_covd <- result$excluded
 print(paste("Total participants excluded in step 3:", total_excluded_covd))
 ```
 
+## Exclusion 4: Remove participants for whom we have lost follow-up data.
+
+```{r}
+df_before <- full_df
+full_df$date_lost_followup <- pmin(full_df$date_lost_followup, na.rm = TRUE)
+result <- count_exclusions(df_before, full_df)
+total_excluded_lfu <- result$excluded
+
+# Print total exclusions for step 4
+print(paste("Total participants excluded in step 4:", total_excluded_lfu))
+
+```
 
 ## Final count
 
@@ -144,6 +169,9 @@ print(paste("Total participants excluded in step 3:", total_excluded_covd))
 final_n <- nrow(full_df)
 print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
 ```
+
+
+
 
 
 
