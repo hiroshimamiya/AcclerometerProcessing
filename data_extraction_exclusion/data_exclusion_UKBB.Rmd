@@ -1,11 +1,13 @@
 ---
 title: "UKBB Data Exclusion"
+author: "Yalap"
 output: rmarkdown::github_document
 ---
 
 We load and/or install the packages we will be using:
 
 ```{r, include=FALSE}
+rm(list=ls())
 library(dplyr)
 library(readr)
 ```
@@ -14,7 +16,8 @@ We import all data for participants with accelerometer data:
 
 ```{r}
 # Change the locations to your user folder data files
-full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
+#full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
+full_df <- read.csv("~/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
 ```
 
 # Exclusions: these following commands will only keep the data we are not seeking to exclude
@@ -39,6 +42,13 @@ print(initial_n)
 ```{r}
 # we want to count how many people were excluded in this section
 total_excluded_lq <- 0
+
+# Added by Hiroshi
+df_before <- full_df
+full_df <- full_df[full_df$accel_raw != "", ]
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
 ```
 
 ### 1.1. Devices poorly calibrated
@@ -75,7 +85,7 @@ total_excluded_lq <- total_excluded_lq + result$excluded
 ```
 
 ```{r}
-print(paste("Total participants excluded due to low accelerometer data quality:", total_excluded_lq))
+print(paste("Total participants excluded due to not being in acceleromete subcohort or low accelerometer data quality:", total_excluded_lq))
 ```
 
 
