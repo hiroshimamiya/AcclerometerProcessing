@@ -1,0 +1,66 @@
+---
+title: "survival_analysis_prep"
+author: "yacine"
+date: "2024-07-16"
+output: rmarkdown::github_document
+---
+
+We load and/or install the packages we will be using:
+
+```{r, include=FALSE}
+library(dplyr)
+```
+
+We load the data:
+```{r}
+full_df <- read.csv("/home/yacine/final_df_full.csv")
+```
+
+We change the date format for the start and end accelerometer variables - which
+will be crucial for later steps:
+```{r}
+full_df$date_start_accel <- as.Date(full_df$date_start_accel)
+full_df$date_end_accel <- as.Date(full_df$date_end_accel)
+```
+
+
+## Follow-up time:
+
+First we create the "end_of_fu" variable, which can be classified as date of 
+stroke/MI, date of death or the end of the study (i.e. 2022):
+
+```{r}
+# we create a "end_of_study" column which indicates the end of the whole data collection:
+full_df$end_of_study_date <- as.Date('2022-12-31')
+
+# we reate a vector of all the date columns:
+date_cols <- c('stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date',
+               'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date',
+               'date_of_death_0', 'date_of_death_1', 'date_lost_followup',
+               'date_end_accel','end_of_study_date')
+
+# we make sure all values within the date columns are in date format:
+full_df[date_cols] <- lapply(full_df[date_cols], as.Date)
+
+# we create the end_of_fu column by only keeping the earliest date from each rows
+# within each date columns:
+full_df$end_of_fu <- apply(full_df[date_cols], 1, function(x) min(x[!is.na(x)]))
+
+#print(full_df$end_of_fu )
+```
+
+We can now create the "follow-up time" column by calculating the difference (in months) 
+betweenthe "end of follow up" and "start time of wear" columns:
+```{r}
+full_df$fu_time <- full_df$end_of_fu - full_df$date_start_accel
+fu_time  <- as.numeric(time_diff_days) / 30.44 
+```
+
+
+
+
+
+
+
+
+
