@@ -52,8 +52,17 @@ full_df$end_of_fu <- apply(full_df[date_cols], 1, function(x) min(x[!is.na(x)]))
 We can now create the "follow-up time" column by calculating the difference (in months) 
 betweenthe "end of follow up" and "start time of wear" columns:
 ```{r}
-full_df$fu_time <- full_df$end_of_fu - full_df$date_start_accel
-fu_time  <- as.numeric(time_diff_days) / 30.44 
+full_df <- full_df[!is.na(full_df$date_start_accel), ]
+
+difftime_weeks <- difftime(full_df$end_of_fu, full_df$date_start_accel, units = "weeks")
+
+# because the "difftime" function only allows a maximum of units in weeks, we 
+# devide by 4.345
+full_df$fu_time <- as.numeric(difftime_weeks) / 4.345
+
+# Print or view the updated dataframe
+head(full_df$fu_time) 
+#print(full_df$date_start_accel)
 ```
 
 
