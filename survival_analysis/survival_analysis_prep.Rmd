@@ -13,7 +13,8 @@ library(dplyr)
 
 We load the data:
 ```{r}
-full_df <- read.csv("/home/yacine/final_df_full.csv")
+#full_df <- read.csv("/home/yacine/final_df_full.csv") # full df w/o exclusions
+full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc.csv") # full df with exclusions
 ```
 
 We change the date format for the start and end accelerometer variables - which
@@ -39,6 +40,8 @@ date_cols <- c('stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhag
                'date_of_death_0', 'date_of_death_1', 'date_lost_followup',
                'date_end_accel','end_of_study_date')
 
+
+
 # we make sure all values within the date columns are in date format:
 full_df[date_cols] <- lapply(full_df[date_cols], as.Date)
 
@@ -46,7 +49,7 @@ full_df[date_cols] <- lapply(full_df[date_cols], as.Date)
 # within each date columns:
 full_df$end_of_fu <- apply(full_df[date_cols], 1, function(x) min(x[!is.na(x)]))
 
-#print(full_df$end_of_fu )
+#print(full_df$end_of_fu)
 ```
 
 We can now create the "follow-up time" column by calculating the difference (in months) 
@@ -61,12 +64,81 @@ difftime_weeks <- difftime(full_df$end_of_fu, full_df$date_start_accel, units = 
 # devide by 4.345 to convert to difference months
 full_df$fu_time <- as.numeric(difftime_weeks) / 4.345
 
-head(full_df$fu_time) 
+#head(full_df$fu_time) 
 #print(full_df$date_start_accel)
 ```
 
 
-## 
+##### Create binary variable for CVD (strokes and MI)
+
+```{r}
+# First we create a new column which will indicate if a participant has had: 
+## a) a stroke == 1; or not == 0:
+full_df$stroke <- ifelse(
+  final_df$stroke_date == "" | is.na(final_df$ischaemic_stroke_date) | is.na(final_df$intracerebral_haemorrhage_date),
+  0,
+  1
+)
+
+## b) a MI == 1; or not == 0:
+full_df$MI <- ifelse(
+  final_df$myocardial_infarction_date == "NA" | is.na(final_df$STEMI_date) | is.na(final_df$NSTEMI_date),
+  0,
+  1
+)
+
+print(full_df$stroke)
+print(full_df$MI)
+```
+
+
+
+
+################ GitHub PA code
+
+# Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
+- There are 3 diferent accelerometric measures   
+  1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
+  2. PA2 - machine-learning derived mesared, for Field ID 1020
+  3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
+
+
+#Load derived accelerometer from UKBB, PA2 data 
+```{r, include=FALSE}
+ML_derived_PA2 <- fread("~/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+)
+
+# relabel for id, weekly light PA, weekly MVPA, weekly sleep, weekly sedentary, daily light PA, daily MVPA, daily sedentary
+names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
+
+ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
+dim(ML_derived_PA2)
+```
+
+
+
+
+# Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+```{r, include=FALSE}
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+```
+
+
+
+
 
 
 
