@@ -12,10 +12,11 @@
 # 957 : 1329-0.0 (Oily fish consumption)
 # 1045 : 1558-0.0 (Alcohol consumption (frequency))
 # 965-968: 1349-X.0; Instances: [0,3] (Processed meat constumption)
-# 7008 : 6138-0.0 (Education)
+# 7008 : 6138-0.0 (Qualifications education)
 # 10795 : 20116-0.0 (Smoking status)
-# 12128 : 21000-0.0 (Education)
+# 12128 : 21000-0.0 (Ethnic background)
 # 12132 : 21001-0.0 (BMI)
+# 17619-17620 : 4000-X.0; Instances: [0,1] (Date of death)
 ### Accelometery data (used by OxWearables)
 # 19789 : 90001-0.0 (Raw Accelerometry Data)
 # 479 : 191-0.0 (Date of last follow-up)
@@ -68,7 +69,7 @@
 
 # Extract the columns from the "current.csv" file (all data)
 
-cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | csvcut -c 1,27,28,97,479,941,949,957,1045,965-968,7008,10795,12128,12132,19789,479,19802,19968,19970,19972,19801,19799,19798\
+cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | csvcut -c 1,27,28,97,479,941,949,957,1045,965-968,7008,10795,12128,12132,17619-17620,19789,479,19802,19968,19970,19972,19801,19799,19798\
 1324-1327 > /home/yalap95/current_df/current_subset_full.csv
 
 # Extract the columns from the "current.csv" file - only the first 1000 rows:
