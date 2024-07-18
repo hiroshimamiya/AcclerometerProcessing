@@ -154,7 +154,7 @@ print(paste("Total participants excluded in step 3:", total_excluded_covd))
 
 ```{r}
 df_before <- full_df
-full_df$date_lost_followup <- pmin(full_df$date_lost_followup, na.rm = TRUE)
+full_df <- full_df[full_df$date_lost_followup == "", ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_lfu <- result$excluded
 
@@ -171,49 +171,103 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 ```
 
 
-
-
-
-
-# Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
-- There are 3 diferent accelerometric measures   
-  1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
-  2. PA2 - machine-learning derived mesared, for Field ID 1020
-  3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
-
-
-#Load derived accelerometer from UKBB, PA2 data 
+## Save df with all excluded participants:
 ```{r}
-ML_derived_PA2 <- fread("~/projects/UKBB/PA2_category_1020.csv")
-ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
-  eid, 
-  "40048-0.0",  
-  "40049-0.0",
-  "40047-0.0", 
-  "40046-0.0", 
-  "40044-0.0",  
-  "40045-0.0",
-  "40043-0.0", 
-  "40042-0.0" 
-)
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+```
 
-# relabel for id, weekly light PA, weekly MVPA, weekly sleep, weekly sedentary, daily light PA, daily MVPA, daily sedentary
-names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
 
-ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
-dim(ML_derived_PA2)
+
+########## Other suggested variable manipulation by OxWearable
+
+We recode certain variables: 
+```{r}
+
+# Ethnicity:
+full_df$ethnicity <-
+  plyr::revalue(
+    full_df$ethnicity_raw,
+    c(
+      "British" = "White",
+      "Any other white background" = "White",
+      "Irish" = "White",
+      "White and Asian" = "Nonwhite",
+      "Caribbean" = "Nonwhite",
+      "Chinese"   = "Nonwhite",
+      "Pakistani"  = "Nonwhite",
+      "White and Black African" = "Nonwhite",
+      "Other ethnic group"  = "Nonwhite",
+      "Any other mixed background" = "Nonwhite",
+      "African"    = "Nonwhite",
+      "White and Black Caribbean" = "Nonwhite",
+      "Prefer not to answer" = NA,
+      "Indian"  = "Nonwhite",
+      "White" = "White",
+      "Do not know" = NA,
+      "Any other Black background" = "Nonwhite",
+      "Any other Asian background"  = "Nonwhite",
+      "Bangladeshi"  = "Nonwhite",
+      "Mixed"  = "Nonwhite",
+      "Asian or Asian British"  = "Nonwhite",
+      "Black or Black British"  = "Nonwhite"
+    )
+  )
+
+# Townsend Index:
+full_df$tdi <- tdi_raw
+
+
+
+```
+
+
+We create a "age-at-accelerometer-wear variable":
+```{r}
+# Add date of birth
+full_df$approx_dob <-
+  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
+          "%Y-%B-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+# Add age at entry in days
+full_df$age_entry_days <-
+  difftime(full_df$date_end_accel,
+           full_df$approx_dob,
+           units = "days")
+
+# Convert to age at entry in years
+full_df$age_entry_years <- as.double(full_df$age_entry_days)/365.25
+
+# Add age groups
+full_df$age_gp <-
+  cut(
+    full_df$age_entry_years,
+    breaks = c(40, 50, 60, 70, 80),
+    right = FALSE,
+    labels = c("40-49", "50-59", "60-69", "70-79")
+  )
+```
+
+We make a function to cut by quantile:
+```{r}
+qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
+    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
+    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
+    return(out)
+}
 ```
 
 
 
 
-# Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+
+We cut overall activity and Townsend Deprivation Index into quarters:
 ```{r}
-library(readr)
-enmoTSParallel_PA1 <- list.files(path="PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
-  lapply(read_csv) %>% 
-  bind_rows 
+full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+# OxWearable Note: The TDI classification here was quarters of the study population, which was used in the example papers. However, our group now typically uses TDI scaled to quarters of the UK population, 
+# as listed [here](https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/Townsend_Deprivation_Scores/UK%20Townsend%20Deprivation%20Scores%20from%202011%20census%20data.pdf, page 15)
+
+full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
+
 
 
 
