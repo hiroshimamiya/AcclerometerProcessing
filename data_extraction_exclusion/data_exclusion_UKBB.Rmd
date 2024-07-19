@@ -20,7 +20,7 @@ We import all data for participants with accelerometer data:
 ```{r}
 # Change the locations to your user folder data files
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
-full_df <- read.csv("/home/yacine/final_df_full.csv")
+full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
 ```
 
 # Exclusions: these following commands will only keep the data we are not seeking to exclude
@@ -181,9 +181,46 @@ write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ########## Other suggested variable manipulation by OxWearable
 
 We recode certain variables: 
+### Note: all the data coding/mapping was an extra step we had to do ###
 ```{r}
 
 # Ethnicity:
+
+## 1. first we create a dictionnary mapping for the ethincity codes
+## *** important: this is not a step that was shown by OxWearables. We had to this
+## ourselves. The codes are provided here: https://biobank.ctsu.ox.ac.uk/crystal/coding.cgi?id=1001
+
+ethnicity_coding <- c(
+  "1" = "White",
+  "1001" = "British",
+  "2001" = "White and Black Caribbean",
+  "3001" = "Indian",
+  "4001" = "Caribbean",
+  "2" = "Mixed",
+  "1002" = "Irish",
+  "2002" = "White and Black African",
+  "3002" = "Pakistani",
+  "4002" = "African",
+  "3" = "Asian or Asian British",
+  "1003" = "Any other white background",
+  "2003" = "White and Asian",
+  "3003" = "Bangladeshi",
+  "4003" = "Any other Black background",
+  "4" = "Black or Black British",
+  "2004" = "Any other mixed background",
+  "3004" = "Any other Asian background",
+  "5" = "Chinese",
+  "6" = "Other ethnic group",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(ethnicity_raw = recode(as.character(ethnicity_raw), !!!ethnicity_coding))
+
+
+## 2. now we can proceed with the recoding suggested by OxWearables:
 full_df$ethnicity <-
   plyr::revalue(
     full_df$ethnicity_raw,
@@ -213,12 +250,73 @@ full_df$ethnicity <-
     )
   )
 
+
 # Townsend Index:
-full_df$tdi <- tdi_raw
+full_df$tdi <- full_df$tdi_raw
+
+# Education
+full_df$age_education <- full_df$age_education_numeric_raw 
+full_df$age_education[grepl("College or University degree", full_df$qualif_raw)] <- 21
+# check there are no values below 0, which shouldn't be possible:
+print(nrow(full_df[!is.na(full_df$age_education) & full_df$age_education < 0, ]))
+# recode any values above 21 as 21 (for consistency with imputation):
+full_df$age_education[full_df$age_education > 21] <- 21 
 
 
+# Smoking
+## 1. Data coding for smoking: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=90
+smoking_coding <- c(
+  "0" = "Never",
+  "1" =	"Previous",
+  "2" =	"Current",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(smoking_raw = recode(as.character(smoking_raw), !!!smoking_coding))
 
+## 2. OxWearable recoding:
+full_df$smoking <-
+  plyr::revalue(full_df$smoking_raw, replace = c("Prefer not to answer" = NA)) 
+
+
+# Alcohol
+
+## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
+alcohol_coding <- c(
+  "1" = "Daily or almost daily",
+  "2" =	"Three or four times a week",
+  "3" =	"Once or twice a week",
+  "4" =	"One to three times a month",
+  "5" =	"Special occasions only",
+  "6" =	"Never",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(alcohol_raw = recode(as.character(alcohol_raw), !!!alcohol_coding))
+
+
+## 2. we proceed with the OxWearable recoding
+full_df$alcohol <-
+  plyr::revalue(
+    full_df$alcohol_raw,
+    replace = c(
+      "Prefer not to answer" = NA,
+      "Three or four times a week" = "3+ times/week",
+      "Special occasions only" = "<3 times/week",
+      "One to three times a month" = "<3 times/week",
+      "Daily or almost daily" = "3+ times/week",
+      "Once or twice a week" = "<3 times/week"
+    )
+  )
+
+
+# BMI
+full_df$BMI <- full_df$BMI_raw
 ```
+
 
 
 We create a "age-at-accelerometer-wear variable":
@@ -256,9 +354,6 @@ qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) 
 ```
 
 
-
-
-
 We cut overall activity and Townsend Deprivation Index into quarters:
 ```{r}
 full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
@@ -268,6 +363,11 @@ full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels 
 full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
 
+We save the the final df which includes the exlucded participants and the recoding
+suggested by OxWearables (as well as the data mapping we had to do)
+```{r}
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc_recode.csv", row.names = FALSE)
+```
 
 
 
