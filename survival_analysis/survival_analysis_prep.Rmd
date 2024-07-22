@@ -8,8 +8,13 @@ output: rmarkdown::github_document
 We load and/or install the packages we will be using:
 
 ```{r, include=FALSE}
+
+#Refresh environment 
+rm(list= ls())
+
 library(dplyr)
 library(survival)
+library(data.table)
 #library(survminer)
 ```
 
@@ -171,15 +176,19 @@ names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "over
 
 ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
 dim(ML_derived_PA2)
+
+
+ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60 
+
 ```
 
 
 
 
 # Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
-```{r, include=FALSE}
+```{r, include=FALSE, message=FALSE}
 library(readr)
-enmoTSParallel_PA1 <- list.files(path="PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+enmoTSParallel_PA1 <- list.files(path="~/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
   lapply(read_csv) %>% 
   bind_rows 
 ```
