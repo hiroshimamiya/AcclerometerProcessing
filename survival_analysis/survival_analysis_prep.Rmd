@@ -9,11 +9,15 @@ We load and/or install the packages we will be using:
 
 ```{r, include=FALSE}
 library(dplyr)
+library(survival)
+#library(survminer)
 ```
 
 We load the data:
 ```{r}
-full_df <- read.csv("/home/yacine/final_df_full.csv")
+#full_df <- read.csv("/home/yacine/final_df_full.csv") # full df w/o exclusions
+#full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc.csv") # full df with exclusions
+full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc_recode.csv") # full df with exclusions + recoding
 ```
 
 We change the date format for the start and end accelerometer variables - which
@@ -30,14 +34,26 @@ First we create the "end_of_fu" variable, which can be classified as date of
 stroke/MI, date of death or the end of the study (i.e. 2022):
 
 ```{r}
+# we find out which death date is the latest which we will set as the "end of the study" 
+# date
+max_death_date_0 <- max(full_df$'date_of_death_0', na.rm = TRUE)
+max_death_date_1 <- max(full_df$'date_of_death_1', na.rm = TRUE)
+print(max_death_date_0)
+print(max_death_date_1)
+
+# given that we see that the max(death_date) is "2022-12-17", this will serve as 
+# our "end of study" date
+
 # we create a "end_of_study" column which indicates the end of the whole data collection:
-full_df$end_of_study_date <- as.Date('2022-12-31')
+full_df$end_of_study_date <- as.Date('2022-12-17')
 
 # we reate a vector of all the date columns:
 date_cols <- c('stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date',
                'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date',
                'date_of_death_0', 'date_of_death_1', 'date_lost_followup',
-               'date_end_accel','end_of_study_date')
+               'end_of_study_date')
+
+
 
 # we make sure all values within the date columns are in date format:
 full_df[date_cols] <- lapply(full_df[date_cols], as.Date)
@@ -46,16 +62,16 @@ full_df[date_cols] <- lapply(full_df[date_cols], as.Date)
 # within each date columns:
 full_df$end_of_fu <- apply(full_df[date_cols], 1, function(x) min(x[!is.na(x)]))
 
-#print(full_df$end_of_fu )
+#print(full_df$end_of_fu)
 ```
 
 We can now create the "follow-up time" column by calculating the difference (in months) 
-betweenthe "end of follow up" and "start time of wear" columns:
+between the "end of follow up" and "end time of wear" columns:
 ```{r}
-# remove NA data from date_start_accel (to do in data exclusion UKBB script?)
-full_df <- full_df[!is.na(full_df$date_start_accel), ]
+# remove NA data from date_end_accel (to do in data exclusion UKBB script?)
+full_df <- full_df[!is.na(full_df$date_end_accel), ]
 
-difftime_weeks <- difftime(full_df$end_of_fu, full_df$date_start_accel, units = "weeks")
+difftime_weeks <- difftime(full_df$end_of_fu, full_df$date_end_accel, units = "weeks")
 
 # because the "difftime" function only allows a maximum of units in weeks, we 
 # devide by 4.345 to convert to difference months
@@ -66,7 +82,111 @@ head(full_df$fu_time)
 ```
 
 
-## 
+##### Create binary variable for CVD (strokes and MI)
+
+```{r}
+# First we create a new column which will indicate if a participant has had: 
+## a) a stroke == 1; or not == 0:
+full_df$stroke <- ifelse(
+  full_df$stroke_date == "" | is.na(full_df$ischaemic_stroke_date) | is.na(full_df$intracerebral_haemorrhage_date),
+  0,
+  1
+)
+
+## b) a MI == 1; or not == 0:
+full_df$MI <- ifelse(
+  full_df$myocardial_infarction_date == "" | is.na(full_df$STEMI_date) | is.na(full_df$NSTEMI_date),
+  0,
+  1
+)
+
+head(full_df$stroke)
+head(full_df$MI)
+```
+
+
+## Associations with risk of incident cardiovascular disease 
+
+In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
+```{r}
+
+full_df <- full_df %>%
+  filter(
+    !is.na(fu_time) &
+    !is.na(stroke) &
+    !is.na(MI) &
+    !is.na(overall_activity_quarters) &
+    !is.na(age_entry_years) &
+    !is.na(sex) &
+    !is.na(ethnicity) &
+    !is.na(tdi_quarters) &
+    !is.na(age_education) &
+    !is.na(smoking) &
+    !is.na(alcohol)
+  )
+
+full_df <- full_df %>%
+  mutate(
+    fu_time = as.numeric(fu_time),
+    stroke = as.numeric(stroke),
+    MI = as.numeric(MI)
+  )
+
+cox_model <- coxph(
+  Surv(fu_time, stroke, MI) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
+  data = full_df
+)
+summary(cox_model)
+```
+
+
+
+
+################ GitHub PA code
+
+# Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
+- There are 3 diferent accelerometric measures   
+  1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
+  2. PA2 - machine-learning derived mesared, for Field ID 1020
+  3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
+
+
+#Load derived accelerometer from UKBB, PA2 data 
+```{r, include=FALSE}
+ML_derived_PA2 <- fread("~/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+)
+
+# relabel for id, weekly light PA, weekly MVPA, weekly sleep, weekly sedentary, daily light PA, daily MVPA, daily sedentary
+names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
+
+ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
+dim(ML_derived_PA2)
+```
+
+
+
+
+# Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+```{r, include=FALSE}
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+```
+
+
+
+
 
 
 
