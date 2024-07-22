@@ -191,6 +191,8 @@ library(readr)
 enmoTSParallel_PA1 <- list.files(path="~/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
   lapply(read_csv) %>% 
   bind_rows 
+
+enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
 ```
 
 
