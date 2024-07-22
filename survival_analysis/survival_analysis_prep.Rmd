@@ -11,7 +11,7 @@ We load and/or install the packages we will be using:
 
 #Refresh environment 
 rm(list= ls())
-
+library(dvmisc)
 library(dplyr)
 library(survival)
 library(data.table)
@@ -174,11 +174,14 @@ ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
 # relabel for id, weekly light PA, weekly MVPA, weekly sleep, weekly sedentary, daily light PA, daily MVPA, daily sedentary
 names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
 
+# Remove people without accelerometer data
 ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
 dim(ML_derived_PA2)
 
-
+# Create weekly min for MVPA, and quantile groups of it
 ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60 
+ML_derived_PA2$MVPA_Quant <- dvmisc::quant_groups(ML_derived_PA2$MVPA_min, 4)
+
 
 ```
 
@@ -192,7 +195,10 @@ enmoTSParallel_PA1 <- list.files(path="~/projects/UKBB/PA1_parallel_TS_ENMO/outp
   lapply(read_csv) %>% 
   bind_rows 
 
+# Create weekly min for MVPA, and quantile groups of it
 enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
+enmoTSParallel_PA1$MVPA_Quant <- dvmisc::quant_groups(enmoTSParallel_PA1$MVPA_min, 4)
+
 ```
 
 
