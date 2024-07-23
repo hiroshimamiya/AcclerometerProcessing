@@ -173,7 +173,6 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 ## Save df with all excluded participants:
 ```{r}
-<<<<<<< HEAD
 ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
 ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
   eid, 
@@ -185,10 +184,19 @@ ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
   "40045-0.0",
   "40043-0.0", 
   "40042-0.0" 
-=======
+  )
 write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
+######## REMOVE UNNECESSARY COLUMNS
+After looking at the data, I realised that some columns that we extracted (for
+multiple instances) provided more "NA" data than actual data, so I removed these 
+columns:
+```{r}
+full_df <- full_df %>%
+  select(-diabetes_1, -diabetes_2, -diabetes_3, 
+         -processed_meat_1, -processed_meat_2, -processed_meat_3)
+```
 
 
 ########## Other suggested variable manipulation by OxWearable
@@ -226,7 +234,6 @@ ethnicity_coding <- c(
   "6" = "Other ethnic group",
   "-1" = "Do not know",
   "-3" = "Prefer not to answer"
->>>>>>> e51fb10b2853572c662214d152ca7c95026c2192
 )
 
 ## we replace the codes by their meaning:
@@ -329,18 +336,51 @@ full_df$alcohol <-
 
 # BMI
 full_df$BMI <- full_df$BMI_raw
+
+
+
+##### Recoding we added
+# Fruit
+#fruit_coding <- c(
+  #"-10" = "Less than one",
+  #"-1" = "Do not know",
+  #"-3" = "Prefer not to answer"
+#)
+## we replace the codes by their meaning:
+#full_df <- full_df %>%
+  #mutate(fresh_fruit = recode(as.character(fresh_fruit), !!!fruit_coding))
+
+
+# Oily fish and Processed meat
+meat_coding <- c(
+  "1" = "Less than once a week",
+  "2" =	"Once a week",
+  "3" =	"2-4 times a week",
+  "4" =	"5-6 times a week",
+  "5" =	"Once or more daily",
+  "0" =	"Never",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(oily_fish = recode(as.character(oily_fish), !!!meat_coding))
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(processed_meat_0 = recode(as.character(processed_meat_0), !!!meat_coding ))
+
 ```
 
 
 
 We create a "age-at-accelerometer-wear variable":
 ```{r}
-<<<<<<< HEAD
 library(readr)
 enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
   lapply(read_csv) %>% 
   bind_rows 
-=======
+
 # Add date of birth
 full_df$approx_dob <-
   as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
@@ -383,11 +423,11 @@ full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels 
 full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
 
+
 We save the the final df which includes the exlucded participants and the recoding
 suggested by OxWearables (as well as the data mapping we had to do)
 ```{r}
 write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc_recode.csv", row.names = FALSE)
->>>>>>> e51fb10b2853572c662214d152ca7c95026c2192
 ```
 
 
