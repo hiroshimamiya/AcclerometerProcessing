@@ -107,6 +107,11 @@ full_df$MI <- ifelse(
 
 head(full_df$stroke)
 head(full_df$MI)
+
+# We now create a "CVD" column which indicates if the participants has had a
+# stroke and/or MI (==1) or not (==0)
+full_df <- full_df %>%
+  mutate(CVD = ifelse(stroke == 1 | MI == 1, 1, 0))
 ```
 
 
@@ -115,33 +120,11 @@ head(full_df$MI)
 In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
 ```{r}
 
-full_df <- full_df %>%
-  filter(
-    !is.na(fu_time) &
-    !is.na(stroke) &
-    !is.na(MI) &
-    !is.na(overall_activity_quarters) &
-    !is.na(age_entry_years) &
-    !is.na(sex) &
-    !is.na(ethnicity) &
-    !is.na(tdi_quarters) &
-    !is.na(age_education) &
-    !is.na(smoking) &
-    !is.na(alcohol)
-  )
-
-full_df <- full_df %>%
-  mutate(
-    fu_time = as.numeric(fu_time),
-    stroke = as.numeric(stroke),
-    MI = as.numeric(MI)
-  )
-
-cox_model <- coxph(
-  Surv(fu_time, stroke, MI) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
-  data = full_df
-)
-summary(cox_model)
+#cox_model <- coxph(
+  #Surv(fu_time, stroke, MI) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
+ # data = full_df
+#)
+#summary(cox_model)
 ```
 
 
@@ -158,7 +141,7 @@ summary(cox_model)
 
 #Load derived accelerometer from UKBB, PA2 data 
 ```{r, include=FALSE}
-ML_derived_PA2 <- fread("~/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- fread("/home/yacine/survival_analysis/PA2_category_1020.csv")
 ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
   eid, 
   "40048-0.0",  
@@ -188,7 +171,11 @@ ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60
 # Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
 ```{r, include=FALSE, message=FALSE}
 library(readr)
+<<<<<<< HEAD
 enmoTSParallel_PA1 <- list.files(path="~/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+=======
+enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parallel_TS_ENMO/outputs", full.names = TRUE) %>% 
+>>>>>>> 17d0d40 (linked the PA1 and PA2 data to the full_df by eid)
   lapply(read_csv) %>% 
   bind_rows 
 
@@ -196,10 +183,45 @@ enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
 ```
 
 
+We merge the full_df and PA1 and PA2 df by eids
+```{r}
+full_df_PA1 <- inner_join(full_df, enmoTSParallel_PA1, by = "eid")
+full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, enmoTSParallel_PA1, by = "eid")
+
+write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
+```
 
 
+MVPA quantiles:
+We make a function to cut by quantile:
+```{r}
+qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
+    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
+    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
+    return(out)
+}
+```
+
+```{r}
+#full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+```
 
 
+##########
+Kaplan_Meier:
+  - 2 groups: PA1 and PA2 or Stroke and MI?
+  - d_stroke == 1; d_MI == 1
+  - end_of_fu = censoring time
+  
+```{r}
+
+km_stroke <- coxph(
+  Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
+  data = full_df
+)
+
+```
+  
 
 
 
