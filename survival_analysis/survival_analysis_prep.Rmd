@@ -15,6 +15,7 @@ rm(list= ls())
 library(dplyr)
 library(survival)
 library(data.table)
+library(readr)
 #library(survminer)
 ```
 
@@ -170,12 +171,7 @@ ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60
 
 # Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
 ```{r, include=FALSE, message=FALSE}
-library(readr)
-<<<<<<< HEAD
-enmoTSParallel_PA1 <- list.files(path="~/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
-=======
 enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parallel_TS_ENMO/outputs", full.names = TRUE) %>% 
->>>>>>> 17d0d40 (linked the PA1 and PA2 data to the full_df by eid)
   lapply(read_csv) %>% 
   bind_rows 
 
@@ -186,10 +182,62 @@ enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
 We merge the full_df and PA1 and PA2 df by eids
 ```{r}
 full_df_PA1 <- inner_join(full_df, enmoTSParallel_PA1, by = "eid")
-full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, enmoTSParallel_PA1, by = "eid")
+full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, ML_derived_PA2, by = "eid")
+
+names(full_df_incl_PA1_PA2) <- gsub("\\.x$", "_PA1", names(full_df_incl_PA1_PA2))
+names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2))
+
 
 write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
 ```
+
+
+
+
+####### Create Summary of Baseline Characteristics Table ######
+```{r}
+
+##### data recoding
+
+# recode the BMI variable 
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
+  mutate(BMI = case_when(
+    BMI < 18.5 ~ "Underweight (< 18.5 kg/m2)",
+    BMI >= 18.5 & BMI < 25 ~ "Normal (18.5 kg/m2 to < 25 kg/m2)",
+    BMI >= 25 & BMI < 30 ~ "Overweight (25 kg/m2 to < 30 kg/m2)",
+    BMI >= 30 ~ "Obesity Class I, II or III (> 30 kg/m2)",
+    TRUE ~ NA_character_  
+  ))
+
+# recode binary variables 
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
+  mutate(sex = recode(sex, `0` = "Man", `1` = "Woman"),
+         stroke = recode(stroke, `0` = "Never had recorded stroke", "1" = "Recorded having a stroke"),
+         MI = recode(MI, `0` = "Never had recorded MI", "1" = "Recorded having a MI"))
+
+
+# we create the summary baseline characteristics table
+summ_base_char <- full_df_incl_PA1_PA2 %>%
+  tbl_summary(
+    include = c(sex, fresh_fruit, oily_fish, cooked_vg,
+                processed_meat_0, alcohol, smoking, ethnicity, age_education_raw, stroke, MI, 
+                diabetes_0, BMI, MVPA_min_PA1, MVPA_min_PA2),
+    statistic = list(all_continuous() ~ "{mean} ± {sd}")
+  ) %>%
+  bold_labels()
+
+
+print(summ_base_char)
+
+```
+##############################################################
+
+
+
+
+
+
+
 
 
 MVPA quantiles:
