@@ -276,12 +276,28 @@ full_df$ethnicity <-
 full_df$tdi <- full_df$tdi_raw
 
 # Education
-full_df$age_education <- full_df$age_education_numeric_raw 
-full_df$age_education[grepl("College or University degree", full_df$qualif_raw)] <- 21
-# check there are no values below 0, which shouldn't be possible:
-print(nrow(full_df[!is.na(full_df$age_education) & full_df$age_education < 0, ]))
-# recode any values above 21 as 21 (for consistency with imputation):
-full_df$age_education[full_df$age_education > 21] <- 21 
+#### Note: OxWearable use "age education"; we are using "qualifications education"
+## so this is our recoding
+
+education_coding <- c(
+  "1" = "College or University degree",
+  "2" =	"A levels/AS levels or equivalent",
+  "3" =	"O levels/GCSEs or equivalent",
+  "4" =	"CSEs or equivalent",
+  "5" =	"NVQ or HND or HNC or equivalent",
+  "6" =	"Other professional qualifications eg: nursing, teaching",
+  "-7" = "None of the above",
+  "-3" = "Prefer not to answer"
+)
+## we replace the education codes by their meaning:
+full_df <- full_df %>%
+  mutate(education_raw = recode(as.character(education_raw), !!!education_coding))
+
+full_df$education_level <-
+  plyr::revalue(full_df$education_raw, replace = c("Prefer not to answer" = NA)) 
+
+### we remove the "age_education_raw" column as we won't be needing it:
+full_df <- subset(full_df, select = -age_education_raw)
 
 
 # Smoking
