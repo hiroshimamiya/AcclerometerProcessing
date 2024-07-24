@@ -16,6 +16,8 @@ library(dplyr)
 library(survival)
 library(data.table)
 library(readr)
+library(dvmisc)
+
 #library(survminer)
 ```
 
@@ -163,6 +165,7 @@ dim(ML_derived_PA2)
 
 
 ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60 
+ML_derived_PA2$MVPA_Quant <- dvmisc::quant_groups(ML_derived_PA2$MVPA_min, 4)
 
 ```
 
@@ -176,6 +179,8 @@ enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parall
   bind_rows 
 
 enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
+enmoTSParallel_PA1$MVPA_Quant <- dvmisc::quant_groups(enmoTSParallel_PA1$MVPA_min, 4)
+
 ```
 
 
