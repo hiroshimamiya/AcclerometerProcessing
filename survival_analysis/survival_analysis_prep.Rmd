@@ -95,18 +95,16 @@ head(full_df$fu_time)
 ```{r}
 # First we create a new column which will indicate if a participant has had: 
 ## a) a stroke == 1; or not == 0:
-full_df$stroke <- ifelse(
-  full_df$stroke_date == "" | is.na(full_df$ischaemic_stroke_date) | is.na(full_df$intracerebral_haemorrhage_date),
-  0,
-  1
-)
+stroke_cols <- c('stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date')
+
+# Create the 'stroke' column
+full_df$stroke <- ifelse(rowSums(!is.na(full_df[, stroke_cols ])) > 0, 1, 0)
+
 
 ## b) a MI == 1; or not == 0:
-full_df$MI <- ifelse(
-  full_df$myocardial_infarction_date == "" | is.na(full_df$STEMI_date) | is.na(full_df$NSTEMI_date),
-  0,
-  1
-)
+MI_cols <- c('myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date')
+full_df$MI <- ifelse(rowSums(!is.na(full_df[, MI_cols ])) > 0, 1, 0)
+
 
 head(full_df$stroke)
 head(full_df$MI)
@@ -216,9 +214,7 @@ full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
 
 # recode binary variables 
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(sex = recode(sex, `0` = "Man", `1` = "Woman"),
-         stroke = recode(stroke, `0` = "Never had recorded stroke", "1" = "Recorded having a stroke"),
-         MI = recode(MI, `0` = "Never had recorded MI", "1" = "Recorded having a MI"))
+  mutate(sex = recode(sex, `1` = "Man", `0` = "Woman"))
 
 
 # we create the summary baseline characteristics table
