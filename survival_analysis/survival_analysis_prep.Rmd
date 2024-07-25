@@ -2,21 +2,27 @@
 title: "survival_analysis_prep"
 author: "yacine"
 date: "2024-07-16"
-output: rmarkdown::github_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 We load and/or install the packages we will be using:
 
 ```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 
 #Refresh environment 
 rm(list= ls())
-
 library(dplyr)
 library(survival)
 library(data.table)
 library(readr)
 library(dvmisc)
+library(gtsummary)
+library(gt)
+library(kableExtra)
+
 
 #library(survminer)
 ```
@@ -205,46 +211,103 @@ write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
   mutate(sex = recode(sex, `1` = "Man", `0` = "Woman"))
 
-# rename MVPA quarters
+MVPA_coding <- c(
+  '[0,99]' = 'MVPA Quarter 1', 
+  '(99,222]' = 'MVPA Quarter 2', 
+  '(222,395]' = 'MVPA Quarter 3', 
+  '(395,1.01e+04]' = 'MVPA Quarter 4'
+)
+
+
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(MVPA_Quant_PA2 = factor(MVPA_Quant_PA2,
-                                 levels = c('[0,99]', '(99,222]', '(222,395]', '(395,1.01e+04]'),
-                                 labels = c('MVPA Quarter 1', 'MVPA Quarter 2', 'MVPA Quarter 3', 'MVPA Quarter 4')))
+  mutate(MVPA_Quant_PA2 = recode(as.character(MVPA_Quant_PA2), !!!MVPA_coding))
 
 
-# we create the summary baseline characteristics table
-summ_base_char <- full_df_incl_PA1_PA2 %>%
-  select(sex, fresh_fruit, oily_fish, cooked_vg, processed_meat, alcohol, 
-         smoking, ethnicity, education_level, stroke, MI, diabetes, BMI, 
-         MVPA_min_PA1, MVPA_min_PA2, MVPA_Quant_PA2) %>%
+# we seperate the full_df_incl_PA1_PA2 in 4 tables based off MVPA quarters:
+df_MVPA_quarter1 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 1")
+
+df_MVPA_quarter2 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 2")
+
+df_MVPA_quarter3 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 3")
+
+df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 4")
+
+
+```
+
+
+## We create a table of summary baseline characteristics for each quarters:
+
+### MVPA Quarter 1:
+```{r}
+summ_base_char_MVPA_quarter1 <- df_MVPA_quarter1 %>%
   tbl_summary(
-    by = MVPA_Quant_PA2,
+    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
+                processed_meat, alcohol, smoking, ethnicity, education_level,  
+                diabetes, BMI),
     statistic = list(all_continuous() ~ "{mean} ± {sd}")
   ) %>%
-  bold_labels()
+  bold_labels() %>%
+  as_kable_extra(booktabs = TRUE) %>%
+  kable_styling(latex_options = c("scale_down", "hold_position"), 
+                font_size = 8) # Adjust font size to fit better
 
-print(summ_base_char)
-
+# Print the table
+knitr::knit_print(summ_base_char_MVPA_quarter1)
 ```
+
+
+### MVPA Quarter 2:
+```{r}
+summ_base_char_MVPA_quarter2 <- df_MVPA_quarter2 %>%
+  tbl_summary(
+    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
+                processed_meat, alcohol, smoking, ethnicity, education_level,  
+                diabetes, BMI),
+    statistic = list(all_continuous() ~ "{mean} ± {sd}")
+  ) %>%
+  bold_labels()  %>%
+  as_kable_extra(booktabs = TRUE) 
+
+
+knitr::knit_print(summ_base_char_MVPA_quarter2)
+```
+
+### MVPA Quarter 3:
+```{r}
+# Quarter 3
+summ_base_char_MVPA_quarter3 <- df_MVPA_quarter3 %>%
+  tbl_summary(
+    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
+                processed_meat, alcohol, smoking, ethnicity, education_level,  
+                diabetes, BMI),
+    statistic = list(all_continuous() ~ "{mean} ± {sd}")
+  ) %>%
+  bold_labels()  %>%
+  as_kable_extra(booktabs = TRUE) 
+
+
+knitr::knit_print(summ_base_char_MVPA_quarter3)
+```
+
+```{r}
+# Quarter 4
+summ_base_char_MVPA_quarter4 <- df_MVPA_quarter4 %>%
+  tbl_summary(
+    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
+                processed_meat, alcohol, smoking, ethnicity, education_level,  
+                diabetes, BMI),
+    statistic = list(all_continuous() ~ "{mean} ± {sd}")
+  ) %>%
+  bold_labels()  %>%
+  as_kable_extra(booktabs = TRUE) %>% 
+
+
+knitr::knit_print(summ_base_char_MVPA_quarter4)
+```
+
+
 ##############################################################
-
-
-
-
-
-MVPA quantiles:
-We make a function to cut by quantile:
-```{r}
-qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
-    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
-    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
-    return(out)
-}
-```
-
-```{r}
-full_df$MVPA_quarters <- qtile_cut(full_df$MVPA_min_PA2, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
-```
 
 
 
@@ -256,11 +319,9 @@ Kaplan_Meier:
   
 ```{r}
 
-km_stroke <- coxph(
-  Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
-  data = full_df
-)
-
+#km_stroke <- coxph(
+  #Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
+  #data = full_df_incl_PA1_PA2)
 ```
   
 
