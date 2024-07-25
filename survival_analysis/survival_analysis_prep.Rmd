@@ -190,9 +190,9 @@ full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, ML_derived_PA2, by = "eid")
 names(full_df_incl_PA1_PA2) <- gsub("\\.x$", "_PA1", names(full_df_incl_PA1_PA2))
 names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2))
 
-
 write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
 ```
+
 
 
 
@@ -200,42 +200,33 @@ write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.
 ####### Create Summary of Baseline Characteristics Table ######
 ```{r}
 
-##### data recoding
-
-# recode the BMI variable 
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(BMI = case_when(
-    BMI < 18.5 ~ "Underweight (< 18.5 kg/m2)",
-    BMI >= 18.5 & BMI < 25 ~ "Normal (18.5 kg/m2 to < 25 kg/m2)",
-    BMI >= 25 & BMI < 30 ~ "Overweight (25 kg/m2 to < 30 kg/m2)",
-    BMI >= 30 ~ "Obesity Class I, II or III (> 30 kg/m2)",
-    TRUE ~ NA_character_  
-  ))
 
 # recode binary variables 
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
   mutate(sex = recode(sex, `1` = "Man", `0` = "Woman"))
 
+# rename MVPA quarters
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
+  mutate(MVPA_Quant_PA2 = factor(MVPA_Quant_PA2,
+                                 levels = c('[0,99]', '(99,222]', '(222,395]', '(395,1.01e+04]'),
+                                 labels = c('MVPA Quarter 1', 'MVPA Quarter 2', 'MVPA Quarter 3', 'MVPA Quarter 4')))
+
 
 # we create the summary baseline characteristics table
 summ_base_char <- full_df_incl_PA1_PA2 %>%
+  select(sex, fresh_fruit, oily_fish, cooked_vg, processed_meat, alcohol, 
+         smoking, ethnicity, education_level, stroke, MI, diabetes, BMI, 
+         MVPA_min_PA1, MVPA_min_PA2, MVPA_Quant_PA2) %>%
   tbl_summary(
-    include = c(sex, fresh_fruit, oily_fish, cooked_vg,
-                processed_meat_0, alcohol, smoking, ethnicity, age_education_raw, stroke, MI, 
-                diabetes_0, BMI, MVPA_min_PA1, MVPA_min_PA2),
+    by = MVPA_Quant_PA2,
     statistic = list(all_continuous() ~ "{mean} ± {sd}")
   ) %>%
   bold_labels()
-
 
 print(summ_base_char)
 
 ```
 ##############################################################
-
-
-
-
 
 
 
@@ -252,8 +243,9 @@ qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) 
 ```
 
 ```{r}
-#full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+full_df$MVPA_quarters <- qtile_cut(full_df$MVPA_min_PA2, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
+
 
 
 ##########
@@ -265,7 +257,7 @@ Kaplan_Meier:
 ```{r}
 
 km_stroke <- coxph(
-  Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
+  Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
   data = full_df
 )
 

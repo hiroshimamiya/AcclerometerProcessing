@@ -275,29 +275,6 @@ full_df$ethnicity <-
 # Townsend Index:
 full_df$tdi <- full_df$tdi_raw
 
-# Education
-#### Note: OxWearable use "age education"; we are using "qualifications education"
-## so this is our recoding
-
-education_coding <- c(
-  "1" = "College or University degree",
-  "2" =	"A levels/AS levels or equivalent",
-  "3" =	"O levels/GCSEs or equivalent",
-  "4" =	"CSEs or equivalent",
-  "5" =	"NVQ or HND or HNC or equivalent",
-  "6" =	"Other professional qualifications eg: nursing, teaching",
-  "-7" = "None of the above",
-  "-3" = "Prefer not to answer"
-)
-## we replace the education codes by their meaning:
-full_df <- full_df %>%
-  mutate(education_raw = recode(as.character(education_raw), !!!education_coding))
-
-full_df$education_level <-
-  plyr::revalue(full_df$education_raw, replace = c("Prefer not to answer" = NA)) 
-
-### we remove the "age_education_raw" column as we won't be needing it:
-full_df <- subset(full_df, select = -age_education_raw)
 
 
 # Smoking
@@ -317,55 +294,10 @@ full_df$smoking <-
   plyr::revalue(full_df$smoking_raw, replace = c("Prefer not to answer" = NA)) 
 
 
-# Alcohol
-
-## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
-alcohol_coding <- c(
-  "1" = "Daily or almost daily",
-  "2" =	"Three or four times a week",
-  "3" =	"Once or twice a week",
-  "4" =	"One to three times a month",
-  "5" =	"Special occasions only",
-  "6" =	"Never",
-  "-3" = "Prefer not to answer"
-)
-
-## we replace the codes by their meaning:
-full_df <- full_df %>%
-  mutate(alcohol_raw = recode(as.character(alcohol_raw), !!!alcohol_coding))
-
-
-## 2. we proceed with the OxWearable recoding
-full_df$alcohol <-
-  plyr::revalue(
-    full_df$alcohol_raw,
-    replace = c(
-      "Prefer not to answer" = NA,
-      "Three or four times a week" = "3+ times/week",
-      "Special occasions only" = "<3 times/week",
-      "One to three times a month" = "<3 times/week",
-      "Daily or almost daily" = "3+ times/week",
-      "Once or twice a week" = "<3 times/week"
-    )
-  )
-
-
-# BMI
-full_df$BMI <- full_df$BMI_raw
 
 
 
 ##### Recoding we added
-# Fruit
-#fruit_coding <- c(
-  #"-10" = "Less than one",
-  #"-1" = "Do not know",
-  #"-3" = "Prefer not to answer"
-#)
-## we replace the codes by their meaning:
-#full_df <- full_df %>%
-  #mutate(fresh_fruit = recode(as.character(fresh_fruit), !!!fruit_coding))
-
 
 # Oily fish and Processed meat
 meat_coding <- c(
@@ -386,8 +318,179 @@ full_df <- full_df %>%
 full_df <- full_df %>%
   mutate(processed_meat_0 = recode(as.character(processed_meat_0), !!!meat_coding ))
 
+
+# Education
+#### Note: OxWearable use "age education"; we are using "qualifications education"
+## so this is our recoding
+education_coding <- c(
+  "1" = "College or University degree",
+  "2" =	"A levels/AS levels or equivalent",
+  "3" =	"O levels/GCSEs or equivalent",
+  "4" =	"CSEs or equivalent",
+  "5" =	"NVQ or HND or HNC or equivalent",
+  "6" =	"Other professional qualifications eg: nursing, teaching",
+  "-7" = "None of the above",
+  "-3" = "Prefer not to answer"
+)
+## we replace the education codes by their meaning:
+full_df <- full_df %>%
+  mutate(education_raw = recode(as.character(education_raw), !!!education_coding))
+
+## we recode again to have less education classifications
+full_df <- full_df %>%
+  mutate(education_level = case_when(
+    education_raw == "College or University degree" ~ "College or University degree",
+    education_raw %in% c("A levels/AS levels or equivalent", 
+                         "NVQ or HND or HNC or equivalent", 
+                         "Other professional qualifications eg: nursing, teaching") ~ 
+                         "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
+    education_raw %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
+                         "O levels/GCSEs or equivalent, CSEs or equivalent",
+    education_raw == "None of the above" ~ "None of the above",
+    TRUE ~ NA_character_
+  ))
+
+### we remove the "age_education_raw" column as we won't be needing it:
+full_df <- subset(full_df, select = -age_education_raw)
+
+
+
+# BMI
+full_df$BMI <- full_df$BMI_raw
+
+## recode the BMI variable 
+full_df <- full_df %>%
+  mutate(BMI = case_when(
+    BMI < 18.5 ~ "Underweight (< 18.5 kg/m2)",
+    BMI >= 18.5 & BMI < 25 ~ "Normal (18.5 kg/m2 to < 25 kg/m2)",
+    BMI >= 25 & BMI < 30 ~ "Overweight (25 kg/m2 to < 30 kg/m2)",
+    BMI >= 30 ~ "Obesity Class I, II or III (> 30 kg/m2)",
+    TRUE ~ NA_character_  
+  ))
+
+
+# Fruit
+fruit_coding <- c(
+  "-10" = "Less than one serving/day",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(fresh_fruit = recode(as.character(fresh_fruit), !!!fruit_coding))
+
+## recode the fruit variables to have less classifications
+full_df <- full_df %>%
+  mutate(fresh_fruit = case_when(
+    fresh_fruit > 0 & fresh_fruit < 2  ~ "< 2 servings/day",
+    fresh_fruit >= 2 & fresh_fruit < 3 ~ "2 or 3 servings/day",
+    fresh_fruit >= 3 & fresh_fruit < 4 ~ "3 or 4 servings/day",
+    fresh_fruit >= 4 ~ "More than 4 servings/day",
+    TRUE ~ NA_character_  
+  ))
+
+
+# Veggie
+vg_coding <- c(
+  "-10" = "Less than one serving/day",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(cooked_vg = recode(as.character(cooked_vg), !!!vg_coding))
+
+## recode the fruit variables to have less classifications
+full_df <- full_df %>%
+  mutate(cooked_vg = case_when(
+    cooked_vg > 0 & cooked_vg < 2 ~ "< 2 servings/day",
+    cooked_vg >= 2 & cooked_vg < 3 ~ "2 or 3 servings/day",
+    cooked_vg >= 3 & cooked_vg < 4 ~ "3 or 4 servings/day",
+    cooked_vg >= 4 ~ "More than 4 servings/day",
+    TRUE ~ NA_character_  
+  ))
+
+
+# Processed meats
+full_df <- full_df %>%
+  mutate(processed_meat_0 = case_when(
+    processed_meat_0 < 2 ~ "< 2 servings/week",
+    processed_meat_0 >= 2 & processed_meat_0 < 4 ~ "2 to 4 servings/week",
+    processed_meat_0 > 4  ~ "More than 4 servings/week",
+    TRUE ~ NA_character_  
+  ))
+# rename processed_meat vairable
+full_df$processed_meat <- full_df$processed_meat_0
+full_df <- full_df %>%
+  select(-processed_meat_0)
+
+# Oily fish
+full_df <- full_df %>%
+  mutate(oily_fish = case_when(
+    oily_fish < 2 ~ "< 2 servings/week",
+    oily_fish >= 2 & oily_fish < 4 ~ "2 to 4 servings/week",
+    oily_fish > 4  ~ "More than 4 servings/week",
+    TRUE ~ NA_character_  
+  ))
+
+
+# Alcohol
+## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
+alcohol_coding <- c(
+  "1" = "Daily or almost daily",
+  "2" =	"Three or four times a week",
+  "3" =	"Once or twice a week",
+  "4" =	"One to three times a month",
+  "5" =	"Special occasions only",
+  "6" =	"Never",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(alcohol_raw = recode(as.character(alcohol_raw), !!!alcohol_coding))
+
+## we recode alcohol to have less classifications
+full_df <- full_df %>%
+  mutate(alcohol = case_when(
+    alcohol_raw == "Daily or almost daily" ~ "Daily or almost daily",
+    alcohol_raw == "Never" ~ "Never",
+    alcohol_raw == "Once or twice a week" ~ "Once or twice a week",
+    alcohol_raw %in% c("One to three times a month", "Special occasions only") ~ "Less than once a week",
+    alcohol_raw == "Prefer not to answer" ~ "Prefer not to answer",
+    TRUE ~ NA_character_
+  ))
+
+
+
+# Diabetes
+diabetes_coding <- c(
+  "0" = "Yes",
+  "1" = "No",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(diabetes_0 = recode(as.character(diabetes_0), !!!diabetes_coding))
+
+full_df$diabetes <- full_df$diabetes_0
+full_df <- full_df %>%
+  select(-diabetes_0)
+
+
+
 ```
 
+
+We remove all rows where any column contains the entry "Prefer not to answer":
+```{r}
+rm_cols <- c("alcohol", "fresh_fruit", "education_level", "diabetes")
+
+full_df <- full_df %>%
+  filter(if_any(all_of(rm_cols), ~ !str_detect(.x, "Prefer not to answer")))
+
+```
 
 
 We create a "age-at-accelerometer-wear variable":
