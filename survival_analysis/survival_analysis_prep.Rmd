@@ -265,13 +265,13 @@ full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
 
 
 # we seperate the full_df_incl_PA1_PA2 in 4 tables based off MVPA quarters:
-df_MVPA_quarter1 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 1")
+df_MVPA_quarter1 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q1[0,99]")
 
-df_MVPA_quarter2 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 2")
+df_MVPA_quarter2 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q2(99,222]")
 
-df_MVPA_quarter3 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 3")
+df_MVPA_quarter3 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q3(222,395]")
 
-df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "MVPA Quarter 4")
+df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q4(395,1.01e+04]")
 
 
 ```
@@ -346,6 +346,9 @@ summ_base_char_MVPA_quarter4 <- df_MVPA_quarter4 %>%
 
 knitr::knit_print(summ_base_char_MVPA_quarter4)
 ```
+
+
+
 
 
 ##############################################################
