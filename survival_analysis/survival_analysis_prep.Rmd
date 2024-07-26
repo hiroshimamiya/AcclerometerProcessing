@@ -199,6 +199,47 @@ names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2)
 write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
 ```
 
+# recoding some variables 
+```{r}
+
+# Recode from gender to sex 
+#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
+#  dplyr::mutate(sex = ifelse(sex == "Man", "Male", "Female"))
+
+
+# Grouping two categories into one 
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
+  dplyr::mutate(cooked_vg = ifelse(cooked_vg == "2 or 3 servings/day" | cooked_vg== "3 or 4 servings/day", "2 to 4 servings/day", cooked_vg))
+
+
+
+#recode edut to reduce the length of text (width of table)
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
+  dplyr::mutate(education_level = ifelse(education_level == "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications", "A/AS levels, NVQ or HND", education_level))
+
+full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
+  dplyr::mutate(education_level = ifelse(education_level == "O levels/GCSEs or equivalent, CSEs or equivalent", "O/GCSE levels or CSEs", education_level))
+
+# ORder educ variable such that the order of category in the table will be correct
+full_df_incl_PA1_PA2$education_level <- factor(full_df_incl_PA1_PA2$education_level, 
+  levels = c(
+    "College or University degree",
+    "O/GCSE levels or CSEs",
+    "A/AS levels, NVQ or HND",
+    "None of the above"
+  )
+)
+
+table(full_df_incl_PA1_PA2$education_level)
+
+
+
+# Did we agree to compress all categories into two for processed meat and oily fish? Where are categories less than 2 servings?
+
+
+
+
+```
 
 
 
@@ -209,13 +250,13 @@ write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.
 
 # recode binary variables 
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(sex = recode(sex, `1` = "Man", `0` = "Woman"))
+  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
 
 MVPA_coding <- c(
-  '[0,99]' = 'MVPA Quarter 1', 
-  '(99,222]' = 'MVPA Quarter 2', 
-  '(222,395]' = 'MVPA Quarter 3', 
-  '(395,1.01e+04]' = 'MVPA Quarter 4'
+  '[0,99]' = 'Q1[0,99]', 
+  '(99,222]' = 'Q2(99,222]', 
+  '(222,395]' = 'Q3(222,395]', 
+  '(395,1.01e+04]' = 'Q4(395,1.01e+04]'
 )
 
 
