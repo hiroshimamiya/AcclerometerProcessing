@@ -414,11 +414,13 @@ full_df <- full_df %>%
 # Processed meats
 full_df <- full_df %>%
   mutate(processed_meat_0 = case_when(
-    processed_meat_0 < 2 ~ "< 2 servings/week",
-    processed_meat_0 >= 2 & processed_meat_0 < 4 ~ "2 to 4 servings/week",
-    processed_meat_0 > 4  ~ "More than 4 servings/week",
-    TRUE ~ NA_character_  
+    processed_meat_0 == "2-4 times a week" ~ "2-4 times a week",
+    processed_meat_0 == "Prefer not to answer" ~ "Prefer not to answer",
+    processed_meat_0 %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    processed_meat_0 %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
   ))
+
 # rename processed_meat vairable
 full_df$processed_meat <- full_df$processed_meat_0
 full_df <- full_df %>%
@@ -427,10 +429,11 @@ full_df <- full_df %>%
 # Oily fish
 full_df <- full_df %>%
   mutate(oily_fish = case_when(
-    oily_fish < 2 ~ "< 2 servings/week",
-    oily_fish >= 2 & oily_fish < 4 ~ "2 to 4 servings/week",
-    oily_fish > 4  ~ "More than 4 servings/week",
-    TRUE ~ NA_character_  
+    oily_fish == "2-4 times a week" ~ "2-4 times a week",
+    oily_fish == "Prefer not to answer" ~ "Prefer not to answer",
+    oily_fish %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    oily_fish %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
   ))
 
 
