@@ -11,16 +11,21 @@ rm(list=ls())
 library(dplyr)
 library(readr)
 library(data.table)
-install.packages(tidyverse)
-#library(tidyverse)
+library(tidyverse)
 ```
 
 We import all data for participants with accelerometer data:
 
 ```{r}
+
 # Change the locations to your user folder data files
-#full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
 full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
+dim(full_df)
+full_df$quality_good_calibration %>% table
+#full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
+#dim(full_df)
+#full_df$quality_good_calibration %>% table
+
 ```
 
 # Exclusions: these following commands will only keep the data we are not seeking to exclude
@@ -119,9 +124,8 @@ summary(full_df$STEMI_date)
 summary(full_df$NSTEMI_date)
 df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
 
-# cut-off date = 2013-01-01 because we do not want to keep participants that reported
-# having a CVD < 2013
-cut_off_date <- "2013-01-01"
+
+# cutoff date indicating start of follow-up, CVD before these dates need to bre removed 
 cut_off_date_personal <- full_df$date_end_accel 
 full_df$indicator_drop_stroke <- 1
 full_df$indicator_drop_mi <- 1
@@ -163,7 +167,13 @@ df_beforeExclusion %>%
 
 
 Find the last date of hospital records and make exclusion based on the dates
+NOTE: This is the original script, with fixed baselione (acceleormter) date, which should not be used in favor of person-specific date for accelerometer 
 ```{r}
+
+# cut-off date = 2013-01-01 because we do not want to keep participants that reported
+# having a CVD < 2013
+cut_off_date <- "2013-01-01"
+
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
 
@@ -193,21 +203,7 @@ print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) 
 
 
 
-## Exclusion 3: Missing covariate data
 
-We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
-
-```{r}
-df_before <- full_df
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
-#Hiroshi comment, no processed meat
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ] # Removal of missigness (NA)
-result <- count_exclusions(df_before, full_df)
-total_excluded_covd <- result$excluded
-
-# Print total exclusions for step 3
-print(paste("Total participants excluded in step 3:", total_excluded_covd))
-```
 
 ## Exclusion 4: Remove participants for whom we have lost follow-up data.
 
@@ -456,6 +452,31 @@ full_df <- subset(full_df, select = -age_education_raw)
 
 # HiroshiComment - "prefer not to answer"? can be  NA 
 table(full_df$education, full_df$education_raw, useNA = "always" )
+table(full_df$education, full_df$education_level, useNA = "always" )
+
+
+
+
+#Grouping of categories and  making category name much shorter, from the surivial anlaysis script 
+#recode edut to reduce the length of text (width of table)
+full_df <- full_df %>%  
+  dplyr::mutate(education_level = ifelse(education_level == "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications", "A/AS levels, NVQ or HND", education_level))
+
+full_df <- full_df %>%  
+  dplyr::mutate(education_level = ifelse(education_level == "O levels/GCSEs or equivalent, CSEs or equivalent", "O/GCSE levels or CSEs", education_level))
+
+# ORder educ variable such that the order of category in the table will be correct
+full_df$education_level <- factor(full_df$education_level, 
+  levels = c(
+    "College or University degree",
+    "O/GCSE levels or CSEs",
+    "A/AS levels, NVQ or HND",
+    "None of the above"
+  )
+)
+
+table(full_df$education_level, full_df$education_raw)
+
 
 ```
 
@@ -612,28 +633,9 @@ full_df <- full_df %>%
 ```
 
 
-# Link PA1 and PA2 (Exposure) data
 
-```{r}
-library(readr)
-enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
-  lapply(read_csv) %>% 
-  bind_rows 
 
-ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
-ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
-  eid, 
-  "40048-0.0",  
-  "40049-0.0",
-  "40047-0.0", 
-  "40046-0.0", 
-  "40044-0.0",  
-  "40045-0.0",
-  "40043-0.0", 
-  "40042-0.0" 
-  )
 
-```
 
 
 We create a "age-at-accelerometer-wear variable":
@@ -681,6 +683,28 @@ full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels 
 
 full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
+
+
+
+
+
+## Exclusion 3: Missing covariate data
+
+We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
+
+```{r}
+df_before <- full_df
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'beef')
+#Hiroshi comment, no processed meat
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ] # Removal of missigness (NA)
+result <- count_exclusions(df_before, full_df)
+total_excluded_covd <- result$excluded
+
+# Print total exclusions for step 3
+print(paste("Total participants excluded in step 3:", total_excluded_covd))
+```
+
+
 
 
 We save the the final df which includes the exlucded participants and the recoding
