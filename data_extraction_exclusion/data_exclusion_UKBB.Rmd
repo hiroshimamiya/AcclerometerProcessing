@@ -98,7 +98,7 @@ print(paste("Total participants excluded due to not being in acceleromete subcoh
 # we extract the CVD date columns
 date_columns <- c(
   'stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date', 
-  'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date'
+  'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date' , 'date_end_accel', 'date_start_accel' 
 )
 
 # we format the date columns
@@ -107,13 +107,14 @@ for (col in date_columns) {
 }
 ```
 
-Find the last date of hospital records and make exclusion based on the dates
+
+# removal of CVD cases based on the baseline date of acceleroemter for each person
 ```{r}
 # Max date of diagnosis (hospital record update) is 2022 Dec. 
-summary(full_df$stroke_date)
+summary(full_df$stroke_date) #originally 1140 excluded
 summary(full_df$ischaemic_stroke_date)
 summary(full_df$intracerebral_haemorrhage_date)
-summary(full_df$myocardial_infarction_date)
+summary(full_df$myocardial_infarction_date) # orignally 1796  excluded 
 summary(full_df$STEMI_date)
 summary(full_df$NSTEMI_date)
 df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
@@ -121,8 +122,48 @@ df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
 # cut-off date = 2013-01-01 because we do not want to keep participants that reported
 # having a CVD < 2013
 cut_off_date <- "2013-01-01"
+cut_off_date_personal <- full_df$date_end_accel 
+full_df$indicator_drop_stroke <- 1
+full_df$indicator_drop_mi <- 1
+full_df[is.na(full_df[["stroke_date"]]) | full_df[["stroke_date"]] >= as.Date(cut_off_date_personal), "indicator_drop_stroke"] <- 0 
+full_df[is.na(full_df[["myocardial_infarction_date"]]) | full_df[["myocardial_infarction_date"]] >= as.Date(cut_off_date_personal), "indicator_drop_mi"] <- 0
+
+sum(full_df$indicator_drop_stroke) # to remove. 1251
+sum(full_df$indicator_drop_mi)  # to remove, 2181
+full_df %>% dplyr::filter(indicator_drop_mi == 1 & indicator_drop_stroke==1) %>% nrow 
+
+# 
+print("Number of people excluded based on the exact date of acclerometer is \n")
+full_df %>% filter(indicator_drop_mi == 1 | indicator_drop_stroke==1) %>% dim()
+
+# Create data frame after exclusion 
+full_df_CVD <- full_df %>% # 3315 removed by this definition 
+  filter(indicator_drop_mi == 0 & indicator_drop_stroke==0)
+
+# Check dates 
+min(full_df_CVD$stroke_date, na.rm = T)
+max(full_df_CVD$stroke_date, na.rm = T)
+min(full_df_CVD$myocardial_infarction_date, na.rm = T)
+max(full_df_CVD$myocardial_infarction_date, na.rm = T)
+
+# Confirm the last date of diagnosis among those who are removed
+df_beforeExclusion %>% 
+  anti_join(full_df_CVD, by =join_by(eid)) %>% 
+  select(all_of(date_columns)) %>% 
+  apply(1, FUN = min, na.rm=T) %>% max()
+
+# Confirm the # of excluded # 2936
+df_beforeExclusion %>% 
+    anti_join(full_df_CVD, by =join_by(eid)) %>% 
+    select(all_of(date_columns)) %>% 
+    apply(1, FUN = min, na.rm=T) %>% length
+#format(as.Date(.), "%Y-%m") %>% unique()  %>%  sort
+
+```
 
 
+Find the last date of hospital records and make exclusion based on the dates
+```{r}
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
 
@@ -146,30 +187,14 @@ for (col in date_columns) {
 }
 
 # Print total exclusions for step 2
-print(paste("Total participants excluded because of CVD:", total_excluded_cvd))
+print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) #originally 2936
 
 ```
 
 
 Check the min and max date of diagnosis among retained sample, last date of diagnosis among removed sample
 ```{r}
-min(full_df$stroke_date, na.rm = T)
-max(full_df$stroke_date, na.rm = T)
-min(full_df$myocardial_infarction_date, na.rm = T)
-max(full_df$myocardial_infarction_date, na.rm = T)
 
-# Confirm the last date of diagnosis among those who are removed
-df_beforeExclusion %>% 
-  anti_join(full_df, by =join_by(eid)) %>% 
-  select(all_of(date_columns)) %>% 
-  apply(1, FUN = min, na.rm=T) %>% max()
-
-# Confirm the # of excluded # 2936
-df_beforeExclusion %>% 
-    anti_join(full_df, by =join_by(eid)) %>% 
-    select(all_of(date_columns)) %>% 
-    apply(1, FUN = min, na.rm=T) %>% length
-#format(as.Date(.), "%Y-%m") %>% unique()  %>%  sort
 
 ```
 
