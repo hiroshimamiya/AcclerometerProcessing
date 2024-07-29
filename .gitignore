@@ -136,3 +136,5 @@ final_df_full.csv
 final_df.csv
 .Rproj.user
 AcclerometerProcessing.Rproj
+.Rhistory
+.RData
