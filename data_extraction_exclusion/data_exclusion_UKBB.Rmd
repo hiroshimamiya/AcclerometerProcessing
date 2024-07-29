@@ -11,24 +11,20 @@ rm(list=ls())
 library(dplyr)
 library(readr)
 library(data.table)
+#install.packages(tidyverse)
 library(tidyverse)
 ```
 
 We import all data for participants with accelerometer data:
 
 ```{r}
-
 # Change the locations to your user folder data files
-full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
-dim(full_df)
-full_df$quality_good_calibration %>% table
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
-#dim(full_df)
-#full_df$quality_good_calibration %>% table
-
+full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv") # copy in /home/yacine/survival_analysis
 ```
 
-# Exclusions: these following commands will only keep the data we are not seeking to exclude
+########## Exclusions: these following commands will only keep the data we are ##########  
+            not seeking to exclude
 
 First, we would like to keep count of the number of participants that are excluded
 at each step. So we create this function that will allow us to do so:
@@ -124,8 +120,9 @@ summary(full_df$STEMI_date)
 summary(full_df$NSTEMI_date)
 df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
 
-
-# cutoff date indicating start of follow-up, CVD before these dates need to bre removed 
+# cut-off date = 2013-01-01 because we do not want to keep participants that reported
+# having a CVD < 2013
+cut_off_date <- "2013-01-01"
 cut_off_date_personal <- full_df$date_end_accel 
 full_df$indicator_drop_stroke <- 1
 full_df$indicator_drop_mi <- 1
@@ -167,13 +164,7 @@ df_beforeExclusion %>%
 
 
 Find the last date of hospital records and make exclusion based on the dates
-NOTE: This is the original script, with fixed baselione (acceleormter) date, which should not be used in favor of person-specific date for accelerometer 
 ```{r}
-
-# cut-off date = 2013-01-01 because we do not want to keep participants that reported
-# having a CVD < 2013
-cut_off_date <- "2013-01-01"
-
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
 
@@ -203,7 +194,21 @@ print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) 
 
 
 
+## Exclusion 3: Missing covariate data
 
+We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
+
+```{r}
+df_before <- full_df
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
+#Hiroshi comment, no processed meat
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_covd <- result$excluded
+
+# Print total exclusions for step 3
+print(paste("Total participants excluded in step 3:", total_excluded_covd))
+```
 
 ## Exclusion 4: Remove participants for whom we have lost follow-up data.
 
@@ -228,7 +233,7 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 ## Save df with all excluded participants:
 ```{r}
-#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
@@ -242,15 +247,16 @@ full_df <- full_df %>%
 ```
 
 
-########## Other suggested variable manipulation by OxWearable
+
+########## Data Recoding ########## 
 
 We recode certain variables: 
 ### Note: all the data coding/mapping was an extra step we had to do ###
+
+1. Ethnicity:
 ```{r}
 
-# Ethnicity:
-
-## 1. first we create a dictionnary mapping for the ethincity codes
+##first we create a dictionnary mapping for the ethnicity codes
 ## *** important: this is not a step that was shown by OxWearables. We had to this
 ## ourselves. The codes are provided here: https://biobank.ctsu.ox.ac.uk/crystal/coding.cgi?id=1001
 
@@ -280,7 +286,6 @@ ethnicity_coding <- c(
 )
 
 ## we replace the codes by their meaning:
-
 full_df <- full_df %>%
   mutate(ethnicity_raw = recode(as.character(ethnicity_raw), !!!ethnicity_coding))
 
@@ -321,7 +326,7 @@ table(full_df$ethnicity_raw, full_df$ethnicity, useNA = "always")
 ```
 
 
-Smoking and tdi
+2. Smoking and tdi:
 ```{r}
 # Townsend Index:
 full_df$tdi <- full_df$tdi_raw
@@ -348,11 +353,11 @@ table(full_df$smoking, full_df$smoking_raw, useNA = "always")
 
 
 
-Fish and meat 
+3. Fish and meats:
 ```{r}
 ##### Recoding we added
 
-# Oily fish and Processed meat
+# Recording for oily and non-oily fish and processed meats
 meat_coding <- c(
   "1" = "Less than once a week",
   "2" =	"Once a week",
@@ -365,15 +370,21 @@ meat_coding <- c(
 )
 
 ## we replace the codes by their meaning:
+### oily fish:
 full_df$oily_fish_raw <- full_df$oily_fish  
 full_df <- full_df %>%
   mutate(oily_fish = recode(as.character(oily_fish), !!!meat_coding))
 
-## we replace the codes by their meaning:
+### non-oily fish:
+full_df$non_oily_fish_raw <- full_df$non_oily_fish  
+full_df <- full_df %>%
+  mutate(non_oily_fish = recode(as.character(non_oily_fish  ), !!!meat_coding))
+
+### processed meats:
 full_df <- full_df %>%
   mutate(processed_meat_0 = recode(as.character(processed_meat_0), !!!meat_coding ))
 
-table(full_df$oily_fish, full_df$oily_fish_raw, useNA = "always" )
+table(full_df$oily_fish, full_df$oily_fish_raw, useNA = "always" ) # Yacine comment: remove? There twice
 
 
 
@@ -382,12 +393,26 @@ full_df <- full_df %>%
   mutate(oily_fish = case_when(
     oily_fish == "2-4 times a week" ~ "2-4 times a week",
     oily_fish == "Prefer not to answer" ~ "Prefer not to answer",
+    oily_fish == "Do not know" ~ "Do not know",
     oily_fish %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
     oily_fish %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
     TRUE ~ NA_character_
   ))
 
 table(full_df$oily_fish, full_df$oily_fish_raw, useNA = "always" )
+
+# Non-oily fish
+full_df <- full_df %>%
+  mutate(non_oily_fish = case_when(
+    non_oily_fish == "2-4 times a week" ~ "2-4 times a week",
+    non_oily_fish == "Prefer not to answer" ~ "Prefer not to answer",
+    non_oily_fish == "Do not know" ~ "Do not know",
+    non_oily_fish %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    non_oily_fish %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
+
+table(full_df$non_oily_fish, full_df$non_oily_fish_raw, useNA = "always" )
 
 
 # Processed meats
@@ -396,12 +421,13 @@ full_df <- full_df %>%
   mutate(processed_meat_0 = case_when(
     processed_meat_0 == "2-4 times a week" ~ "2-4 times a week",
     processed_meat_0 == "Prefer not to answer" ~ "Prefer not to answer",
+    processed_meat_0 == "Do not know" ~ "Do not know",
     processed_meat_0 %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
     processed_meat_0 %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
     TRUE ~ NA_character_
   ))
 
-# rename processed_meat vairable
+# rename processed_meat variable
 full_df$processed_meat <- full_df$processed_meat_0
 full_df <- full_df %>%
   select(-processed_meat_0)
@@ -409,11 +435,56 @@ full_df <- full_df %>%
 table(full_df$processed_meat, full_df$processed_meat_raw, useNA = "always" )
 ```
 
+4. Red meats:
+* we need to create the red_meat column as the UKBiobank data only provides data 
+for different types of red meat separately (i.e. lamb, beef and pork) *
+```{r}
+
+## we replace "Do not know"s and "Prefer not to say"s by NAs:
+full_df <- full_df %>%
+  mutate(across(c(beef, lamb, pork), ~ na_if(., -1))) %>%
+  mutate(across(c(beef, lamb, pork), ~ na_if(., -3)))
+
+## we create the red meat column by adding all the values for beef, lamb and pork: 
+full_df <- full_df %>%
+  rowwise() %>%
+  mutate(red_meat = sum(c_across(c(beef, lamb, pork)), na.rm = TRUE))
+
+table(full_df$red_meat) # visualize all the value that take red_meat
+
+## we create coding for red meats:
+red_meat_coding <- c(
+  "0" = "Never",
+  "1"  = "Less than once a week",
+  "2"  = "Once a week",
+  "3"  = "2-4 times a week",
+  "4"  = "5-6 times a week",
+  "5"  = "Once or more daily",
+  "6"  = "Once or more daily",
+  "7"  = "Once or more daily",
+  "8"  = "Once or more daily",
+  "9"  = "Once or more daily",
+  "10" = "Once or more daily",
+  "11" = "Once or more daily",
+  "12" = "Once or more daily",
+  "13" = "Once or more daily",
+  "15" = "Once or more daily"
+)
+
+## we replace the coding by their meaning:
+full_df$raw_meat_raw <- full_df$raw_meat 
+full_df <- full_df %>%
+  mutate(raw_meat = recode(as.character(raw_meat), !!!red_meat_coding))
 
 
 
 
-Education 
+
+```
+
+
+
+5. Education:
 ```{r}
 # Education
 #### Note: OxWearable use "age education"; we are using "qualifications education"
@@ -452,37 +523,12 @@ full_df <- subset(full_df, select = -age_education_raw)
 
 # HiroshiComment - "prefer not to answer"? can be  NA 
 table(full_df$education, full_df$education_raw, useNA = "always" )
-table(full_df$education, full_df$education_level, useNA = "always" )
-
-
-
-
-#Grouping of categories and  making category name much shorter, from the surivial anlaysis script 
-#recode edut to reduce the length of text (width of table)
-full_df <- full_df %>%  
-  dplyr::mutate(education_level = ifelse(education_level == "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications", "A/AS levels, NVQ or HND", education_level))
-
-full_df <- full_df %>%  
-  dplyr::mutate(education_level = ifelse(education_level == "O levels/GCSEs or equivalent, CSEs or equivalent", "O/GCSE levels or CSEs", education_level))
-
-# ORder educ variable such that the order of category in the table will be correct
-full_df$education_level <- factor(full_df$education_level, 
-  levels = c(
-    "College or University degree",
-    "O/GCSE levels or CSEs",
-    "A/AS levels, NVQ or HND",
-    "None of the above"
-  )
-)
-
-table(full_df$education_level, full_df$education_raw)
-
 
 ```
 
 
 
-
+6. BMI:
 ```{BMI}
 # BMI
 full_df$BMI <- full_df$BMI_raw
@@ -500,7 +546,7 @@ full_df <- full_df %>%
 boxplot(BMI_raw ~ BMI, data = full_df)
 ```
 
-Fruit and veggie 
+7. Fruit and veggies:
 ```{r}
 # Fruit
 fruit_coding <- c(
@@ -528,6 +574,7 @@ full_df <- full_df %>%
 ## recode the fruit variables to have less classifications
 full_df <- full_df %>%
   mutate(fresh_fruit = case_when(
+    fresh_fruit == "Less than one serving/day" ~ "Zero servings/day",
     fresh_fruit > 0 & fresh_fruit < 2 ~ "< 2 servings/day",
     fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
     fresh_fruit >= 4 ~ "More than 4 servings/day",
@@ -561,7 +608,7 @@ table(full_df$fresh_fruit, full_df$fresh_fruit_raw, useNA = "always")
 ```
 
 
-Alcohol 
+8. Alcohol:
 ```{r}
 # Alcohol
 ## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
@@ -596,7 +643,7 @@ table(full_df$alcohol, full_df$alcohol_raw, useNA = "always")
 ```
 
 
-# Diabetes and other comorbidities
+9. Diabetes and other comorbidities:
 ```{r}
 # Diabetes
 diabetes_coding <- c(
@@ -622,6 +669,15 @@ table(full_df$diabetes_raw, full_df$diabetes, useNA = "always")
 ```
 
 
+10. Sex:
+```{r}
+# recode binary variables 
+full_df <- full_df %>%
+  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
+```
+
+
+
 We remove all rows where any column contains the entry "Prefer not to answer":
 ```{r}
 rm_cols <- c("alcohol", "fresh_fruit", "education_level", "diabetes") #Hiroshi comment - I don't think you have "prefer not to answer" in categories like fruits and vegge -you categorized it as " More than 4 servings/day" by conditional statements above that got mixed up characteror and numerica variables. 
@@ -633,9 +689,28 @@ full_df <- full_df %>%
 ```
 
 
+# Link PA1 and PA2 (Exposure) data
 
+```{r}
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
 
+ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+  )
 
+```
 
 
 We create a "age-at-accelerometer-wear variable":
@@ -643,9 +718,8 @@ We create a "age-at-accelerometer-wear variable":
 ```{r}
 # Add date of birth
 full_df$approx_dob <-
-  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"), c("%Y-%m-%d")) 
-
-# UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
+          "%Y-%B-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
 # Add age at entry in days
 full_df$age_entry_days <-
   difftime(full_df$date_end_accel,
@@ -683,28 +757,6 @@ full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels 
 
 full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 ```
-
-
-
-
-
-## Exclusion 3: Missing covariate data
-
-We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
-
-```{r}
-df_before <- full_df
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'beef')
-#Hiroshi comment, no processed meat
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ] # Removal of missigness (NA)
-result <- count_exclusions(df_before, full_df)
-total_excluded_covd <- result$excluded
-
-# Print total exclusions for step 3
-print(paste("Total participants excluded in step 3:", total_excluded_covd))
-```
-
-
 
 
 We save the the final df which includes the exlucded participants and the recoding
