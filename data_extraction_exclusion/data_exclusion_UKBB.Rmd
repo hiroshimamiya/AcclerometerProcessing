@@ -201,7 +201,7 @@ We remove rows for participants that have missing data for ethnicity, education,
 df_before <- full_df
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
 #Hiroshi comment, no processed meat
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ] # Removal of missigness (NA)
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
@@ -232,7 +232,7 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 ## Save df with all excluded participants:
 ```{r}
-write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
@@ -643,8 +643,9 @@ We create a "age-at-accelerometer-wear variable":
 ```{r}
 # Add date of birth
 full_df$approx_dob <-
-  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
-          "%Y-%B-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"), c("%Y-%m-%d")) 
+
+# UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
 # Add age at entry in days
 full_df$age_entry_days <-
   difftime(full_df$date_end_accel,
