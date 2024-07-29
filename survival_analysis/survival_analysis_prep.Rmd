@@ -95,6 +95,8 @@ full_df$fu_time <- as.numeric(difftime_weeks) / 4.345
 
 head(full_df$fu_time) 
 #print(full_df$date_start_accel)
+
+hist(full_df$fu_time, main = "survival time in Month")
 ```
 
 
@@ -117,7 +119,7 @@ full_df$MI <- ifelse(rowSums(!is.na(full_df[, MI_cols ])) > 0, 1, 0)
 head(full_df$stroke)
 head(full_df$MI)
 
-# We now create a "CVD" column which indicates if the participants has had a
+# We now create a composit "CVD" column which indicates if the participants has had a
 # stroke and/or MI (==1) or not (==0)
 full_df <- full_df %>%
   mutate(CVD = ifelse(stroke == 1 | MI == 1, 1, 0))
@@ -212,31 +214,6 @@ write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.
 # Grouping two categories into one 
 full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
   dplyr::mutate(cooked_vg = ifelse(cooked_vg == "2 or 3 servings/day" | cooked_vg== "3 or 4 servings/day", "2 to 4 servings/day", cooked_vg))
-
-
-
-#recode edut to reduce the length of text (width of table)
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
-  dplyr::mutate(education_level = ifelse(education_level == "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications", "A/AS levels, NVQ or HND", education_level))
-
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
-  dplyr::mutate(education_level = ifelse(education_level == "O levels/GCSEs or equivalent, CSEs or equivalent", "O/GCSE levels or CSEs", education_level))
-
-# ORder educ variable such that the order of category in the table will be correct
-full_df_incl_PA1_PA2$education_level <- factor(full_df_incl_PA1_PA2$education_level, 
-  levels = c(
-    "College or University degree",
-    "O/GCSE levels or CSEs",
-    "A/AS levels, NVQ or HND",
-    "None of the above"
-  )
-)
-
-table(full_df_incl_PA1_PA2$education_level)
-
-
-
-# Did we agree to compress all categories into two for processed meat and oily fish? Where are categories less than 2 servings?
 
 
 
