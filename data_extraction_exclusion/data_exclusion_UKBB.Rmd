@@ -507,9 +507,8 @@ full_df <- full_df %>%
 ## recode the fruit variables to have less classifications
 full_df <- full_df %>%
   mutate(fresh_fruit = case_when(
-    fresh_fruit > 0 & fresh_fruit < 2  ~ "< 2 servings/day",
-    fresh_fruit >= 2 & fresh_fruit < 3 ~ "2 or 3 servings/day",
-    fresh_fruit >= 3 & fresh_fruit < 4 ~ "3 or 4 servings/day",
+    fresh_fruit > 0 & fresh_fruit < 2 ~ "< 2 servings/day",
+    fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
     fresh_fruit >= 4 ~ "More than 4 servings/day",
     TRUE ~ NA_character_  
   )
@@ -527,8 +526,7 @@ full_df <- full_df %>%
 full_df <- full_df %>%
   mutate(cooked_vg = case_when(
     cooked_vg > 0 & cooked_vg < 2 ~ "< 2 servings/day",
-    cooked_vg >= 2 & cooked_vg < 3 ~ "2 or 3 servings/day",
-    cooked_vg >= 3 & cooked_vg < 4 ~ "3 or 4 servings/day",
+    cooked_vg >= 2 & cooked_vg <= 4 ~ "2 to 4 servings/day",
     cooked_vg >= 4 ~ "More than 4 servings/day",
     TRUE ~ NA_character_  
   ))
