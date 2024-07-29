@@ -291,6 +291,7 @@ includeVar <- c(
   #"MVPA_min_PA2",
   "stroke", 
   "MI", 
+  "age_entry_years",
   "sex", 
   "fresh_fruit", 
   "oily_fish", 
@@ -320,6 +321,7 @@ dt <- d %>%  dplyr::select(
   MVPA_min_PA1, 
   MI, 
   stroke,
+  #age_entry_years, 
   sex, 
   oily_fish,
   #cooked_vg, # the "includeVar" variable above is not used to select vars, since cooked_vg category has issue 
@@ -351,7 +353,7 @@ varNameDf <- data.frame(
 tb <- dt %>%
   tbl_summary(
     by = MVPA_Quant_PA2,  
-    all_continuous() ~ "{median} ({p25}, {p75})",
+    all_continuous() ~ "{median} c({p25}, {p75})",
     digits = all_continuous() ~ 1,
     label = c(
       varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
@@ -512,14 +514,14 @@ ggsurvplot(survfit(res.cox), color = "#2E9FDF",
 
 
 
-tbl_regression(fitDf, exponentiate = TRUE, 
-               label = c(
-      varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-      varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-      varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-      varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-      varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
-    )
+tbl_regression(fitDf, exponentiate = TRUE#, 
+   #            label = c(
+  #    varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
+   #   varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
+  #    varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
+   #   varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
+  #    varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
+  #  )
 )
 
 
