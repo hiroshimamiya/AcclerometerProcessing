@@ -97,7 +97,7 @@ print(paste("Total participants excluded due to not being in acceleromete subcoh
 ```{r}
 # we extract the CVD date columns
 date_columns <- c(
-  'stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date',
+  'stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date', 
   'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date'
 )
 
@@ -105,6 +105,18 @@ date_columns <- c(
 for (col in date_columns) {
   full_df[[col]] <- as.Date(full_df[[col]], format="%Y-%m-%d")
 }
+```
+
+Find the last date of hospital records and make exclusion based on the dates
+```{r}
+# Max date of diagnosis (hospital record update) is 2022 Dec. 
+summary(full_df$stroke_date)
+summary(full_df$ischaemic_stroke_date)
+summary(full_df$intracerebral_haemorrhage_date)
+summary(full_df$myocardial_infarction_date)
+summary(full_df$STEMI_date)
+summary(full_df$NSTEMI_date)
+df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
 
 # cut-off date = 2013-01-01 because we do not want to keep participants that reported
 # having a CVD < 2013
@@ -119,6 +131,7 @@ count_and_filter_dates <- function(df, date_column, cut_off_date) {
   df <- df[is.na(df[[date_column]]) | df[[date_column]] >= as.Date(cut_off_date), ]
   final_count <- nrow(df)
   excluded_count <- initial_count - final_count # number of excluded rows (participants)
+  print(paste("Excluded", date_column, excluded_count))
   return(list(df = df, excluded_count = excluded_count))
 }
 
@@ -133,6 +146,7 @@ for (col in date_columns) {
 
 # Print total exclusions for step 2
 print(paste("Total participants excluded because of CVD:", total_excluded_cvd))
+
 ```
 
 ## Exclusion 3: Missing covariate data
@@ -173,18 +187,6 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 ## Save df with all excluded participants:
 ```{r}
-ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
-ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
-  eid, 
-  "40048-0.0",  
-  "40049-0.0",
-  "40047-0.0", 
-  "40046-0.0", 
-  "40044-0.0",  
-  "40045-0.0",
-  "40043-0.0", 
-  "40042-0.0" 
-  )
 write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
@@ -464,8 +466,6 @@ full_df <- full_df %>%
     TRUE ~ NA_character_
   ))
 
-
-
 # Diabetes
 diabetes_coding <- c(
   "0" = "Yes",
@@ -483,6 +483,9 @@ full_df <- full_df %>%
 
 
 
+
+#hiroshiComment - where is the category - three or four times a week? for alcohol?
+# hiroshiComment - what is the varaible "X191.0.0.1" ? 
 ```
 
 
@@ -496,13 +499,33 @@ full_df <- full_df %>%
 ```
 
 
-We create a "age-at-accelerometer-wear variable":
+# Link PA1 and PA2 (Exposure) data
+
 ```{r}
 library(readr)
 enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
   lapply(read_csv) %>% 
   bind_rows 
 
+ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+  )
+
+```
+
+
+We create a "age-at-accelerometer-wear variable":
+
+```{r}
 # Add date of birth
 full_df$approx_dob <-
   as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
