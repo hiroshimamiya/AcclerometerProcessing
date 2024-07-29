@@ -22,9 +22,11 @@ library(dvmisc)
 library(gtsummary)
 library(gt)
 library(kableExtra)
+#remotes::install_github("larmarange/broom.helpers")
+library(broom.helpers)
+library(flextable)
+library(officer)
 
-
-#library(survminer)
 ```
 
 We load the data:
@@ -277,6 +279,130 @@ df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q4(395,1.
 ```
 
 
+```{r}
+# Libraries to save table 
+
+
+# Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
+includeVar <- c(
+  "MVPA_Quant_PA1", 
+  "MVPA_Quant_PA2",
+  "MVPA_min_PA1", 
+  #"MVPA_min_PA2",
+  "stroke", 
+  "MI", 
+  "sex", 
+  "fresh_fruit", 
+  "oily_fish", 
+  "cooked_vg", # 1924 vars missing, hence the table function below will fail, unless 
+  "alcohol_raw", 
+  "processed_meat", 
+  "alcohol", 
+  "smoking", 
+  "ethnicity", 
+  "education_level",
+  "tdi_quarters",
+  "diabetes", 
+  "BMI"
+  )
+
+
+d <-  full_df_incl_PA1_PA2 %>% dplyr::select(all_of(includeVar))
+d <- d %>%  
+  dplyr::mutate(MVPA_Quant_PA1 = factor(MVPA_Quant_PA1),
+                MVPA_Quant_PA2 = factor(MVPA_Quant_PA2))
+
+
+# Obesity category names can be shortened 
+# Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
+dt <- d %>%  dplyr::select(
+  MVPA_Quant_PA2,  
+  MVPA_min_PA1, 
+  MI, 
+  stroke,
+  sex, 
+  oily_fish,
+  #cooked_vg, # the "includeVar" variable above is not used to select vars, since cooked_vg category has issue 
+  processed_meat, 
+  alcohol, 
+  smoking, 
+  ethnicity, 
+  education_level,  
+  tdi_quarters, 
+  diabetes, 
+  BMI
+  )
+
+# Convert varaible names into deescriptive tabl enames 
+varNameDf <- data.frame(
+  varName = c("Myocardial Infarction", 
+              "MVPA min/week",
+              "Race", 
+              "Type II Diabetes", 
+              "Deprivacation levels"
+  ), 
+  ChartName = c("MI", 
+              "MVPA_min_PA1", 
+              "ethnicity", 
+              "diabetes", 
+              "tdi_quarters")
+)
+
+tb <- dt %>%
+  tbl_summary(
+    by = MVPA_Quant_PA2,  
+    all_continuous() ~ "{median} ({p25}, {p75})",
+    digits = all_continuous() ~ 1,
+    label = c(
+      varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
+      varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
+      varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
+      varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
+      varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
+    )
+  ) %>% 
+  as_flex_table()
+
+# cOMPRESSED table 
+theme_gtsummary_compact() 
+
+# Landscape (word format)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "landscape",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+
+print(tb)
+
+# Save 
+flextable::save_as_docx("Distribution of participant characteristics by Qurtile of Moderate_Vigorous Physical Activity" = tb,  
+               path = "testTable.docx", 
+               pr_section = sect_properties
+               )  
+
+
+
+
+```
+
+
+```{r}
+coorplot 
+pairs(inl)
+
+
+library(ggcorrplot)
+model.matrix(~0+., data=d) %>% 
+  cor(use="pairwise.complete.obs") %>% 
+  ggcorrplot(show.diag=FALSE, type="lower", lab=TRUE, lab_size=2)
+
+
+```
 ## We create a table of summary baseline characteristics for each quarters:
 
 ### MVPA Quarter 1:
@@ -366,6 +492,39 @@ Kaplan_Meier:
 #km_stroke <- coxph(
   #Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
   #data = full_df_incl_PA1_PA2)
+
+
+fitDf <- coxph(Surv(fu_time, MI) ~ 
+                 MVPA_Quant_PA2 + 
+                 sex + 
+                 ethnicity + 
+                 tdi_quarters + 
+                 education_level + 
+                 smoking + 
+                 alcohol + 
+                 processed_meat + 
+                 cooked_vg + 
+                 oily_fish, data = full_df_incl_PA1_PA2)
+ggsurvplot(survfit(res.cox), color = "#2E9FDF",
+           ggtheme = theme_minimal())
+
+
+
+
+
+tbl_regression(fitDf, exponentiate = TRUE, 
+               label = c(
+      varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
+      varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
+      varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
+      varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
+      varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
+    )
+)
+
+
+
+
 ```
   
 
