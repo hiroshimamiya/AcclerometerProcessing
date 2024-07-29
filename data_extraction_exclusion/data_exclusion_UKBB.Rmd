@@ -122,6 +122,7 @@ df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
 # having a CVD < 2013
 cut_off_date <- "2013-01-01"
 
+
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
 
@@ -146,6 +147,29 @@ for (col in date_columns) {
 
 # Print total exclusions for step 2
 print(paste("Total participants excluded because of CVD:", total_excluded_cvd))
+
+```
+
+
+Check the min and max date of diagnosis among retained sample, last date of diagnosis among removed sample
+```{r}
+min(full_df$stroke_date, na.rm = T)
+max(full_df$stroke_date, na.rm = T)
+min(full_df$myocardial_infarction_date, na.rm = T)
+max(full_df$myocardial_infarction_date, na.rm = T)
+
+# Confirm the last date of diagnosis among those who are removed
+df_beforeExclusion %>% 
+  anti_join(full_df, by =join_by(eid)) %>% 
+  select(all_of(date_columns)) %>% 
+  apply(1, FUN = min, na.rm=T) %>% max()
+
+# Confirm the # of excluded # 2936
+df_beforeExclusion %>% 
+    anti_join(full_df, by =join_by(eid)) %>% 
+    select(all_of(date_columns)) %>% 
+    apply(1, FUN = min, na.rm=T) %>% length
+#format(as.Date(.), "%Y-%m") %>% unique()  %>%  sort
 
 ```
 
