@@ -440,7 +440,8 @@ table(full_df$processed_meat, full_df$processed_meat_raw, useNA = "always" )
 for different types of red meat separately (i.e. lamb, beef and pork) *
 ```{r}
 
-## we replace "Do not know"s and "Prefer not to say"s by NAs:
+## we replace "Do not know"s and "Prefer not to say"s by NAs - we will drop
+## them later on anyways:
 full_df <- full_df %>%
   mutate(across(c(beef, lamb, pork), ~ na_if(., -1))) %>%
   mutate(across(c(beef, lamb, pork), ~ na_if(., -3)))
@@ -472,12 +473,20 @@ red_meat_coding <- c(
 )
 
 ## we replace the coding by their meaning:
-full_df$raw_meat_raw <- full_df$raw_meat 
+full_df$red_meat_raw <- full_df$red_meat
 full_df <- full_df %>%
-  mutate(raw_meat = recode(as.character(raw_meat), !!!red_meat_coding))
+  mutate(red_meat = recode(as.character(red_meat), !!!red_meat_coding))
 
+# Red meat
+full_df <- full_df %>%
+  mutate(red_meat = case_when(
+    red_meat == "2-4 times a week" ~ "2-4 times a week",
+    red_meat %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    red_meat %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
 
-
+table(full_df$red_meat, full_df$red_meat_raw, useNA = "always" )
 
 
 ```
@@ -486,7 +495,6 @@ full_df <- full_df %>%
 
 5. Education:
 ```{r}
-# Education
 #### Note: OxWearable use "age education"; we are using "qualifications education"
 ## so this is our recoding
 education_coding <- c(
@@ -529,8 +537,7 @@ table(full_df$education, full_df$education_raw, useNA = "always" )
 
 
 6. BMI:
-```{BMI}
-# BMI
+```{r}
 full_df$BMI <- full_df$BMI_raw
 
 ## recode the BMI variable 
@@ -545,6 +552,7 @@ full_df <- full_df %>%
 
 boxplot(BMI_raw ~ BMI, data = full_df)
 ```
+
 
 7. Fruit and veggies:
 ```{r}
@@ -564,6 +572,8 @@ vg_coding <- c(
 full_df$fresh_fruit_raw <- full_df$fresh_fruit 
 full_df$cooked_vg_raw <- full_df$cooked_vg  
 
+
+# Fruits: 
 ## we replace the codes by their meaning:
 full_df <- full_df %>%
   mutate(fresh_fruit = recode(as.character(fresh_fruit), !!!fruit_coding)) # Hiroshi comments: These are all classified as "More than 4 servings/day" below. 
@@ -575,6 +585,9 @@ full_df <- full_df %>%
 full_df <- full_df %>%
   mutate(fresh_fruit = case_when(
     fresh_fruit == "Less than one serving/day" ~ "Zero servings/day",
+    fresh_fruit == "Do not know" ~ "Do not know",
+    fresh_fruit == "Prefer not to answer" ~ "Prefer not to answer",
+    fresh_fruit == 0 ~ "< 2 servings/day",
     fresh_fruit > 0 & fresh_fruit < 2 ~ "< 2 servings/day",
     fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
     fresh_fruit >= 4 ~ "More than 4 servings/day",
@@ -584,7 +597,7 @@ full_df <- full_df %>%
  
 
 
-
+# Veggies:
 ## we replace the codes by their meaning:
 full_df <- full_df %>%
   mutate(cooked_vg = recode(as.character(cooked_vg), !!!vg_coding))
@@ -593,6 +606,10 @@ full_df <- full_df %>%
 ## recode the fruit variables to have less classifications
 full_df <- full_df %>%
   mutate(cooked_vg = case_when(
+    cooked_vg == "Less than one serving/day" ~ "Zero servings/day",
+    cooked_vg == "Do not know" ~ "Do not know",
+    cooked_vg == "Prefer not to answer" ~ "Prefer not to answer",
+    cooked_vg == 0 ~ "< 2 servings/day",
     cooked_vg > 0 & cooked_vg < 2 ~ "< 2 servings/day",
     cooked_vg >= 2 & cooked_vg <= 4 ~ "2 to 4 servings/day",
     cooked_vg >= 4 ~ "More than 4 servings/day",
@@ -632,13 +649,13 @@ full_df <- full_df %>%
     alcohol == "Daily or almost daily" ~ "Daily or almost daily",
     alcohol == "Never" ~ "Never",
     alcohol == "Once or twice a week" ~ "Once or twice a week",
+    alcohol == "Three or four times a week" ~ "Three or four times a week",
     alcohol %in% c("One to three times a month", "Special occasions only") ~ "Less than once a week",
     alcohol == "Prefer not to answer" ~ "Prefer not to answer",
     TRUE ~ NA_character_
   ))
 
 
-#hiroshi Comment - where is the category - three or four times a week in the classificaiotn above? Is it defined as missing ?? 
 table(full_df$alcohol, full_df$alcohol_raw, useNA = "always")
 ```
 
