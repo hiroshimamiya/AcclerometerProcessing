@@ -664,7 +664,7 @@ table(full_df$sex)
 ```{r}
 df_before <- full_df
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes')
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes), ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
