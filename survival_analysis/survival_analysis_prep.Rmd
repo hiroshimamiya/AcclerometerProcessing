@@ -323,9 +323,9 @@ full_df_PA$education_level %>% table
 full_df_PA$education_level <- factor(full_df_PA$education_level)
 levels(full_df_PA$education_level)
 levels(full_df_PA$education_level) <- list( "None of the above" = "None of the above", 
-                                    "College or University degree" = "College or University degree", 
                                     "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
-                                    "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications" = "A levels/AS, NVQ/HND/HNC or equivalent") 
+                                    "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications" = "A levels/AS, NVQ/HND/HNC or equivalent",
+                                    "College or University degree" = "College or University degree") 
 
 
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
