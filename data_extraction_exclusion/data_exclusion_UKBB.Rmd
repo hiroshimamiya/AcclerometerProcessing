@@ -194,24 +194,7 @@ print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) 
 ```
 
 
-
-## Exclusion 3: Missing covariate data
-
-We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
-
-```{r}
-df_before <- full_df
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
-#Hiroshi comment, no processed meat
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
-result <- count_exclusions(df_before, full_df)
-total_excluded_covd <- result$excluded
-
-# Print total exclusions for step 3
-print(paste("Total participants excluded in step 3:", total_excluded_covd))
-```
-
-## Exclusion 4: Remove participants for whom we have lost follow-up data.
+## Exclusion 3: Remove participants for whom we have lost follow-up data.
 
 ```{r}
 df_before <- full_df
@@ -219,16 +202,15 @@ full_df <- full_df[full_df$date_lost_followup == "", ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_lfu <- result$excluded
 
-# Print total exclusions for step 4
-print(paste("Total participants excluded in step 4:", total_excluded_lfu))
+# Print total exclusions for step 3
+print(paste("Total participants excluded in step 3:", total_excluded_lfu))
 
 ```
 
-## Final count
-
+## Final count after exclusion steps 1 to 3:
 ```{r}
 final_n <- nrow(full_df)
-print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
+print(paste("After applying exclusions 1 to 3, we end up with a sample of n =", final_n," participants"))
 ```
 
 
@@ -685,8 +667,25 @@ much time to generate, we can remove from final version:
 
 
 
-############ Final removals ############
-We remove all rows where any column contains the entry "Prefer not to answer" and
+############ Final exclusion ############
+
+## Exclusion 4: Missing covariate data
+
+### 4.1 We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
+
+```{r}
+df_before <- full_df
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes')
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_covd <- result$excluded
+
+# Print total exclusions for step 4.1
+print(paste("Total participants excluded in step 4.1:", total_excluded_covd))
+```
+
+
+### 4.2 We remove all rows where any column contains the entry "Prefer not to answer" and
 "Don't know":
 ```{r}
 ## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
@@ -713,8 +712,15 @@ result <- count_exclusions(df_before, full_df)
 total_excluded_NA <- result$excluded
 
 print(paste("Total participants excluded after removing newly generated NAs:", total_excluded_NA))
-
 ```
+
+## Final count:
+```{r}
+final_n <- nrow(full_df)
+print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
+```
+
+
 
 
 # Link PA1 and PA2 (Exposure) data
