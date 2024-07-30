@@ -431,9 +431,7 @@ full_df <- full_df %>%
   mutate(across(c(beef, lamb, pork), ~ na_if(., -3)))
 
 ## we create the red meat column by adding all the values for beef, lamb and pork: 
-full_df <- full_df %>%
-  rowwise() %>%
-  mutate(red_meat = sum(c_across(c(beef, lamb, pork)), na.rm = TRUE))
+full_df$red_meat <- rowSums(full_df[c("beef", "lamb", "pork")], na.rm = TRUE)
 
 table(full_df$red_meat) # visualize all the value that take red_meat
 
