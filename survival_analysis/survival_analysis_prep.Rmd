@@ -201,8 +201,8 @@ names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2)
 
 
 # Grouping two categories into one 
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
-  dplyr::mutate(cooked_vg = ifelse(cooked_vg == "2 or 3 servings/day" | cooked_vg== "3 or 4 servings/day", "2 to 4 servings/day", cooked_vg))
+#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
+#  dplyr::mutate(cooked_vg = ifelse(cooked_vg == "2 or 3 servings/day" | cooked_vg== "3 or 4 servings/day", "2 to 4 servings/day", cooked_vg))
 
 
 
@@ -217,8 +217,8 @@ full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
 
 
 # recode binary variables 
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
+#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
+#  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
 
 MVPA_coding <- c(
   '[0,99]' = 'Q1[0,99]', 
@@ -246,11 +246,29 @@ df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q4(395,1.
 
 
 ```{r}
-# Libraries to save table 
+
+full_df_incl_PA1_PA2$cooked_vg %>% table
+full_df_incl_PA1_PA2$cooked_vg <- factor(full_df_incl_PA1_PA2$cooked_vg)
+levels(full_df_incl_PA1_PA2$cooked_vg)
+levels(full_df_incl_PA1_PA2$cooked_vg) <- list(Zero = "Zero servings/day", 'Below 2' ="< 2 servings/day", 'Between2 and 4' = "2 to 4 servings/day",               'Over 4' =  "More than 4 servings/day", 'DoNotKnow' = "Do not know") 
+full_df_incl_PA1_PA2$cooked_vg %>% table
+
+
+full_df_incl_PA1_PA2$fresh_fruit %>% table
+full_df_incl_PA1_PA2$fresh_fruit <- factor(full_df_incl_PA1_PA2$fresh_fruit)
+levels(full_df_incl_PA1_PA2$fresh_fruit)
+levels(full_df_incl_PA1_PA2$fresh_fruit) <- list(Zero = "Zero servings/day", 'Below 2' ="< 2 servings/day", 'Between2 and 4' = "2 to 4 servings/day",               'Over 4' =  "More than 4 servings/day", 'DoNotKnow' = "Do not know") 
+full_df_incl_PA1_PA2$fresh_fruit %>% table
+
+
+
+
 
 
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 includeVar <- c(
+  
+  "fu_time",
   "MVPA_Quant_PA1", 
   "MVPA_Quant_PA2",
   "MVPA_min_PA1", 
@@ -280,6 +298,7 @@ d <- d %>%
                 MVPA_Quant_PA2 = factor(MVPA_Quant_PA2))
 
 
+
 # Obesity category names can be shortened 
 # Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
 dt <- d %>%  dplyr::select(
@@ -287,10 +306,11 @@ dt <- d %>%  dplyr::select(
   MVPA_min_PA1, 
   MI, 
   stroke,
-  #age_entry_years, 
+  age_entry_years, 
   sex, 
   oily_fish,
-  #cooked_vg, # the "includeVar" variable above is not used to select vars, since cooked_vg category has issue 
+ cooked_vg, # the "includeVar" variable above is not used to select vars, since cooked_vg category has issue 
+ fresh_fruit, 
   processed_meat, 
   alcohol, 
   smoking, 
@@ -301,15 +321,19 @@ dt <- d %>%  dplyr::select(
   BMI
   )
 
+
+
 # Convert varaible names into deescriptive tabl enames 
 varNameDf <- data.frame(
-  varName = c("Myocardial Infarction", 
+  varName = c("Myocardial Infarction",
+              "Age at baseline",
               "MVPA min/week",
               "Race", 
               "Type II Diabetes", 
               "Deprivacation levels"
   ), 
   ChartName = c("MI", 
+              "age_entry_years",
               "MVPA_min_PA1", 
               "ethnicity", 
               "diabetes", 
@@ -319,15 +343,15 @@ varNameDf <- data.frame(
 tb <- dt %>%
   tbl_summary(
     by = MVPA_Quant_PA2,  
-    all_continuous() ~ "{median} c({p25}, {p75})",
-    digits = all_continuous() ~ 1,
-    label = c(
-      varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-      varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-      varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-      varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-      varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
-    )
+    #statistic = all_continuous() ~ "{mean} ({sd})"
+    #digits = all_continuous() ~ 1,
+  label = c(
+     varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
+     varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
+     varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
+     varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
+   varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
+)
   ) %>% 
   as_flex_table()
 
@@ -371,75 +395,6 @@ model.matrix(~0+., data=d) %>%
 
 
 ```
-## We create a table of summary baseline characteristics for each quarters:
-
-### MVPA Quarter 1:
-```{r}
-summ_base_char_MVPA_quarter1 <- df_MVPA_quarter1 %>%
-  tbl_summary(
-    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
-                processed_meat, alcohol, smoking, ethnicity, education_level,  
-                diabetes, BMI),
-    statistic = list(all_continuous() ~ "{mean} ± {sd}")
-  ) %>%
-  bold_labels() %>%
-  as_kable_extra(booktabs = TRUE) %>%
-  kable_styling(latex_options = c("scale_down", "hold_position"), 
-                font_size = 8) # Adjust font size to fit better
-
-# Print the table
-knitr::knit_print(summ_base_char_MVPA_quarter1)
-```
-
-
-### MVPA Quarter 2:
-```{r}
-summ_base_char_MVPA_quarter2 <- df_MVPA_quarter2 %>%
-  tbl_summary(
-    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
-                processed_meat, alcohol, smoking, ethnicity, education_level,  
-                diabetes, BMI),
-    statistic = list(all_continuous() ~ "{mean} ± {sd}")
-  ) %>%
-  bold_labels()  %>%
-  as_kable_extra(booktabs = TRUE) 
-
-
-knitr::knit_print(summ_base_char_MVPA_quarter2)
-```
-
-### MVPA Quarter 3:
-```{r}
-# Quarter 3
-summ_base_char_MVPA_quarter3 <- df_MVPA_quarter3 %>%
-  tbl_summary(
-    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
-                processed_meat, alcohol, smoking, ethnicity, education_level,  
-                diabetes, BMI),
-    statistic = list(all_continuous() ~ "{mean} ± {sd}")
-  ) %>%
-  bold_labels()  %>%
-  as_kable_extra(booktabs = TRUE) 
-
-
-knitr::knit_print(summ_base_char_MVPA_quarter3)
-```
-
-```{r}
-# Quarter 4
-summ_base_char_MVPA_quarter4 <- df_MVPA_quarter4 %>%
-  tbl_summary(
-    include = c(stroke, MI, sex, fresh_fruit, oily_fish, cooked_vg, alcohol_raw, 
-                processed_meat, alcohol, smoking, ethnicity, education_level,  
-                diabetes, BMI),
-    statistic = list(all_continuous() ~ "{mean} ± {sd}")
-  ) %>%
-  bold_labels()  %>%
-  as_kable_extra(booktabs = TRUE) %>% 
-
-
-knitr::knit_print(summ_base_char_MVPA_quarter4)
-```
 
 
 
@@ -472,20 +427,22 @@ In the data preparation step, we added an event status indicator at exit and a f
 
 
 fitDf <- coxph(Surv(fu_time, MI) ~ 
-                 MVPA_Quant_PA2 + 
+                 MVPA_Quant_PA2 +#+ 
                  sex + 
                  ethnicity + 
                  tdi_quarters + 
-                 education_level + 
                  smoking + 
                  alcohol + 
                  processed_meat + 
                  cooked_vg + 
-                 oily_fish, data = full_df_incl_PA1_PA2)
+                 #education_level
+                 #Age 
+                 oily_fish, 
+                data = full_df_incl_PA1_PA2)
 ggsurvplot(survfit(res.cox), color = "#2E9FDF",
            ggtheme = theme_minimal())
 
-
+summary(fitDf)
 
 
 
