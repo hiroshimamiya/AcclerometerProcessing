@@ -97,6 +97,9 @@ head(full_df$fu_time)
 #print(full_df$date_start_accel)
 
 hist(full_df$fu_time, main = "survival time in Month")
+
+
+
 ```
 
 
@@ -158,11 +161,21 @@ ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
 names(ML_derived_PA2) <- c("eid", "overall_l", "overall_mv", "overall_sb", "overall_slp", "day_l", "day_mv", "day_sb", "day_slp")
 
 ML_derived_PA2 <- ML_derived_PA2 %>% filter(!is.na(overall_l))
+
 dim(ML_derived_PA2)
 
 
 ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv * 7 * 24 * 60 
-ML_derived_PA2$MVPA_Quant <- dvmisc::quant_groups(ML_derived_PA2$MVPA_min, 4)
+
+
+
+ML_derived_PA2$MVPA_min <- ML_derived_PA2$overall_mv* 7*24*60
+ML_derived_PA2$LPA_min <- ML_derived_PA2$overall_l* 7*24*60
+ML_derived_PA2$SB_min <- ML_derived_PA2$overall_sb* 7*24*60
+
+colnames(ML_derived_PA2) <- paste(colnames(ML_derived_PA2), "_PA2", sep = "")
+colnames(ML_derived_PA2)[1] <- "eid"
+
 
 ```
 
@@ -176,134 +189,99 @@ enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parall
   bind_rows 
 
 enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
-enmoTSParallel_PA1$MVPA_Quant <- dvmisc::quant_groups(enmoTSParallel_PA1$MVPA_min, 4)
+enmoTSParallel_PA1$LPA_min <- enmoTSParallel_PA1$LPA_total* 7*24*60
+enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
+
+colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
+colnames(enmoTSParallel_PA1)[1] <- "eid"
+
+
+
 
 ```
+
 
 
 We merge the full_df and PA1 and PA2 df by eids
 ```{r}
-full_df_PA1 <- inner_join(full_df, enmoTSParallel_PA1, by = "eid")
-full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, ML_derived_PA2, by = "eid")
+full_df_PA <- inner_join(
+  full_df, 
+  enmoTSParallel_PA1 %>% 
+    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1),
+  by = "eid")
 
-names(full_df_incl_PA1_PA2) <- gsub("\\.x$", "_PA1", names(full_df_incl_PA1_PA2))
-names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2))
-
-#write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
-```
-
-# recoding some variables 
-```{r}
-
-# Recode from gender to sex 
-#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
-#  dplyr::mutate(sex = ifelse(sex == "Man", "Male", "Female"))
-
-
-# Grouping two categories into one 
-#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%  
-#  dplyr::mutate(cooked_vg = ifelse(cooked_vg == "2 or 3 servings/day" | cooked_vg== "3 or 4 servings/day", "2 to 4 servings/day", cooked_vg))
-
-
-
+full_df_PA<- inner_join(full_df_PA, 
+  ML_derived_PA2 %>% 
+    dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
+  by = "eid")
 
 ```
 
 
 
 
-####### Create Summary of Baseline Characteristics Table ######
 ```{r}
+sum(full_df_PA$MVPA_min_PA1 > 2500 )
+summary(full_df_PA$MVPA_min_PA1)
+
+sum(full_df_PA$MVPA_min_PA2 > 2500 )
+summary(full_df_PA$MVPA_min_PA2)
 
 
-# recode binary variables 
-#full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-#  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
-
-MVPA_coding <- c(
-  '[0,99]' = 'Q1[0,99]', 
-  '(99,222]' = 'Q2(99,222]', 
-  '(222,395]' = 'Q3(222,395]', 
-  '(395,1.01e+04]' = 'Q4(395,1.01e+04]'
-)
+dim(full_df_PA)
+full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
+full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
+dim(full_df_PA)
 
 
-full_df_incl_PA1_PA2 <- full_df_incl_PA1_PA2 %>%
-  mutate(MVPA_Quant_PA2 = recode(as.character(MVPA_Quant_PA2), !!!MVPA_coding))
+
+full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
 
 
-# we seperate the full_df_incl_PA1_PA2 in 4 tables based off MVPA quarters:
-df_MVPA_quarter1 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q1[0,99]")
 
-df_MVPA_quarter2 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q2(99,222]")
 
-df_MVPA_quarter3 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q3(222,395]")
 
-df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q4(395,1.01e+04]")
+boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA1, data = full_df_PA)
+boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA2, data = full_df_PA)
 
 
 ```
 
 
+
 ```{r}
-
-full_df_incl_PA1_PA2$cooked_vg %>% table
-full_df_incl_PA1_PA2$cooked_vg <- factor(full_df_incl_PA1_PA2$cooked_vg)
-levels(full_df_incl_PA1_PA2$cooked_vg)
-levels(full_df_incl_PA1_PA2$cooked_vg) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
-full_df_incl_PA1_PA2$cooked_vg %>% table
-
-
-full_df_incl_PA1_PA2$fresh_fruit %>% table
-full_df_incl_PA1_PA2$fresh_fruit <- factor(full_df_incl_PA1_PA2$fresh_fruit)
-levels(full_df_incl_PA1_PA2$fresh_fruit)
-levels(full_df_incl_PA1_PA2$fresh_fruit) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
-full_df_incl_PA1_PA2$fresh_fruit %>% table
+# Re-order categories 
+full_df_PA$cooked_vg %>% table
+full_df_PA$cooked_vg <- factor(full_df_PA$cooked_vg)
+levels(full_df_PA$cooked_vg)
+levels(full_df_PA$cooked_vg) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA$cooked_vg %>% table
 
 
+full_df_PA$fresh_fruit %>% table
+full_df_PA$fresh_fruit <- factor(full_df_PA$fresh_fruit)
+levels(full_df_PA$fresh_fruit)
+levels(full_df_PA$fresh_fruit) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA$fresh_fruit %>% table
 
 
-
-
-# Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
-includeVar <- c(
-  
-  "fu_time",
-  "MVPA_Quant_PA1", 
-  "MVPA_Quant_PA2",
-  "MVPA_min_PA1", 
-  #"MVPA_min_PA2",
-  "stroke", 
-  "MI", 
-  "age_entry_years",
-  "sex", 
-  "fresh_fruit", 
-  "oily_fish", 
-  "cooked_vg", # 1924 vars missing, hence the table function below will fail, unless 
-  "alcohol_raw", 
-  "processed_meat", 
-  "alcohol", 
-  "smoking", 
-  "ethnicity", 
-  "education_level",
-  "tdi_quarters",
-  "diabetes", 
-  "BMI"
-  )
-
-
-d <-  full_df_incl_PA1_PA2 %>% dplyr::select(all_of(includeVar))
-d <- d %>%  
-  dplyr::mutate(MVPA_Quant_PA1 = factor(MVPA_Quant_PA1),
-                MVPA_Quant_PA2 = factor(MVPA_Quant_PA2))
-
+full_df_PA$smoking %>% table 
+full_df_PA$smoking<- factor(full_df_PA$smoking)
+levels(full_df_PA$smoking)
+levels(full_df_PA$smoking) <- list( 'Never' = "Never", 
+                                    'Previous' = "Previous", 
+                                    'Current' =  "Current") 
 
 
 # Obesity category names can be shortened 
 # Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
-dt <- d %>%  dplyr::select(
+dt <- full_df_PA %>%  dplyr::select(
+  fu_time, 
   MVPA_Quant_PA2,  
+  MVPA_Quant_PA1,  
   MVPA_min_PA1, 
+  MVPA_min_PA2, 
   MI, 
   stroke,
   age_entry_years, 
@@ -326,32 +304,52 @@ dt <- d %>%  dplyr::select(
 # Convert varaible names into deescriptive tabl enames 
 varNameDf <- data.frame(
   varName = c("Myocardial Infarction",
-              "Age at baseline",
+              "Age",
               "MVPA min/week",
               "Race", 
               "Type II Diabetes", 
-              "Deprivacation levels"
+              "Deprivation index", 
+              "Education", 
+              "Smoking", 
+              "Alcohol", 
+              "Processed meat", 
+              "Fresh fruit", 
+              "Cooked vegetables", 
+              "Oily fish", 
+              "Sex", 
+              "Follow_up time"
   ), 
   ChartName = c("MI", 
               "age_entry_years",
               "MVPA_min_PA1", 
               "ethnicity", 
               "diabetes", 
-              "tdi_quarters")
+              "tdi_quarters", 
+              "education_level", 
+              "smoking", 
+              "alcohol", 
+              "processed_meat", 
+              "fresh_fruit", 
+              "cooked_vg", 
+              "oily_fish", 
+              "sex", 
+              "fu_time")
 )
+
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    deframe()
+
+dt <- dt %>% 
+    rename(!!!var_names)
+
 
 tb <- dt %>%
   tbl_summary(
     by = MVPA_Quant_PA2,  
     #statistic = all_continuous() ~ "{mean} ({sd})"
     #digits = all_continuous() ~ 1,
-  label = c(
-     varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-     varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-     varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-     varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-   varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
-)
   ) %>% 
   as_flex_table()
 
@@ -376,22 +374,18 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
                path = "testTable.docx", 
                pr_section = sect_properties
                )  
-
-
-
-
 ```
 
 
 ```{r}
-corrplot 
 #pairs(inl)
 
-
 library(ggcorrplot)
-model.matrix(~0+., data=d) %>% 
+model.matrix(~0+., data=dt) %>% 
   cor(use="pairwise.complete.obs") %>% 
-  ggcorrplot(show.diag=FALSE, type="lower", lab=TRUE, lab_size=2)
+  ggcorrplot(show.diag=FALSE, type="lower", lab=F, lab_size=2)
+
+
 
 
 ```
@@ -421,41 +415,25 @@ In the data preparation step, we added an event status indicator at exit and a f
 ### Regression 
 ```{r}
 
-#km_stroke <- coxph(
-  #Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
-  #data = full_df_incl_PA1_PA2)
-#install.packages("ggsurvplot")
-#library(ggsurvplot)
-
-fitDf <- coxph(Surv(fu_time, MI) ~ 
-                 MVPA_Quant_PA2 +
-                 sex + 
-                 ethnicity + 
-                 tdi_quarters + 
-                 smoking + 
-                 alcohol + 
-                 processed_meat + 
-                 cooked_vg + 
-                 #education_level
-                 #Age 
-                 oily_fish, 
-                data = full_df_incl_PA1_PA2)
-#ggsurvplot(survfit(res.cox), color = "#2E9FDF",
-           #ggtheme = theme_minimal())
+fitDf <- coxph(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
+               Sex + 
+              `Age` +
+              `MVPA min/week`+
+              `Race` + 
+              `Type II Diabetes`+ 
+              `Deprivation index`+ 
+              `Education`+ 
+              `Smoking`+ 
+              `Alcohol`+ 
+              `Processed meat`+ 
+              `Fresh fruit`+ 
+              `Cooked vegetables`+ 
+              `Oily fish`, 
+data = dt)
 
 summary(fitDf)
+tbl_regression(fitDf, exponentiate = TRUE)
 
-
-
-#tbl_regression(fitDf, exponentiate = TRUE#, 
-   #            label = c(
-  #    varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-   #   varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-  #    varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-   #   varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-  #    varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
-  #  )
-#)
 
 
 
