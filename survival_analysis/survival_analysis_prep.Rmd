@@ -263,32 +263,29 @@ full_df_incl_PA1_PA2$fresh_fruit %>% table
 
 
 
-
-
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 includeVar <- c(
-  
   "fu_time",
-  "MVPA_Quant_PA1", 
-  "MVPA_Quant_PA2",
-  "MVPA_min_PA1", 
-  #"MVPA_min_PA2",
-  "stroke", 
-  "MI", 
-  "age_entry_years",
-  "sex", 
-  "fresh_fruit", 
-  "oily_fish", 
-  "cooked_vg", # 1924 vars missing, hence the table function below will fail, unless 
-  "alcohol_raw", 
-  "processed_meat", 
-  "alcohol", 
-  "smoking", 
-  "ethnicity", 
-  "education_level",
-  "tdi_quarters",
-  "diabetes", 
-  "BMI"
+"MVPA_Quant_PA2",
+"MVPA_Quant_PA1",
+"MVPA_min_PA1",
+"stroke",
+"MI",
+"age_entry_years",
+"ethnicity",
+"sex",
+"education_level",
+"tdi_quarters",
+"BMI",
+"diabetes",
+"smoking",
+"alcohol",
+"processed_meat",
+"red_meat",
+"oily_fish",
+"non_oily_fish",
+"fresh_fruit",
+"cooked_vg"
   )
 
 
@@ -307,37 +304,63 @@ dt <- d %>%  dplyr::select(
   MI, 
   stroke,
   age_entry_years, 
-  sex, 
-  oily_fish,
- cooked_vg, # the "includeVar" variable above is not used to select vars, since cooked_vg category has issue 
- fresh_fruit, 
-  processed_meat, 
-  alcohol, 
-  smoking, 
   ethnicity, 
+  sex, 
   education_level,  
-  tdi_quarters, 
+  tdi_quarters,
+  BMI,
   diabetes, 
-  BMI
+  smoking, 
+  alcohol, 
+  processed_meat, 
+  red_meat,
+  oily_fish,
+  non_oily_fish,
+  fresh_fruit,
+  cooked_vg
   )
 
 
 
 # Convert varaible names into deescriptive tabl enames 
 varNameDf <- data.frame(
-  varName = c("Myocardial Infarction",
-              "Age at baseline",
-              "MVPA min/week",
-              "Race", 
-              "Type II Diabetes", 
-              "Deprivacation levels"
+  varName = c("MVPA_MIN_PA1",
+    "MI",
+    "STROKE",
+    "AGE_ENTRY_YEARS",
+    "ETHNICITY",
+    "SEX",
+    "EDUCATION_LEVEL",
+    "TDI_QUARTERS",
+    "BMI",
+    "DIABETES",
+    "SMOKING",
+    "ALCOHOL",
+    "PROCESSED_MEAT",
+    "RED_MEAT",
+    "OILY_FISH",
+    "NON_OILY_FISH",
+    "FRESH_FRUIT",
+    "COOKED_VG"
   ), 
-  ChartName = c("MI", 
-              "age_entry_years",
-              "MVPA_min_PA1", 
-              "ethnicity", 
-              "diabetes", 
-              "tdi_quarters")
+  ChartName = c("MVPA_min_PA1",
+                "MI",
+                "stroke",
+                "age_entry_years",
+                "ethnicity",
+                "sex",
+                "education_level",
+                "tdi_quarters",
+                "BMI",
+                "diabetes",
+                "smoking",
+                "alcohol",
+                "processed_meat",
+                "red_meat",
+                "oily_fish",
+                "non_oily_fish",
+                "fresh_fruit",
+                "cooked_vg")
 )
 
 tb <- dt %>%
@@ -346,11 +369,24 @@ tb <- dt %>%
     #statistic = all_continuous() ~ "{mean} ({sd})"
     #digits = all_continuous() ~ 1,
   label = c(
-     varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-     varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-     varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-     varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-   varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
+     varNameDf[1, "ChartName"] ~ varNameDf[1, "varName"],
+        varNameDf[2, "ChartName"] ~ varNameDf[2, "varName"],
+        varNameDf[3, "ChartName"] ~ varNameDf[3, "varName"],
+        varNameDf[4, "ChartName"] ~ varNameDf[4, "varName"],
+        varNameDf[5, "ChartName"] ~ varNameDf[5, "varName"],
+        varNameDf[6, "ChartName"] ~ varNameDf[6, "varName"],
+        varNameDf[7, "ChartName"] ~ varNameDf[7, "varName"],
+        varNameDf[8, "ChartName"] ~ varNameDf[8, "varName"],
+        varNameDf[9, "ChartName"] ~ varNameDf[9, "varName"],
+        varNameDf[10, "ChartName"] ~ varNameDf[10, "varName"],
+        varNameDf[11, "ChartName"] ~ varNameDf[11, "varName"],
+        varNameDf[12, "ChartName"] ~ varNameDf[12, "varName"],
+        varNameDf[13, "ChartName"] ~ varNameDf[13, "varName"],
+        varNameDf[14, "ChartName"] ~ varNameDf[14, "varName"],
+        varNameDf[15, "ChartName"] ~ varNameDf[15, "varName"],
+        varNameDf[16, "ChartName"] ~ varNameDf[16, "varName"],
+        varNameDf[17, "ChartName"] ~ varNameDf[17, "varName"],
+        varNameDf[18, "ChartName"] ~ varNameDf[18, "varName"]
 )
   ) %>% 
   as_flex_table()
@@ -427,18 +463,59 @@ In the data preparation step, we added an event status indicator at exit and a f
 #install.packages("ggsurvplot")
 #library(ggsurvplot)
 
+varNameDf <- data.frame(
+  varName = c("MVPA_Quant_PA2", 
+              "AGE_ENTRY_YEARS", 
+              "ETHNICITY", 
+              "SEX", 
+              "EDUCATION_LEVEL", 
+              "TDI_QUARTERS", 
+              "BMI", 
+              "DIABETES", 
+              "SMOKING", 
+              "ALCOHOL", 
+              "PROCESSED_MEAT", 
+              "RED_MEAT", 
+              "OILY_FISH", 
+              "NON_OILY_FISH", 
+              "FRESH_FRUIT", 
+              "COOKED_VG"), 
+  ChartName = c("MVPA_Quant_PA2",
+  "age_entry_years",
+  "ethnicity",
+  "sex",
+  "education_level",
+  "tdi_quarters",
+  "BMI",
+  "diabetes",
+  "smoking",
+  "alcohol",
+  "processed_meat",
+  "red_meat",
+  "oily_fish",
+  "non_oily_fish",
+  "fresh_fruit",
+  "cooked_vg")
+)
+
+
 fitDf <- coxph(Surv(fu_time, MI) ~ 
-                 MVPA_Quant_PA2 +
-                 sex + 
-                 ethnicity + 
-                 tdi_quarters + 
-                 smoking + 
-                 alcohol + 
-                 processed_meat + 
-                 cooked_vg + 
-                 #education_level
-                 #Age 
-                 oily_fish, 
+                MVPA_Quant_PA2 +
+                age_entry_years +
+                ethnicity +
+                sex +
+                education_level +
+                tdi_quarters +
+                BMI +
+                diabetes +
+                smoking +
+                alcohol +
+                processed_meat +
+                red_meat +
+                oily_fish +
+                non_oily_fish +
+                fresh_fruit +
+                cooked_vg,
                 data = full_df_incl_PA1_PA2)
 #ggsurvplot(survfit(res.cox), color = "#2E9FDF",
            #ggtheme = theme_minimal())
@@ -447,15 +524,26 @@ summary(fitDf)
 
 
 
-#tbl_regression(fitDf, exponentiate = TRUE#, 
-   #            label = c(
-  #    varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
-   #   varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
-  #    varNameDf[3, "ChartName"]~ varNameDf[3, "varName"], 
-   #   varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
-  #    varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
-  #  )
-#)
+tbl_regression(fitDf, exponentiate = TRUE, 
+              label = c(
+        varNameDf[1, "ChartName"] ~ varNameDf[1, "varName"],
+        varNameDf[2, "ChartName"] ~ varNameDf[2, "varName"],
+        varNameDf[3, "ChartName"] ~ varNameDf[3, "varName"],
+        varNameDf[4, "ChartName"] ~ varNameDf[4, "varName"],
+        varNameDf[5, "ChartName"] ~ varNameDf[5, "varName"],
+        varNameDf[6, "ChartName"] ~ varNameDf[6, "varName"],
+        varNameDf[7, "ChartName"] ~ varNameDf[7, "varName"],
+        varNameDf[8, "ChartName"] ~ varNameDf[8, "varName"],
+        varNameDf[9, "ChartName"] ~ varNameDf[9, "varName"],
+        varNameDf[10, "ChartName"] ~ varNameDf[10, "varName"],
+        varNameDf[11, "ChartName"] ~ varNameDf[11, "varName"],
+        varNameDf[12, "ChartName"] ~ varNameDf[12, "varName"],
+        varNameDf[13, "ChartName"] ~ varNameDf[13, "varName"],
+        varNameDf[14, "ChartName"] ~ varNameDf[14, "varName"],
+        varNameDf[15, "ChartName"] ~ varNameDf[15, "varName"],
+        varNameDf[16, "ChartName"] ~ varNameDf[16, "varName"]
+   )
+)
 
 
 
