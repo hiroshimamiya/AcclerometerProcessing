@@ -110,7 +110,8 @@ for (col in date_columns) {
 ```
 
 
-# Removal of CVD cases based on the baseline date of acceleroemter for each person
+### Removal of CVD cases based on the baseline date of acceleroemter for each person:
+
 ```{r}
 # Max date of diagnosis (hospital record update) is 2022 Dec. 
 summary(full_df$stroke_date) #originally 1140 excluded
@@ -164,7 +165,8 @@ df_beforeExclusion %>%
 ```
 
 
-Find the last date of hospital records and make exclusion based on the dates:
+### Find the last date of hospital records and make exclusion based on the dates:
+
 ```{r}
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
@@ -215,8 +217,9 @@ print(paste("After applying exclusions 1 to 3, we end up with a sample of n =", 
 
 
 ## Save df with all excluded participants:
+
 ```{r}
-#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc1.csv", row.names = FALSE)
+#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
@@ -238,6 +241,7 @@ We recode certain variables:
 ### Note: all the data coding/mapping was an extra step we had to do ###
 
 1. Ethnicity:
+
 ```{r}
 
 ##first we create a dictionnary mapping for the ethnicity codes
@@ -311,6 +315,7 @@ table(full_df$ethnicity_raw, full_df$ethnicity, useNA = "always")
 
 
 2. Smoking and tdi:
+
 ```{r}
 # Townsend Index:
 full_df$tdi <- full_df$tdi_raw
@@ -338,6 +343,7 @@ table(full_df$smoking, full_df$smoking_raw, useNA = "always")
 
 
 3. Fish and meats:
+
 ```{r}
 ##### Recoding we added
 
@@ -422,6 +428,7 @@ table(full_df$processed_meat, full_df$processed_meat_raw, useNA = "always" )
 4. Red meats:
 * we need to create the red_meat column as the UKBiobank data only provides data 
 for different types of red meat separately (i.e. lamb, beef and pork) *
+
 ```{r}
 
 ## we replace "Do not know"s and "Prefer not to say"s by NAs - we will drop
@@ -476,6 +483,7 @@ table(full_df$red_meat, full_df$red_meat_raw, useNA = "always" )
 
 
 5. Education:
+
 ```{r}
 #### Note: OxWearable use "age education"; we are using "qualifications education"
 ## so this is our recoding
@@ -516,6 +524,7 @@ table(full_df$education_level, full_df$education_raw, useNA = "always")
 
 
 6. BMI:
+
 ```{r}
 full_df$BMI <- full_df$BMI_raw
 
@@ -534,6 +543,7 @@ boxplot(BMI_raw ~ BMI, data = full_df)
 
 
 7. Fruit and veggies:
+
 ```{r}
 # Hiroshi Comment: Zero serving is treated as missing - it should not be. ALso, here you have a varaible in mix of discrete number (integer) and character, and youa re applying oepration for integer. Is this char, integer, factor variable? 
 # Hiroshi Comment Zero serving is treated as missing - it should not be
@@ -573,6 +583,7 @@ table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
 
 
 8. Alcohol:
+
 ```{r}
 # Alcohol
 ## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
@@ -608,6 +619,7 @@ table(full_df$alcohol, full_df$alcohol_raw, useNA = "always")
 
 
 9. Diabetes and other comorbidities:
+
 ```{r}
 # Diabetes
 diabetes_coding <- c(
@@ -633,6 +645,7 @@ table(full_df$diabetes_raw, full_df$diabetes, useNA = "always")
 
 
 10. Sex:
+
 ```{r}
 # recode binary variables 
 full_df <- full_df %>%
@@ -711,7 +724,7 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 
 
-
+############ Inclusion of PA data ############
 # Link PA1 and PA2 (Exposure) data
 
 ```{r}
@@ -765,6 +778,7 @@ boxplot(age_entry_years ~ age_gp, data = full_df)
 ```
 
 We make a function to cut by quantile:
+
 ```{r}
 qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
     breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
@@ -775,6 +789,7 @@ qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) 
 
 
 We cut overall activity and Townsend Deprivation Index into quarters:
+
 ```{r}
 full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
 # OxWearable Note: The TDI classification here was quarters of the study population, which was used in the example papers. However, our group now typically uses TDI scaled to quarters of the UK population, 
@@ -792,6 +807,7 @@ boxplot(tdi ~ tdi_quarters, data = full_df)
 
 We save the the final df which includes the exlucded participants and the recoding
 suggested by OxWearables (as well as the data mapping we had to do)
+
 ```{r}
 write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc_recode.csv", row.names = FALSE)
 ```
