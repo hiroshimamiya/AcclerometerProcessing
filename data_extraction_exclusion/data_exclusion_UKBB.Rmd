@@ -110,7 +110,7 @@ for (col in date_columns) {
 ```
 
 
-# removal of CVD cases based on the baseline date of acceleroemter for each person
+# Removal of CVD cases based on the baseline date of acceleroemter for each person
 ```{r}
 # Max date of diagnosis (hospital record update) is 2022 Dec. 
 summary(full_df$stroke_date) #originally 1140 excluded
@@ -164,7 +164,7 @@ df_beforeExclusion %>%
 ```
 
 
-Find the last date of hospital records and make exclusion based on the dates
+Find the last date of hospital records and make exclusion based on the dates:
 ```{r}
 # we create an empty list that will be filled with the number of excluded participants
 exclusions <- list()
@@ -194,7 +194,7 @@ print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) 
 ```
 
 
-## Exclusion 3: Remove participants for whom we have lost follow-up data.
+## Exclusion 3: Remove participants for whom we have lost follow-up data
 
 ```{r}
 df_before <- full_df
@@ -216,7 +216,7 @@ print(paste("After applying exclusions 1 to 3, we end up with a sample of n =", 
 
 ## Save df with all excluded participants:
 ```{r}
-#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc1.csv", row.names = FALSE)
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
@@ -492,30 +492,25 @@ education_coding <- c(
 
 ## we replace the education codes by their meaning:
 full_df <- full_df %>%
-  mutate(education = recode(as.character(education_raw), !!!education_coding))
+  mutate(education_level = recode(as.character(education_raw), !!!education_coding))
 
 ## we recode again to have less education classifications
 full_df <- full_df %>%
   mutate(education_level = case_when(
-    education_raw == "College or University degree" ~ "College or University degree",
-    education_raw %in% c("A levels/AS levels or equivalent", 
+    education_level == "College or University degree" ~ "College or University degree",
+    education_level %in% c("A levels/AS levels or equivalent", 
                          "NVQ or HND or HNC or equivalent", 
                          "Other professional qualifications eg: nursing, teaching") ~ 
                          "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
-    education_raw %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
+    education_level %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
                          "O levels/GCSEs or equivalent, CSEs or equivalent",
-    education_raw == "None of the above" ~ "None of the above",
+    education_level == "None of the above" ~ "None of the above",
+    education_level == "Prefer not to answer" ~ "Prefer not to answer",
     TRUE ~ NA_character_
   ))
 
-### we remove the "age_education_raw" column as we won't be needing it:
-full_df <- subset(full_df, select = -age_education_raw)
-
-# HiroshiComment - "prefer not to answer"? can be  NA 
-table(full_df$education, full_df$education_raw, useNA = "always" )
 
 table(full_df$education_level, full_df$education_raw, useNA = "always" )
-
 ```
 
 
