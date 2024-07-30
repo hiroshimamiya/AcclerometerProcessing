@@ -274,6 +274,60 @@ levels(full_df_PA$smoking) <- list( 'Never' = "Never",
                                     'Current' =  "Current") 
 
 
+full_df_PA$BMI %>% table 
+full_df_PA$BMI <- factor(full_df_PA$BMI)
+levels(full_df_PA$BMI)
+levels(full_df_PA$BMI) <- list( "Underweight (< 18.5 kg/m2)" = "Underweight (< 18.5 kg/m2)",
+                                "Normal (18.5 kg/m2 to < 25 kg/m2)" = "Normal (18.5 kg/m2 to < 25 kg/m2)" ,
+                                "Overweight (25 kg/m2 to < 30 kg/m2)" = "Overweight (25 kg/m2 to < 30 kg/m2)",
+                                "Obesity Class I, II or III (> 30 kg/m2)" = "Obesity Class I, II or III (> 30 kg/m2)") 
+
+full_df_PA$alcohol %>% table 
+full_df_PA$alcohol <- factor(full_df_PA$alcohol)
+levels(full_df_PA$alcohol)
+levels(full_df_PA$alcohol) <- list( "Never" = "Never", 
+                                    "Less than once a week" = "Less than once a week", 
+                                    "Once or twice a week" =  "Once or twice a week",
+                                    "Three or four times a week" = "Three or four times a week",
+                                    "Daily or almost daily" = "Daily or almost daily") 
+
+full_df_PA$processed_meat %>% table 
+full_df_PA$processed_meat <- factor(full_df_PA$processed_meat)
+levels(full_df_PA$processed_meat)
+levels(full_df_PA$processed_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA$oily_fish %>% table 
+full_df_PA$oily_fish <- factor(full_df_PA$oily_fish)
+levels(full_df_PA$oily_fish)
+levels(full_df_PA$oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA$non_oily_fish %>% table 
+full_df_PA$non_oily_fish <- factor(full_df_PA$non_oily_fish)
+levels(full_df_PA$non_oily_fish)
+levels(full_df_PA$non_oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA$red_meat %>% table 
+full_df_PA$red_meat <- factor(full_df_PA$red_meat)
+levels(full_df_PA$red_meat)
+levels(full_df_PA$red_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA$education_level %>% table 
+full_df_PA$education_level <- factor(full_df_PA$education_level)
+levels(full_df_PA$education_level)
+levels(full_df_PA$education_level) <- list( "None of the above" = "None of the above", 
+                                    "College or University degree" = "College or University degree", 
+                                    "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
+                                    "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications") 
+
+
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
 
