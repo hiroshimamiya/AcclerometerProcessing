@@ -250,14 +250,14 @@ df_MVPA_quarter4 <- full_df_incl_PA1_PA2 %>% filter(MVPA_Quant_PA2 == "Q4(395,1.
 full_df_incl_PA1_PA2$cooked_vg %>% table
 full_df_incl_PA1_PA2$cooked_vg <- factor(full_df_incl_PA1_PA2$cooked_vg)
 levels(full_df_incl_PA1_PA2$cooked_vg)
-levels(full_df_incl_PA1_PA2$cooked_vg) <- list(Zero = "Zero servings/day", 'Below 2' ="< 2 servings/day", 'Between2 and 4' = "2 to 4 servings/day",               'Over 4' =  "More than 4 servings/day", 'DoNotKnow' = "Do not know") 
+levels(full_df_incl_PA1_PA2$cooked_vg) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
 full_df_incl_PA1_PA2$cooked_vg %>% table
 
 
 full_df_incl_PA1_PA2$fresh_fruit %>% table
 full_df_incl_PA1_PA2$fresh_fruit <- factor(full_df_incl_PA1_PA2$fresh_fruit)
 levels(full_df_incl_PA1_PA2$fresh_fruit)
-levels(full_df_incl_PA1_PA2$fresh_fruit) <- list(Zero = "Zero servings/day", 'Below 2' ="< 2 servings/day", 'Between2 and 4' = "2 to 4 servings/day",               'Over 4' =  "More than 4 servings/day", 'DoNotKnow' = "Do not know") 
+levels(full_df_incl_PA1_PA2$fresh_fruit) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
 full_df_incl_PA1_PA2$fresh_fruit %>% table
 
 
@@ -384,8 +384,8 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
 
 
 ```{r}
-coorplot 
-pairs(inl)
+corrplot 
+#pairs(inl)
 
 
 library(ggcorrplot)
@@ -424,10 +424,11 @@ In the data preparation step, we added an event status indicator at exit and a f
 #km_stroke <- coxph(
   #Surv(fu_time, stroke) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + education_level + smoking + alcohol,
   #data = full_df_incl_PA1_PA2)
-
+#install.packages("ggsurvplot")
+#library(ggsurvplot)
 
 fitDf <- coxph(Surv(fu_time, MI) ~ 
-                 MVPA_Quant_PA2 +#+ 
+                 MVPA_Quant_PA2 +
                  sex + 
                  ethnicity + 
                  tdi_quarters + 
@@ -439,14 +440,14 @@ fitDf <- coxph(Surv(fu_time, MI) ~
                  #Age 
                  oily_fish, 
                 data = full_df_incl_PA1_PA2)
-ggsurvplot(survfit(res.cox), color = "#2E9FDF",
-           ggtheme = theme_minimal())
+#ggsurvplot(survfit(res.cox), color = "#2E9FDF",
+           #ggtheme = theme_minimal())
 
 summary(fitDf)
 
 
 
-tbl_regression(fitDf, exponentiate = TRUE#, 
+#tbl_regression(fitDf, exponentiate = TRUE#, 
    #            label = c(
   #    varNameDf[1, "ChartName"]~ varNameDf[1, "varName"], 
    #   varNameDf[2, "ChartName"]~ varNameDf[2, "varName"], 
@@ -454,7 +455,7 @@ tbl_regression(fitDf, exponentiate = TRUE#,
    #   varNameDf[4, "ChartName"]~ varNameDf[4, "varName"], 
   #    varNameDf[5, "ChartName"]~ varNameDf[5, "varName"]
   #  )
-)
+#)
 
 
 
