@@ -509,7 +509,7 @@ full_df <- full_df %>%
     education_level %in% c("A levels/AS levels or equivalent", 
                          "NVQ or HND or HNC or equivalent", 
                          "Other professional qualifications eg: nursing, teaching") ~ 
-                         "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
+                         "A levels/AS, NVQ/HND/HNC or equivalent",
     education_level %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
                          "O levels/GCSEs or equivalent, CSEs or equivalent",
     education_level == "None of the above" ~ "None of the above",
