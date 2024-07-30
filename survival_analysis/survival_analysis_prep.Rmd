@@ -363,6 +363,7 @@ dt <- full_df_PA %>%  dplyr::select(
 # Convert varaible names into deescriptive tabl enames 
 varNameDf <- data.frame(
   varName = c("Myocardial Infarction",
+              "Stroke",
               "Age",
               "MVPA min/week",
               "Race", 
@@ -371,14 +372,17 @@ varNameDf <- data.frame(
               "Education", 
               "Smoking", 
               "Alcohol", 
-              "Processed meat", 
+              "Processed meat",
+              "Red meat",
               "Fresh fruit", 
               "Cooked vegetables", 
               "Oily fish", 
+              "Non-oily fish",
               "Sex", 
               "Follow_up time"
   ), 
   ChartName = c("MI", 
+              "stroke",
               "age_entry_years",
               "MVPA_min_PA1", 
               "ethnicity", 
@@ -388,9 +392,11 @@ varNameDf <- data.frame(
               "smoking", 
               "alcohol", 
               "processed_meat", 
+              "red_meat",
               "fresh_fruit", 
               "cooked_vg", 
               "oily_fish", 
+              "non_oily_fish",
               "sex", 
               "fu_time")
 )
