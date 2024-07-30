@@ -655,20 +655,6 @@ table(full_df$sex)
 ```
 
 
-##Yacine Note: I save the df up to this point because the previous steps take too
-much time to generate, we can remove from final version:
-```{r}
-#write.csv(full_df, "/home/yacine/UKBB_beluga/full_recode.csv", row.names = FALSE)
-```
-
-
-```{r}
-#full_df <- read.csv("/home/yacine/UKBB_beluga/full_recode.csv")
-
-```
-
-
-
 ############ Final exclusion ############
 
 ## Exclusion 4: Missing covariate data
@@ -691,7 +677,7 @@ print(paste("Total participants excluded in step 4.1:", total_excluded_covd))
 "Don't know":
 ```{r}
 ## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
-answers_to_remove <- c("Prefer not to answer", "Don't know")
+answers_to_remove <- c("Prefer not to answer", "Do not know")
 
 full_df <- full_df %>%
   mutate(across(where(is.character), ~ ifelse(. %in% answers_to_remove, NA, .)))
