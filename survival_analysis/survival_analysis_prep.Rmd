@@ -126,17 +126,6 @@ full_df <- full_df %>%
 ```
 
 
-## Associations with risk of incident cardiovascular disease 
-
-In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
-```{r}
-
-#cox_model <- coxph(
-  #Surv(fu_time, stroke, MI) ~ overall_activity_quarters + age_entry_years + sex + ethnicity + tdi_quarters + age_education + smoking + alcohol,
- # data = full_df
-#)
-#summary(cox_model)
-```
 
 
 
@@ -200,7 +189,7 @@ full_df_incl_PA1_PA2 <- inner_join(full_df_PA1, ML_derived_PA2, by = "eid")
 names(full_df_incl_PA1_PA2) <- gsub("\\.x$", "_PA1", names(full_df_incl_PA1_PA2))
 names(full_df_incl_PA1_PA2) <- gsub("\\.y$", "_PA2", names(full_df_incl_PA1_PA2))
 
-write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
+#write.csv(full_df_incl_PA1_PA2, "/home/yacine/survival_analysis/full_df_with_PA.csv", row.names = FALSE)
 ```
 
 # recoding some variables 
@@ -466,6 +455,15 @@ Kaplan_Meier:
   - d_stroke == 1; d_MI == 1
   - end_of_fu = censoring time
   
+  
+  
+  
+## Associations with risk of incident cardiovascular disease 
+
+In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
+
+
+### Regression 
 ```{r}
 
 #km_stroke <- coxph(

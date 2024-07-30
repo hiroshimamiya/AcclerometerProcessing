@@ -234,7 +234,7 @@ print(paste("After applying all exclusions, we end up with a sample of n =", fin
 
 ## Save df with all excluded participants:
 ```{r}
-write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
@@ -243,7 +243,7 @@ multiple instances) provided more "NA" data than actual data, so I removed these
 columns:
 ```{r}
 full_df <- full_df %>%
-  select(-diabetes_1, -diabetes_2, -diabetes_3, 
+  dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
          -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1)
 
 ```
@@ -534,6 +534,8 @@ full_df <- subset(full_df, select = -age_education_raw)
 # HiroshiComment - "prefer not to answer"? can be  NA 
 table(full_df$education, full_df$education_raw, useNA = "always" )
 
+table(full_df$education_level, full_df$education_raw, useNA = "always" )
+
 ```
 
 
@@ -591,8 +593,8 @@ full_df <- full_df %>%
 
 
 
-table(full_df$cooked_vg, useNA = "always")
-table(full_df$fresh_fruit, useNA = "always")
+table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
+table(full_df$fresh_fruit, full_df$cooked_vg_raw, useNA = "always")
 
 
 
@@ -664,18 +666,20 @@ table(full_df$diabetes_raw, full_df$diabetes, useNA = "always")
 # recode binary variables 
 full_df <- full_df %>%
   mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
+
+table(full_df$sex)
 ```
 
 
 ##Yacine Note: I save the df up to this point because the previous steps take too
 much time to generate, we can remove from final version:
 ```{r}
-write.csv(full_df, "/home/yacine/UKBB_beluga/full_recode.csv", row.names = FALSE)
+#write.csv(full_df, "/home/yacine/UKBB_beluga/full_recode.csv", row.names = FALSE)
 ```
 
 
 ```{r}
-full_df <- read.csv("/home/yacine/UKBB_beluga/full_recode.csv")
+#full_df <- read.csv("/home/yacine/UKBB_beluga/full_recode.csv")
 
 ```
 
@@ -759,6 +763,10 @@ full_df$age_gp <-
     right = FALSE,
     labels = c("40-49", "50-59", "60-69", "70-79")
   )
+
+
+
+boxplot(age_entry_years ~ age_gp, data = full_df)
 ```
 
 We make a function to cut by quantile:
@@ -778,6 +786,12 @@ full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels 
 # as listed [here](https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/Townsend_Deprivation_Scores/UK%20Townsend%20Deprivation%20Scores%20from%202011%20census%20data.pdf, page 15)
 
 full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+
+
+boxplot(overall_activity ~ overall_activity_quarters, data = full_df)
+boxplot(tdi ~ tdi_quarters, data = full_df)
+
+
 ```
 
 
