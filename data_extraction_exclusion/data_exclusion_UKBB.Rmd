@@ -510,7 +510,7 @@ full_df <- full_df %>%
   ))
 
 
-table(full_df$education_level, full_df$education_raw, useNA = "always" )
+table(full_df$education_level, full_df$education_raw, useNA = "always")
 ```
 
 
@@ -542,11 +542,9 @@ full_df$fresh_fruit_raw <- full_df$fresh_fruit
 
 full_df <- full_df %>%
   mutate(fresh_fruit = case_when(
-    fresh_fruit == -10 ~ "Less than one serving/day",
+    fresh_fruit %in% c(-10, 0) | (fresh_fruit > 0 & fresh_fruit < 2) ~ "< 2 servings/day",
     fresh_fruit == -1 ~ "Do not know",
     fresh_fruit == -3 ~ "Prefer not to answer",
-    fresh_fruit == 0 ~ "< 2 servings/day",
-    fresh_fruit > 0 & fresh_fruit < 2 ~ "< 2 servings/day",
     fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
     fresh_fruit > 4 ~ "More than 4 servings/day"
   ))
@@ -557,19 +555,17 @@ full_df$cooked_vg_raw <- full_df$cooked_vg
 
 full_df <- full_df %>%
   mutate(cooked_vg = case_when(
-    cooked_vg == -10 ~ "Less than one serving/day",
+    cooked_vg %in% c(-10, 0) | (cooked_vg > 0 & cooked_vg < 2) ~ "< 2 servings/day",
     cooked_vg == -1 ~ "Do not know",
     cooked_vg == -3 ~ "Prefer not to answer",
-    cooked_vg == 0 ~ "< 2 servings/day",
-    cooked_vg > 0 & cooked_vg < 2 ~ "< 2 servings/day",
     cooked_vg >= 2 & cooked_vg <= 4 ~ "2 to 4 servings/day",
     cooked_vg > 4 ~ "More than 4 servings/day"
   ))
 
 
 
+table(full_df$fresh_fruit, full_df$fresh_fruit_raw, useNA = "always")
 table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
-table(full_df$fresh_fruit, full_df$cooked_vg_raw, useNA = "always")
 
 
 
@@ -690,7 +686,7 @@ full_df <- full_df %>%
 
 # we remove the NA amongst the following columns:
 df_before <- full_df
-keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat')
+keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat')
 full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
 
 # we count the exclusions just like we did before
