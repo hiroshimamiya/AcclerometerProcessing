@@ -21,6 +21,7 @@ We import all data for participants with accelerometer data:
 # Change the locations to your user folder data files
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
 full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv") # copy in /home/yacine/survival_analysis
+
 ```
 
 ########## Exclusions: these following commands will only keep the data we are ##########  
@@ -243,7 +244,8 @@ columns:
 ```{r}
 full_df <- full_df %>%
   select(-diabetes_1, -diabetes_2, -diabetes_3, 
-         -processed_meat_1, -processed_meat_2, -processed_meat_3)
+         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1)
+
 ```
 
 
@@ -681,8 +683,7 @@ full_df <- full_df %>%
 
 table(full_df$diabetes_raw, full_df$diabetes, useNA = "always")
 
-# Hiroshi - prefer not to answer needs to be NA
-# hiroshiComment - what is the varaible "X191.0.0.1" ? 
+
 ```
 
 
@@ -695,13 +696,35 @@ full_df <- full_df %>%
 
 
 
-We remove all rows where any column contains the entry "Prefer not to answer":
-```{r}
-rm_cols <- c("alcohol", "fresh_fruit", "education_level", "diabetes") #Hiroshi comment - I don't think you have "prefer not to answer" in categories like fruits and vegge -you categorized it as " More than 4 servings/day" by conditional statements above that got mixed up characteror and numerica variables. 
-# Hiroshi comment: also for alcohol, you classified "3-4 times a week" categories to NA above
 
+
+############ Final removals ############
+We remove all rows where any column contains the entry "Prefer not to answer" and
+"Don't know":
+```{r}
+
+## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
+answers_to_remove <- c("Prefer not to answer", "Don't know")
 full_df <- full_df %>%
-  filter(if_any(all_of(rm_cols), ~ !str_detect(.x, "Prefer not to answer")))
+  mutate(across(everything(), ~ ifelse(. %in% answers_to_remove, NA, .)))
+
+# we remove the NA amongst the following columns:
+df_before <- full_df
+keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat')
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+
+# we count the exclusions just like we did before
+count_exclusions <- function(df_before, df_after) {
+  total_before <- nrow(df_before)
+  total_after <- nrow(df_after)
+  excluded <- total_before - total_after
+  return(list(excluded = excluded))
+}
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_NA <- result$excluded
+
+print(paste("Total participants excluded after removing newly generated NAs:", total_excluded_NA))
 
 ```
 
@@ -736,7 +759,7 @@ We create a "age-at-accelerometer-wear variable":
 # Add date of birth
 full_df$approx_dob <-
   as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
-          "%Y-%B-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+          "%Y-%M-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
 # Add age at entry in days
 full_df$age_entry_days <-
   difftime(full_df$date_end_accel,
