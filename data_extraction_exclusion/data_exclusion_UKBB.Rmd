@@ -558,70 +558,37 @@ boxplot(BMI_raw ~ BMI, data = full_df)
 
 7. Fruit and veggies:
 ```{r}
-# Fruit
-fruit_coding <- c(
-  "-10" = "Less than one serving/day",
-  "-1" = "Do not know",
-  "-3" = "Prefer not to answer"
-)
-# Veggie
-vg_coding <- c(
-  "-10" = "Less than one serving/day",
-  "-1" = "Do not know",
-  "-3" = "Prefer not to answer"
-)
-
-full_df$fresh_fruit_raw <- full_df$fresh_fruit 
-full_df$cooked_vg_raw <- full_df$cooked_vg  
-
-
-# Fruits: 
-## we replace the codes by their meaning:
-full_df <- full_df %>%
-  mutate(fresh_fruit = recode(as.character(fresh_fruit), !!!fruit_coding)) # Hiroshi comments: These are all classified as "More than 4 servings/day" below. 
-
-
 # Hiroshi Comment: Zero serving is treated as missing - it should not be. ALso, here you have a varaible in mix of discrete number (integer) and character, and youa re applying oepration for integer. Is this char, integer, factor variable? 
 # Hiroshi Comment Zero serving is treated as missing - it should not be
 ## recode the fruit variables to have less classifications
 full_df <- full_df %>%
   mutate(fresh_fruit = case_when(
-    fresh_fruit == "Less than one serving/day" ~ "Zero servings/day",
-    fresh_fruit == "Do not know" ~ "Do not know",
-    fresh_fruit == "Prefer not to answer" ~ "Prefer not to answer",
+    fresh_fruit == -10 ~ "Less than one serving/day",
+    fresh_fruit == -1 ~ "Do not know",
+    fresh_fruit == -3 ~ "Prefer not to answer",
     fresh_fruit == 0 ~ "< 2 servings/day",
     fresh_fruit > 0 & fresh_fruit < 2 ~ "< 2 servings/day",
     fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
-    fresh_fruit >= 4 ~ "More than 4 servings/day",
-    TRUE ~ NA_character_  
-  )
-  )
+    fresh_fruit > 4 ~ "More than 4 servings/day"
+  ))
  
 
-
 # Veggies:
-## we replace the codes by their meaning:
-full_df <- full_df %>%
-  mutate(cooked_vg = recode(as.character(cooked_vg), !!!vg_coding))
-
-# Same issue as fruits 
-## recode the fruit variables to have less classifications
 full_df <- full_df %>%
   mutate(cooked_vg = case_when(
-    cooked_vg == "Less than one serving/day" ~ "Zero servings/day",
-    cooked_vg == "Do not know" ~ "Do not know",
-    cooked_vg == "Prefer not to answer" ~ "Prefer not to answer",
+    cooked_vg == -10 ~ "Less than one serving/day",
+    cooked_vg == -1 ~ "Do not know",
+    cooked_vg == -3 ~ "Prefer not to answer",
     cooked_vg == 0 ~ "< 2 servings/day",
     cooked_vg > 0 & cooked_vg < 2 ~ "< 2 servings/day",
     cooked_vg >= 2 & cooked_vg <= 4 ~ "2 to 4 servings/day",
-    cooked_vg >= 4 ~ "More than 4 servings/day",
-    TRUE ~ NA_character_  
+    cooked_vg > 4 ~ "More than 4 servings/day"
   ))
 
 
 
-table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
-table(full_df$fresh_fruit, full_df$fresh_fruit_raw, useNA = "always")
+table(full_df$cooked_vg, useNA = "always")
+table(full_df$fresh_fruit, useNA = "always")
 
 
 
