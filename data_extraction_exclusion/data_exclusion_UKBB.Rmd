@@ -624,6 +624,7 @@ table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
 table(full_df$fresh_fruit, full_df$fresh_fruit_raw, useNA = "always")
 
 
+
 ```
 
 
@@ -695,6 +696,17 @@ full_df <- full_df %>%
 ```
 
 
+##Yacine Note: I save the df up to this point because the previous steps take too
+much time to generate, we can remove from final version:
+```{r}
+write.csv(full_df, "/home/yacine/UKBB_beluga/full_recode.csv", row.names = FALSE)
+```
+
+
+```{r}
+full_df <- read.csv("/home/yacine/UKBB_beluga/full_recode.csv")
+
+```
 
 
 
@@ -702,11 +714,12 @@ full_df <- full_df %>%
 We remove all rows where any column contains the entry "Prefer not to answer" and
 "Don't know":
 ```{r}
-
 ## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
 answers_to_remove <- c("Prefer not to answer", "Don't know")
+
 full_df <- full_df %>%
-  mutate(across(everything(), ~ ifelse(. %in% answers_to_remove, NA, .)))
+  mutate(across(where(is.character), ~ ifelse(. %in% answers_to_remove, NA, .)))
+
 
 # we remove the NA amongst the following columns:
 df_before <- full_df
@@ -756,16 +769,14 @@ ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
 We create a "age-at-accelerometer-wear variable":
 
 ```{r}
-# Add date of birth
+# add date of birth
 full_df$approx_dob <-
   as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
-          "%Y-%M-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
-# Add age at entry in days
-full_df$age_entry_days <-
-  difftime(full_df$date_end_accel,
-           full_df$approx_dob,
-           units = "days")
-
+          "%Y-%m-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+# add age at entry in days
+full_df$age_entry_days <- as.numeric(difftime(full_df$date_end_accel,
+                                              full_df$approx_dob,
+                                              units = "days"))
 # Convert to age at entry in years
 full_df$age_entry_years <- as.double(full_df$age_entry_days)/365.25
 
