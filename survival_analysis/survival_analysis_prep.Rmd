@@ -480,10 +480,11 @@ In the data preparation step, we added an event status indicator at exit and a f
 ### Regression 
 ```{r}
 
-fitDf <- coxph(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
+# Model for PA 1 
+f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
+              `MVPA_Quant_PA1`+
                Sex + 
               `Age` +
-              `MVPA min/week`+
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
@@ -493,11 +494,33 @@ fitDf <- coxph(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Processed meat`+ 
               `Fresh fruit`+ 
               `Cooked vegetables`+ 
-              `Oily fish`, 
-data = dt)
+              `Oily fish` + 
+              `Non-oily fish`)
+
+fitDf1 <- coxph(f1, data = dt)
+tbl_regression(fitDf1, exponentiate = TRUE)
 
 
-tbl_regression(fitDf, exponentiate = TRUE)
+#Model for PA 2 
+#f2 <- update(f1, . ~  . + MVPA_Quant_PA2 -MVPA_Quant_PA1)
+f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
+              `MVPA_Quant_PA2`+
+               Sex + 
+              `Age` +
+              `Race` + 
+              `Type II Diabetes`+ 
+              `Deprivation index`+ 
+              `Education`+ 
+              `Smoking`+ 
+              `Alcohol`+ 
+              `Processed meat`+ 
+              `Fresh fruit`+ 
+              `Cooked vegetables`+ 
+              `Oily fish` + 
+              `Non-oily fish`)
+fitDf2 <- coxph(f2, data = dt)
+tbl_regression(fitDf2, exponentiate = TRUE)
+
 
 
 
