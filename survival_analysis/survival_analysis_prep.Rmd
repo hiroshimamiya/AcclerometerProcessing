@@ -654,21 +654,21 @@ kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, dat
 
 plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
 legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-title(main = "MI by Quarters - PA1")
+title(main = "MI - PA1 by Quarters")
 
 plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
 legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-title(main = "Stroke by Quarters - PA1")
+title(main = "Stroke - PA1 by Quarters")
 
 
 plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
 legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-title(main = "MI by Quarters - PA2")
+title(main = "MI - PA2 by Quarters")
 
 
 plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
 legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-title(main = "Stroke by Quarters - PA2")
+title(main = "Stroke - PA2 by Quarters")
 
 ```
 
