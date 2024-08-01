@@ -498,7 +498,7 @@ f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Non-oily fish`)
 
 fitDf1 <- coxph(f1, data = dt)
-tbl_regression(fitDf1, exponentiate = TRUE)
+tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
 
 
 #Model for PA 2 
@@ -519,13 +519,122 @@ f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Oily fish` + 
               `Non-oily fish`)
 fitDf2 <- coxph(f2, data = dt)
-tbl_regression(fitDf2, exponentiate = TRUE)
+tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
 
 
+
+
+tb3 <- tbl_merge(
+  tbls = list(tb1, tb2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+
+
+
+
+tb3 <- as_flex_table(tb3)
+
+
+# Landscape (word format)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "landscape",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
+  path = "HR_main_MI.docx", 
+  pr_section = sect_properties
+)  
 
 ```
   
+  
+  
+  
+### Regression 
+```{r}
+
+# Model for PA 1 
+f1 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~ 
+              `MVPA_Quant_PA1`+
+               Sex + 
+              `Age` +
+              `Race` + 
+              `Type II Diabetes`+ 
+              `Deprivation index`+ 
+              `Education`+ 
+              `Smoking`+ 
+              `Alcohol`+ 
+              `Processed meat`+ 
+              `Fresh fruit`+ 
+              `Cooked vegetables`+ 
+              `Oily fish` + 
+              `Non-oily fish`)
+
+fitDf1 <- coxph(f1, data = dt)
+tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+
+
+#Model for PA 2 
+#f2 <- update(f1, . ~  . + MVPA_Quant_PA2 -MVPA_Quant_PA1)
+f2 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~ 
+              `MVPA_Quant_PA2`+
+               Sex + 
+              `Age` +
+              `Race` + 
+              `Type II Diabetes`+ 
+              `Deprivation index`+ 
+              `Education`+ 
+              `Smoking`+ 
+              `Alcohol`+ 
+              `Processed meat`+ 
+              `Fresh fruit`+ 
+              `Cooked vegetables`+ 
+              `Oily fish` + 
+              `Non-oily fish`)
+fitDf2 <- coxph(f2, data = dt)
+tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+
+
+
+
+
+tb3 <- tbl_merge(
+  tbls = list(tb1, tb2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+
+
+
+
+tb3 <- as_flex_table(tb3)
+
+
+# Landscape (word format)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "landscape",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,  
+  path = "HR_main_Stroke.docx", 
+  pr_section = sect_properties
+)  
+
+```
 
 
 
