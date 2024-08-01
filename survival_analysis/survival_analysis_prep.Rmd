@@ -652,23 +652,56 @@ kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, dat
 ```{r}
 
 
-plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("topright", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
 title(main = "MI - PA1 by Quarters")
 
-plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("topright", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
 title(main = "Stroke - PA1 by Quarters")
 
 
-plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("topright", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
 title(main = "MI - PA2 by Quarters")
 
 
-plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("topright", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
 title(main = "Stroke - PA2 by Quarters")
 
 ```
 
+
+
+```{r}
+
+par(mfrow = c(2, 2), oma = c(4, 4, 2, 1), mar = c(3, 3, 2, 2)) # Adjust 'oma' to add space for labels
+
+# ENMO MI
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), 
+     ylim = c(1.0, 0.95))
+title(main = "MI - ENMO by Quarters")
+
+# ENMO Stroke
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), 
+     ylim = c(1.0, 0.95))
+title(main = "Stroke - ENMO by Quarters")
+
+# ML MI
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), 
+     ylim = c(1.0, 0.95))
+title(main = "MI - ML by Quarters")
+
+# ML Stroke
+plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), 
+     ylim = c(1.0, 0.95))
+title(main = "Stroke - ML by Quarters")
+
+
+mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
+legend("bottomleft", legend = c("Q1", "Q2", "Q3", "Q4"), 
+       col = c("black", "grey", "blue", "red"), lty = 1, cex = 0.8) # legend
+mtext("Survival time per month", side = 1, outer = TRUE, line = 2.5) # y-axis title
+mtext("Survival Probabilities", side = 2, outer = TRUE, line = 2.5) # x-axis title
+```
