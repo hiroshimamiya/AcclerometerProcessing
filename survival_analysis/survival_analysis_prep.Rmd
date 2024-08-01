@@ -461,15 +461,6 @@ model.matrix(~0+., data=dt) %>%
 
 ##############################################################
 
-
-
-##########
-Kaplan_Meier:
-  - 2 groups: PA1 and PA2 or Stroke and MI?
-  - d_stroke == 1; d_MI == 1
-  - end_of_fu = censoring time
-  
-  
   
   
 ## Associations with risk of incident cardiovascular disease 
@@ -638,4 +629,48 @@ flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,
 
 
 
+
+##########
+Kaplan_Meier:
+  - 2 groups: PA1 and PA2 or Stroke and MI?
+  - d_stroke == 1; d_MI == 1
+  - end_of_fu = censoring time
+  
+```{r}
+  
+kmfit1_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA1`, data = dt)
+kmfit1_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA1`, data = dt)
+
+
+kmfit2_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA2`, data = dt)
+kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
+
+
+```
+
+
+```{r}
+
+
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+
+legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+
+
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+
+legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+
+
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+
+legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+
+
+plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+
+legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+
+
+```
 
