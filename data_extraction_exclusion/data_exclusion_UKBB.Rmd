@@ -509,7 +509,7 @@ full_df <- full_df %>%
     education_level %in% c("A levels/AS levels or equivalent", 
                          "NVQ or HND or HNC or equivalent", 
                          "Other professional qualifications eg: nursing, teaching") ~ 
-                         "A levels/AS, NVQ/HND/HNC or equivalent",
+                         "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
     education_level %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
                          "O levels/GCSEs or equivalent, CSEs or equivalent",
     education_level == "None of the above" ~ "None of the above",
@@ -664,7 +664,7 @@ table(full_df$sex)
 ```{r}
 df_before <- full_df
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes')
-full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes), ]
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
