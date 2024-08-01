@@ -26,6 +26,7 @@ library(kableExtra)
 library(broom.helpers)
 library(flextable)
 library(officer)
+library(ggplot2)
 
 ```
 
@@ -238,12 +239,43 @@ dim(full_df_PA)
 full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
 
+```
 
 
 
 
+```{r}
+# check plot to see if there are extreme data points or not 
 boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA1, data = full_df_PA)
 boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA2, data = full_df_PA)
+
+
+library(ggExtra)
+library(BlandAltmanLeh)
+print(ggExtra::ggMarginal(
+  bland.altman.plot(
+    full_df_PA$MVPA_min_PA1, 
+    full_df_PA$MVPA_min_PA2, 
+    graph.sys = "ggplot2"
+    ),
+  theme_minimal(),
+  type = "histogram", size=4)
+)
+
+
+
+ggplot(full_df_PA, 
+       aes(x=full_df_PA$MVPA_min_PA1, 
+           y=full_df_PA$MVPA_min_PA2)) + 
+  geom_point(color="black", size = 0.3) +
+  theme_classic() + 
+  xlab("MVPA minues / week - ENMO") + 
+  ylab("MVPA minues / week - ML") +  
+  geom_smooth(method=lm, 
+    se=FALSE, 
+    linetype="dashed",
+    color="grey"
+  )
 
 
 ```
@@ -404,7 +436,7 @@ varNameDf <- data.frame(
 
 var_names <- varNameDf %>% 
     select(varName, ChartName) %>% 
-    deframe()
+    tibble::deframe()
 
 dt <- dt %>% 
     rename(!!!var_names)
