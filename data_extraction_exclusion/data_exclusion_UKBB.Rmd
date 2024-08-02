@@ -682,15 +682,16 @@ income_coding <- c(
   "3" =	"31,000 to 51,999",
   "4" =	"52,000 to 100,000",
   "5" =	"Greater than 100,000",
-  "-1" =	"Do not know",
-  "-3" =	"Prefer not to answer"
+  "-1" = "Do not know/Prefer not to answer",
+  "-3" = "Do not know/Prefer not to answer"
 )
 
-full_df$avg_hh_income_raw <- full_df$avg_hh_income
+full_df$avg_hh_income_raw <- full_df$avg_hh_income # to keep an exemple of coding
 
 ## we replace the codes by their meaning:
 full_df <- full_df %>%
   mutate(avg_hh_income = recode(as.character(avg_hh_income_raw), !!!income_coding))
+
 
 ```
 
