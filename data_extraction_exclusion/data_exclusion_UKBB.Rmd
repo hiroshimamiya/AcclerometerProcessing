@@ -704,7 +704,6 @@ full_df <- full_df %>%
 
 df_before <- full_df
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
-#full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes) & !is.na(full_df$avg_hh_income), ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
@@ -717,8 +716,6 @@ print(paste("Total participants excluded in step 4.1:", total_excluded_covd))
 "Don't know":
 ```{r}
 
-full_df$avg_hh_income[full_df$avg_hh_income == "NA"] <- NA # some NA values remained
-# in the avg_hh_income column so I make sur all NA values are marked as "NA"
 
 ## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
 answers_to_remove <- c("Prefer not to answer", "Do not know")
