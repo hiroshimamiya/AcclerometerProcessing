@@ -344,7 +344,8 @@ dt <- full_df_PA %>%  dplyr::select(
   age_entry_years, 
   ethnicity, 
   sex, 
-  education_level,  
+  education_level,
+  avg_hh_income,
   tdi_quarters,
   BMI,
   diabetes, 
@@ -370,6 +371,7 @@ varNameDf <- data.frame(
               "Type II Diabetes", 
               "Deprivation index", 
               "Education", 
+              "Average Household Gross Income",
               "Smoking", 
               "Alcohol", 
               "Processed meat",
@@ -389,6 +391,7 @@ varNameDf <- data.frame(
               "diabetes", 
               "tdi_quarters", 
               "education_level", 
+              "avg_hh_income",
               "smoking", 
               "alcohol", 
               "processed_meat", 
@@ -479,7 +482,8 @@ f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -501,7 +505,8 @@ f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -560,7 +565,8 @@ f1 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -582,7 +588,8 @@ f2 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
