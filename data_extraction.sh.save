@@ -6,22 +6,16 @@
 # 27 : 31-0.0 (Sex)
 # 28 : 34-0.0 (Birth year)
 # 97 : 52-0.0 (Month of birth)
-# 479 : 191-0.0 (Date lost to follow-up)
-# 98 : 53-0.0 (Date of attending assessment centre i.e. baseline)
 # 941 : 1289-0.0 (Cooked vegetable intake) 
 # 949 : 1309-0.0 (Fresh Fruit Intake)
 # 957 : 1329-0.0 (Oily fish consumption)
 # 1045 : 1558-0.0 (Alcohol consumption (frequency))
-# 965-968: 1349-X.0; Instances: [0,3] (Processed meat constumption)
-# 786 : 845-0.0 (Age completed full time education)
-# 7008 : 6138-0.0 (Qualifications education)
+# 7008 : 6138-0.0 (Education)
 # 10795 : 20116-0.0 (Smoking status)
-# 12128 : 21000-0.0 (Ethnic background)
+# 12128 : 21000-0.0 (Ethnicity)
 # 12132 : 21001-0.0 (BMI)
-# 17619-17620 : 4000-X.0; Instances: [0,1] (Date of death)
 ### Accelometery data (used by OxWearables)
 # 19789 : 90001-0.0 (Raw Accelerometry Data)
-# 19797 : 90010-0.0 (Start time of wear)
 # 479 : 191-0.0 (Date of last follow-up)
 # 19802 : 90016-0.0 (Good quality calibration)
 # 19968 : 90183-0.0 (Clips before calibration)
@@ -30,12 +24,6 @@
 # 19801 : 90015-0.0 (Quality good wear time)
 # 19799 : 90012-0.0 (Overall activity)
 # 19798 : 90011-0.0 (Date end accel)
-###PA data
-# 801-804 : 894-X.0; Instances [0,3] (Duration of moderate activity)
-# 809-812 : 914-X.0; Instances [0,3] (Duration of vigorous activity
-# 1348-1351 : 2634-X.0; Instances [0,3] (Duration of heavy DIY)
-# 841-844 : 1021-X.0; Instances [0,3] (Duration of light DIY)
-# 754 : 738-0.0 (Average total household income before tax)
 ### Strokes
 # 19757 : 42006-0.0 (Date of stroke)
 # 19758 : 42007-0.0 (Source of stroke report)
@@ -52,8 +40,6 @@
 # 19753 : 42003-0.0 (Source of STEMI report)
 # 19754 : 42004-0.0 (Date of NSTEMI)
 # 19755 : 42005-0.0 (Source of NSTEMI report)
-### Diabetes
-# 1324-1327 : 2443-X.0; Instances: [0,3] (Diabetes diagnosed by doctor)
 
 ### Other ICD9 and ICD10 codes we won't use for now
 # 19114-19160 : 41271-0.XX; Arrays: [0,46] (Diagnoses - ICD9)
@@ -76,24 +62,17 @@
 
 # Note: We need "csvkit"
 
-# Extract the columns from the "current.csv" file (all data)
-
-cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | csvcut -c 1,27,28,97,479,98,941,949,957,961,973,977,981,1045,965-968,786,7008,10795,12128,12132,17619-17620,19789,19797,479,19802\
-,19968,19970,19972,19801,19799,19798,1324-1327,801-804,809-812,1348-1351,841-844,754 > /home/yalap95/current_df/current_subset_full.csv
-
-
 # Extract the columns from the "current.csv" file - only the first 1000 rows:
 
-cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,27,28,97,941,949,957,1045,965-968,7008,10795,12128,12132,19789,479,19802,19968,19970,19972,19801,19799,19798\
-1324-1327 > /home/yalap95/current_df/current_subset.csv
+cat /lustre03/project/6008063/neurohub/UKB/Tabular/current.csv | head -1000 | csvcut -c 1,27,28,97,941,949,957,1045,7008,10795,12128,12132,19789,479,19802,19968,19970,19972,19801,19799,19798\
+ > /home/yalap95/current_df/current_subset.csv
 
 #*** Does not include Townsend index and the strokes MI data ***#
-
 
 # 1.2. Extract the Townsend index column seperately because it is not in the "current.csv" file - first 1000 rows:
 cat /lustre03/project/6008063/neurohub/UKB/Tabular/RAP/ukb_field_22189.csv| head -1000 > /home/yalap95/current_df/townsend.csv
 #*** I then merged current_subset.csv and townsend.csv using python: "pd.merge(current_df, ukb_field_22189_df, on='eid')"
-#*** see "merge_ukbb_data.py" file in AccelerometerProcessing GitHub Repo
+
 
 
 # 1.3. Extract only the columns that contains strokes and MI information
