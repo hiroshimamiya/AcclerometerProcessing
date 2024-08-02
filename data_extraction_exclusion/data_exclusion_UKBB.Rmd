@@ -24,6 +24,36 @@ full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/
 
 ```
 
+############ Data prep intro ############
+
+We combine some of the PA data for instances 1 (2012-2013) and instances 2 (2014+)
+```{r}
+full_df <- full_df %>%
+  mutate(
+    duration_moderate_activity = coalesce(duration_moderate_activity_1, duration_moderate_activity_2),
+    duration_vigorous_activity = coalesce(duration_vigorous_activity_1, duration_vigorous_activity_2),
+    duration_heavy_DIY = coalesce(duration_heavy_DIY_1, duration_heavy_DIY_2),
+    duration_light_DIY = coalesce(duration_light_DIY_1, duration_light_DIY_2)
+  )
+```
+
+######## REMOVE UNNECESSARY COLUMNS
+After looking at the data, I realised that some columns that we extracted (for
+multiple instances) provided more "NA" data than actual data, so I removed these 
+columns:
+```{r}
+
+full_df <- full_df %>%
+  dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
+         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_0, -duration_moderate_activity_3, -duration_vigorous_activity_0, -duration_vigorous_activity_3, -duration_heavy_DIY_0, -duration_heavy_DIY_3, -duration_light_DIY_0, -duration_light_DIY_3)
+```
+
+
+```{r}
+
+
+```
+
 ########## Exclusions: these following commands will only keep the data we are ##########  
             not seeking to exclude
 
@@ -220,17 +250,6 @@ print(paste("After applying exclusions 1 to 3, we end up with a sample of n =", 
 
 ```{r}
 #write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
-```
-
-######## REMOVE UNNECESSARY COLUMNS
-After looking at the data, I realised that some columns that we extracted (for
-multiple instances) provided more "NA" data than actual data, so I removed these 
-columns:
-```{r}
-full_df <- full_df %>%
-  dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
-         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1)
-
 ```
 
 
@@ -663,7 +682,7 @@ table(full_df$sex)
 
 ```{r}
 df_before <- full_df
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes')
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
 full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes), ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
