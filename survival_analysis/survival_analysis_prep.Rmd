@@ -291,6 +291,18 @@ levels(full_df_PA$alcohol) <- list( "Never" = "Never",
                                     "Three or four times a week" = "Three or four times a week",
                                     "Daily or almost daily" = "Daily or almost daily") 
 
+
+full_df_PA$avg_hh_income %>% table 
+full_df_PA$avg_hh_income <- factor(full_df_PA$avg_hh_income)
+levels(full_df_PA$avg_hh_income)
+levels(full_df_PA$avg_hh_income) <- list( "Less than 18,000" = "Less than 18,000",
+                                          "18,000 to 30,999" = "18,000 to 30,999",
+                                          "31,000 to 51,999" = "31,000 to 51,999",
+                                          "52,000 to 100,000" = "52,000 to 100,000",
+                                          "Greater than 100,000" = "Greater than 100,000",
+                                          "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer") 
+
+
 full_df_PA$processed_meat %>% table 
 full_df_PA$processed_meat <- factor(full_df_PA$processed_meat)
 levels(full_df_PA$processed_meat)
