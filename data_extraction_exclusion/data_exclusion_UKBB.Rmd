@@ -673,6 +673,26 @@ full_df <- full_df %>%
 table(full_df$sex)
 ```
 
+11. Average Houselhold Gross Income:
+
+```{r}
+income_coding <- c(
+  "1" =	"Less than 18,000",
+  "2" =	"18,000 to 30,999",
+  "3" =	"31,000 to 51,999",
+  "4" =	"52,000 to 100,000",
+  "5" =	"Greater than 100,000",
+  "-1" =	"Do not know",
+  "-3" =	"Prefer not to answer"
+)
+
+full_df$avg_hh_income_raw <- full_df$avg_hh_income
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(avg_hh_income = recode(as.character(avg_hh_income_raw), !!!income_coding))
+
+```
 
 ############ Final exclusion ############
 
@@ -681,9 +701,15 @@ table(full_df$sex)
 ### 4.1 We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
 
 ```{r}
+full_df$avg_hh_income[full_df$avg_hh_income == "NA"] <- NA # some NA values remained
+# in the avg_hh_income column so I make sur all NA values are marked as "NA"
+
+# Yacine Note: There is an issue with hh income NA values, if I run only this chunk
+# they are all removed but if we run the whole thing they stay... will fix
+
 df_before <- full_df
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
-full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes), ]
+full_df <- full_df[complete.cases(full_df[, keep_cols]) & !is.na(full_df$diabetes) & !is.na(full_df$avg_hh_income), ]
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
