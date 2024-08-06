@@ -663,7 +663,6 @@ tb3 <- tbl_merge(
 
 
 
-
 tb3 <- as_flex_table(tb3)
 tb3 <- width(tb3, j = 1:4, width = c(1,1,1,1), unit = "cm")
 
@@ -701,11 +700,39 @@ kmfit1_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA1`, da
 
 
 kmfit2_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA2`, data = dt)
-kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
+kmfit2_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
 
 
 ```
 
+
+<<<<<<< HEAD
+=======
+```{r}
+
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA1 by Quarters")
+
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA1 by Quarters")
+
+
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"),
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA2 by Quarters")
+
+
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA2 by Quarters")
+
+```
 
 
 ```{r}
@@ -717,7 +744,8 @@ plot(kmfit1_mi, col = c("black", "grey", "blue", "red"),
      xlab = "Survival time per month", 
      ylab = "Survival Probabilities", 
      ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5,
+       col = c("black", "grey", "blue", "red"), lty = 1)
 title(main = "MI - ENMO by Quarters")
 
 # ENMO Stroke
@@ -725,7 +753,8 @@ plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"),
      xlab = "Survival time per month", 
      ylab = "Survival Probabilities", 
      ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
 title(main = "Stroke - ENMO by Quarters")
 
 # ML MI
@@ -733,15 +762,17 @@ plot(kmfit2_mi, col = c("black", "grey", "blue", "red"),
      xlab = "Survival time per month", 
      ylab = "Survival Probabilities", 
      ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
 title(main = "MI - ML by Quarters")
 
 # ML Stroke
-plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), 
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), 
      xlab = "Survival time per month", 
      ylab = "Survival Probabilities", 
      ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
 title(main = "Stroke - ML by Quarters")
 
 
@@ -751,3 +782,127 @@ mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
 #mtext("Survival time per month", side = 1, outer = TRUE, line = 2.5) # y-axis title for full figure
 #mtext("Survival Probabilities", side = 2, outer = TRUE, line = 2.5) # x-axis title for full figure
 ```
+
+
+<<<<<<< HEAD
+Log-log tentative: 
+
+```{r}
+
+# we create function to transform KM model to Log-log function:
+=======
+Log-log tentative:
+
+```{r}
+
+# we create a function to transform the KM model to Log-log function
+>>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
+log_log_transform <- function(surv_fit) {
+  surv_summary <- summary(surv_fit)
+  data.frame(
+    time = surv_summary$time,
+    log_log_surv = log(-log(surv_summary$surv)),
+    strata = surv_summary$strata
+  )
+}
+
+log_log_kmfit1_mi <- log_log_transform(kmfit1_mi)
+log_log_kmfit1_stroke <- log_log_transform(kmfit1_stroke)
+log_log_kmfit2_mi <- log_log_transform(kmfit2_mi)
+log_log_kmfit2_stroke <- log_log_transform(kmfit2_stroke)
+
+
+
+<<<<<<< HEAD
+# we create fuction to create Log-log survival plots:
+plot_log_log_survival <- function(log_log_data, title) {
+  ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
+    geom_step() +
+    labs(title = title, x = "Time", y = "Log-log Survival Function") +
+    theme_minimal()
+}
+
+# Plot each log-log transformed survival curve
+plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO by Quarters")
+plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO by Quarters")
+plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML by Quarters")
+plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML by Quarters")
+=======
+# we create a function to create Log-log function plots
+plot_log_log_survival <- function(log_log_data, title) {
+  ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
+    geom_step() +
+    labs(title = title, x = "Time in Month", y = "Log-log Survival Function") +
+    #xlim(c(0, NA)) + # start x-axis at time == 0
+    theme_minimal()
+}
+
+plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO Quarters Comparison")
+plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO Quarters Comparison")
+plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML Quarters Comparison")
+plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML Quarters Comparison")
+
+>>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
+
+print(plot1_mi)
+print(plot1_stroke)
+print(plot2_mi)
+print(plot2_stroke)
+
+
+<<<<<<< HEAD
+```
+
+
+Schoenfeld residuals: 
+
+```{r}
+
+# we test the ph assumption of a Cox regression model
+test_ph1 <- cox.zph(fitDf1)
+test_ph2 <- cox.zph(fitDf2)
+
+test_ph1
+test_ph2
+
+
+# we plot the Schoenfeld residuals:
+=======
+
+
+```
+
+
+
+Schoenfeld residuals: 
+
+```{r}
+library(survminer)
+
+# we test the proportional hazards assumption of a Cox regression model:
+
+test_ph1 <- cox.zph(fitDf1)
+test_ph2 <- cox.zph(fitDf2)
+
+
+# we plot the Schoenfeld residuals graphs using the Cox regression model: 
+>>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
+
+ggcoxzph(test_ph1, var = 'MVPA_Quant_PA1')
+ggcoxzph(test_ph2, var = 'MVPA_Quant_PA2')
+
+<<<<<<< HEAD
+
+
+
+
+```
+
+
+=======
+#?ggcoxzph
+
+
+
+```
+>>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
