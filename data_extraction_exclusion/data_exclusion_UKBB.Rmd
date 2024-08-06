@@ -147,7 +147,7 @@ for (col in date_columns) {
 summary(full_df$stroke_date) #originally 1140 excluded
 summary(full_df$ischaemic_stroke_date)
 summary(full_df$intracerebral_haemorrhage_date)
-summary(full_df$myocardial_infarction_date) # orignally 1796  excluded 
+summary(full_df$myocardial_infarction_date) # orignally 1796  excluded
 summary(full_df$STEMI_date)
 summary(full_df$NSTEMI_date)
 df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
@@ -704,12 +704,10 @@ full_df <- full_df %>%
 ```{r}
 
 df_before <- full_df
-<<<<<<< HEAD
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes')
-full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
-=======
+
 keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
->>>>>>> bb004fcabfb96de604db79dc402f23d99c6891bf
+
+
 result <- count_exclusions(df_before, full_df)
 total_excluded_covd <- result$excluded
 
