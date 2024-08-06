@@ -391,6 +391,7 @@ dt <- full_df_PA %>%  dplyr::select(
   education_level,
   avg_hh_income,
   tdi_quarters,
+  avg_hh_income,
   BMI,
   diabetes, 
   smoking, 
@@ -415,7 +416,7 @@ varNameDf <- data.frame(
               "Type II Diabetes", 
               "Deprivation index", 
               "Education", 
-              "Average Household Gross Income",
+              "Household Income",
               "Smoking", 
               "Alcohol", 
               "Processed meat",
@@ -425,7 +426,8 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow_up time"
+              "Follow_up time", 
+              "Body Mass Index"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -445,7 +447,8 @@ varNameDf <- data.frame(
               "oily_fish", 
               "non_oily_fish",
               "sex", 
-              "fu_time")
+              "fu_time", 
+              "BMI")
 )
 
 
@@ -524,17 +527,18 @@ f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
                Sex + 
               `Age` +
               `Race` + 
-              `Type II Diabetes`+ 
               `Deprivation index`+ 
               `Education`+
-              `Average Household Gross Income`+
+              `Household Income` +
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
               `Fresh fruit`+ 
               `Cooked vegetables`+ 
               `Oily fish` + 
-              `Non-oily fish`)
+              `Non-oily fish`+
+              `Type II Diabetes`+ 
+              `Body Mass Index`)
 
 fitDf1 <- coxph(f1, data = dt)
 tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
@@ -547,17 +551,18 @@ f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
                Sex + 
               `Age` +
               `Race` + 
-              `Type II Diabetes`+ 
               `Deprivation index`+ 
               `Education`+
-              `Average Household Gross Income`+
+              `Household Income` +
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
               `Fresh fruit`+ 
               `Cooked vegetables`+ 
               `Oily fish` + 
-              `Non-oily fish`)
+              `Non-oily fish`+
+              `Type II Diabetes`+ 
+              `Body Mass Index`)
 fitDf2 <- coxph(f2, data = dt)
 tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
@@ -580,7 +585,7 @@ tb3 <- as_flex_table(tb3)
 # Landscape (word format)
 sect_properties <- prop_section(
   page_size = page_size(
-  orient = "landscape",
+  orient = "portrait",
   #width = 8, height = 11.7
   ),
   type = "continuous",
@@ -607,17 +612,18 @@ f1 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
                Sex + 
               `Age` +
               `Race` + 
-              `Type II Diabetes`+ 
               `Deprivation index`+ 
               `Education`+
-              `Average Household Gross Income`+
+              `Household Income` +
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
               `Fresh fruit`+ 
               `Cooked vegetables`+ 
               `Oily fish` + 
-              `Non-oily fish`)
+              `Non-oily fish`+
+              `Type II Diabetes`+ 
+              `Body Mass Index`)
 
 fitDf1 <- coxph(f1, data = dt)
 tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
@@ -630,17 +636,18 @@ f2 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
                Sex + 
               `Age` +
               `Race` + 
-              `Type II Diabetes`+ 
               `Deprivation index`+ 
               `Education`+
-              `Average Household Gross Income`+
+              `Household Income` +
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
               `Fresh fruit`+ 
               `Cooked vegetables`+ 
               `Oily fish` + 
-              `Non-oily fish`)
+              `Non-oily fish`+
+              `Type II Diabetes`+ 
+              `Body Mass Index`)
 fitDf2 <- coxph(f2, data = dt)
 tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
@@ -658,12 +665,12 @@ tb3 <- tbl_merge(
 
 
 tb3 <- as_flex_table(tb3)
-
+tb3 <- width(tb3, j = 1:4, width = c(1,1,1,1), unit = "cm")
 
 # Landscape (word format)
 sect_properties <- prop_section(
   page_size = page_size(
-  orient = "landscape",
+  orient = "portrait",
   #width = 8, height = 11.7
   ),
   type = "continuous",
@@ -696,30 +703,6 @@ kmfit1_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA1`, da
 kmfit2_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA2`, data = dt)
 kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
 
-
-```
-
-
-```{r}
-
-
-plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
-title(main = "MI - PA1 by Quarters")
-
-plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
-title(main = "Stroke - PA1 by Quarters")
-
-
-plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
-title(main = "MI - PA2 by Quarters")
-
-
-plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
-legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
-title(main = "Stroke - PA2 by Quarters")
 
 ```
 
