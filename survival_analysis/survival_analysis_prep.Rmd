@@ -323,6 +323,18 @@ levels(full_df_PA$alcohol) <- list( "Never" = "Never",
                                     "Three or four times a week" = "Three or four times a week",
                                     "Daily or almost daily" = "Daily or almost daily") 
 
+
+full_df_PA$avg_hh_income %>% table 
+full_df_PA$avg_hh_income <- factor(full_df_PA$avg_hh_income)
+levels(full_df_PA$avg_hh_income)
+levels(full_df_PA$avg_hh_income) <- list( "Less than 18,000" = "Less than 18,000",
+                                          "18,000 to 30,999" = "18,000 to 30,999",
+                                          "31,000 to 51,999" = "31,000 to 51,999",
+                                          "52,000 to 100,000" = "52,000 to 100,000",
+                                          "Greater than 100,000" = "Greater than 100,000",
+                                          "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer") 
+
+
 full_df_PA$processed_meat %>% table 
 full_df_PA$processed_meat <- factor(full_df_PA$processed_meat)
 levels(full_df_PA$processed_meat)
@@ -376,7 +388,8 @@ dt <- full_df_PA %>%  dplyr::select(
   age_entry_years, 
   ethnicity, 
   sex, 
-  education_level,  
+  education_level,
+  avg_hh_income,
   tdi_quarters,
   BMI,
   diabetes, 
@@ -402,6 +415,7 @@ varNameDf <- data.frame(
               "Type II Diabetes", 
               "Deprivation index", 
               "Education", 
+              "Average Household Gross Income",
               "Smoking", 
               "Alcohol", 
               "Processed meat",
@@ -421,6 +435,7 @@ varNameDf <- data.frame(
               "diabetes", 
               "tdi_quarters", 
               "education_level", 
+              "avg_hh_income",
               "smoking", 
               "alcohol", 
               "processed_meat", 
@@ -511,7 +526,8 @@ f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -533,7 +549,8 @@ f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -592,7 +609,8 @@ f1 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -614,7 +632,8 @@ f2 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~
               `Race` + 
               `Type II Diabetes`+ 
               `Deprivation index`+ 
-              `Education`+ 
+              `Education`+
+              `Average Household Gross Income`+
               `Smoking`+ 
               `Alcohol`+ 
               `Processed meat`+ 
@@ -684,25 +703,68 @@ kmfit2_stoke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, dat
 ```{r}
 
 
-plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "MI - PA1 by Quarters")
 
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-
-
-plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
-
-
-plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
-
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "Stroke - PA1 by Quarters")
 
 
-plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time", ylab = "Survival probabilities", ylim = c(1.0, 0.95))
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "MI - PA2 by Quarters")
 
-legend("topright", c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"), col = c("black", "grey", "blue", "red"))
 
+plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "Stroke - PA2 by Quarters")
 
 ```
 
+
+
+```{r}
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+
+# ENMO MI
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "MI - ENMO by Quarters")
+
+# ENMO Stroke
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "Stroke - ENMO by Quarters")
+
+# ML MI
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "MI - ML by Quarters")
+
+# ML Stroke
+plot(kmfit2_stoke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("Q1", "Q2", "Q3", "Q4"), col = c("black", "grey", "blue", "red"))
+title(main = "Stroke - ML by Quarters")
+
+
+mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
+#legend("bottomleft", legend = c("Q1", "Q2", "Q3", "Q4"), 
+       #col = c("black", "grey", "blue", "red"), lty = 1, cex = 0.8) # legend for one graph only
+#mtext("Survival time per month", side = 1, outer = TRUE, line = 2.5) # y-axis title for full figure
+#mtext("Survival Probabilities", side = 2, outer = TRUE, line = 2.5) # x-axis title for full figure
+```
