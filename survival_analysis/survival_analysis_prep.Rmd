@@ -30,13 +30,16 @@ library(ggplot2)
 
 ```
 
-We load the data:
+## We load the data:
 ```{r}
 #full_df <- read.csv("/home/yacine/final_df_full.csv") # full df w/o exclusions
 #full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc.csv") # full df with exclusions
 full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc_recode.csv") # full df with exclusions + recoding
 ```
 
+
+
+## CVD 
 We change the date format for the start and end accelerometer variables - which
 will be crucial for later steps:
 ```{r}
@@ -45,7 +48,7 @@ full_df$date_end_accel <- as.Date(full_df$date_end_accel)
 ```
 
 
-## Follow-up time:
+
 
 First we create the "end_of_fu" variable, which can be classified as date of 
 stroke/MI, date of death or the end of the study (i.e. 2022):
@@ -82,6 +85,7 @@ full_df$end_of_fu <- apply(full_df[date_cols], 1, function(x) min(x[!is.na(x)]))
 #print(full_df$end_of_fu)
 ```
 
+### Follow-up time 
 We can now create the "follow-up time" column by calculating the difference (in months) 
 between the "end of follow up" and "end time of wear" columns:
 ```{r}
@@ -104,7 +108,7 @@ hist(full_df$fu_time, main = "survival time in Month")
 ```
 
 
-##### Create binary variable for CVD (strokes and MI)
+### CVD indicator (strokes and MI)
 
 ```{r}
 # First we create a new column which will indicate if a participant has had: 
@@ -134,16 +138,16 @@ full_df <- full_df %>%
 
 
 
-################ GitHub PA code
 
-# Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
+## PA 
+### Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
 - There are 3 diferent accelerometric measures   
   1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
   2. PA2 - machine-learning derived mesared, for Field ID 1020
   3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
 
 
-#Load derived accelerometer from UKBB, PA2 data 
+### PA2 Load derived accelerometer from UKBB, PA2 data 
 ```{r, include=FALSE}
 ML_derived_PA2 <- fread("/home/yacine/survival_analysis/PA2_category_1020.csv")
 ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
@@ -183,7 +187,7 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 
 
-# Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+### PA1 Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
 ```{r, include=FALSE, message=FALSE}
 enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parallel_TS_ENMO/outputs", full.names = TRUE) %>% 
   lapply(read_csv) %>% 
@@ -203,7 +207,7 @@ colnames(enmoTSParallel_PA1)[1] <- "eid"
 
 
 
-We merge the full_df and PA1 and PA2 df by eids
+### Merge the full_df and PA1 and PA2 df by eids
 ```{r}
 full_df_PA <- inner_join(
   full_df, 
@@ -221,6 +225,7 @@ full_df_PA<- inner_join(full_df_PA,
 
 
 
+### Cretea quantile pA group...
 ```{r}
 sum(full_df_PA$MVPA_min_PA1 > 2500 )
 summary(full_df_PA$MVPA_min_PA1)
@@ -239,17 +244,31 @@ dim(full_df_PA)
 full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
 
+
+dfPA1Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+
+
+#qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
+#    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
+#    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
+#    return(out)
+#}
+#full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+
 ```
 
 
 
-
+### Plot MVPA 
 ```{r}
 # check plot to see if there are extreme data points or not 
-boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA1, data = full_df_PA)
-boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA2, data = full_df_PA)
+boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA1, data = full_df_PA, main = "Categorical MVPA CV Numeric MVPA")
+boxplot(MVPA_min_PA2 ~ MVPA_Quant_PA2, data = full_df_PA, main = "Categorical MVPA CV Numeric MVPA")
 
 
+
+# And scatter plot 
 library(ggExtra)
 library(BlandAltmanLeh)
 print(ggExtra::ggMarginal(
@@ -278,10 +297,31 @@ ggplot(full_df_PA,
   )
 
 
+
+data.frame(full_df_PA$MVPA_Quant_PA1 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
+
 ```
 
 
 
+### Excess duration - Flag people with too high values of MVPA and make new category removing them 
+```{r}
+full_df_PA <- full_df_PA %>%  
+  mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
+          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2)) 
+
+
+full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
+
+
+dfPA1Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+```
+
+
+## Covariates - reorder 
 ```{r}
 # Re-order categories 
 full_df_PA$cooked_vg %>% table
@@ -371,7 +411,12 @@ levels(full_df_PA$education_level) <- list( "None of the above" = "None of the a
                                     "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS, NVQ/HND/HNC or equivalent",
                                     "College or University degree" = "College or University degree") 
 
+```
 
+
+
+## Table 1
+```{r}
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
 
@@ -509,80 +554,60 @@ model.matrix(~0+., data=dt) %>%
 
 
 
-##############################################################
-
   
   
-## Associations with risk of incident cardiovascular disease 
+## Regression - Associations with risk of incident cardiovascular disease 
 
 In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
 
 
-### Regression 
+First , create formula 
+```{r}
+
+f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Body Mass Index`"
+
+f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish`"
+
+f_stroke <-   "Surv(`Follow_up time`,`Myocardial Infarction`)"
+
+f_MI <- "Surv(`Follow_up time`,`Stroke`)"
+
+
+as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
+as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
+
+
+
+
+dfPA1Label <- data.frame(range = full_df_PA$MVPA_Quant_PA1 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
+
+```
+
+
+### Stroke - Main 
 ```{r}
 
 # Model for PA 1 
-f1 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
-              `MVPA_Quant_PA1`+
-               Sex + 
-              `Age` +
-              `Race` + 
-              `Deprivation index`+ 
-              `Education`+
-              `Household Income` +
-              `Smoking`+ 
-              `Alcohol`+ 
-              `Processed meat`+ 
-              `Fresh fruit`+ 
-              `Cooked vegetables`+ 
-              `Oily fish` + 
-              `Non-oily fish`+
-              `Type II Diabetes`+ 
-              `Body Mass Index`)
-
-fitDf1 <- coxph(f1, data = dt)
-tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+fitDf1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
 
 
-#Model for PA 2 
-#f2 <- update(f1, . ~  . + MVPA_Quant_PA2 -MVPA_Quant_PA1)
-f2 <- as.formula(Surv(`Follow_up time`,`Myocardial Infarction`) ~ 
-              `MVPA_Quant_PA2`+
-               Sex + 
-              `Age` +
-              `Race` + 
-              `Deprivation index`+ 
-              `Education`+
-              `Household Income` +
-              `Smoking`+ 
-              `Alcohol`+ 
-              `Processed meat`+ 
-              `Fresh fruit`+ 
-              `Cooked vegetables`+ 
-              `Oily fish` + 
-              `Non-oily fish`+
-              `Type II Diabetes`+ 
-              `Body Mass Index`)
-fitDf2 <- coxph(f2, data = dt)
-tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+fitDf2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
 
 
 
-
+#Merge tables 
 tb3 <- tbl_merge(
   tbls = list(tb1, tb2),
   tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
 )
 
 
-
-
-
-tb3 <- as_flex_table(tb3)
-
-
 # Landscape (word format)
+tb3 <- as_flex_table(tb3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -593,63 +618,28 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
-  path = "HR_main_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
+#  path = "HR_main_MI.docx", 
+#  pr_section = sect_properties
+#)  
+
 
 ```
   
   
   
   
-### Regression 
+### MI - Main 
 ```{r}
 
 # Model for PA 1 
-f1 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~ 
-              `MVPA_Quant_PA1`+
-               Sex + 
-              `Age` +
-              `Race` + 
-              `Deprivation index`+ 
-              `Education`+
-              `Household Income` +
-              `Smoking`+ 
-              `Alcohol`+ 
-              `Processed meat`+ 
-              `Fresh fruit`+ 
-              `Cooked vegetables`+ 
-              `Oily fish` + 
-              `Non-oily fish`+
-              `Type II Diabetes`+ 
-              `Body Mass Index`)
-
-fitDf1 <- coxph(f1, data = dt)
-tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+fitDf1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
 
 
 #Model for PA 2 
-#f2 <- update(f1, . ~  . + MVPA_Quant_PA2 -MVPA_Quant_PA1)
-f2 <- as.formula(Surv(`Follow_up time`,`Stroke`) ~ 
-              `MVPA_Quant_PA2`+
-               Sex + 
-              `Age` +
-              `Race` + 
-              `Deprivation index`+ 
-              `Education`+
-              `Household Income` +
-              `Smoking`+ 
-              `Alcohol`+ 
-              `Processed meat`+ 
-              `Fresh fruit`+ 
-              `Cooked vegetables`+ 
-              `Oily fish` + 
-              `Non-oily fish`+
-              `Type II Diabetes`+ 
-              `Body Mass Index`)
-fitDf2 <- coxph(f2, data = dt)
-tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+fitDf2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
 
 
@@ -659,8 +649,6 @@ tb3 <- tbl_merge(
   tbls = list(tb1, tb2),
   tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
 )
-
-
 
 
 tb3 <- as_flex_table(tb3)
@@ -687,6 +675,20 @@ flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##########
 Kaplan_Meier:
   - 2 groups: PA1 and PA2 or Stroke and MI?
@@ -706,8 +708,7 @@ kmfit2_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, da
 ```
 
 
-<<<<<<< HEAD
-=======
+
 ```{r}
 
 plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
@@ -784,17 +785,12 @@ mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
 ```
 
 
-<<<<<<< HEAD
+
 Log-log tentative: 
 
 ```{r}
 
 # we create function to transform KM model to Log-log function:
-=======
-Log-log tentative:
-
-```{r}
-
 # we create a function to transform the KM model to Log-log function
 >>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
 log_log_transform <- function(surv_fit) {
