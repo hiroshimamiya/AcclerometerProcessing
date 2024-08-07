@@ -22,12 +22,12 @@ library(dvmisc)
 library(gtsummary)
 library(gt)
 library(kableExtra)
-#remotes::install_github("larmarange/broom.helpers")
 library(broom.helpers)
 library(flextable)
 library(officer)
 library(ggplot2)
 
+theme_gtsummary_journal("jama")
 ```
 
 ## We load the data:
@@ -240,21 +240,12 @@ full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
 dim(full_df_PA)
 
 
-
 full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
 
 
-dfPA1Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-
-
-#qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
-#    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
-#    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
-#    return(out)
-#}
-#full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+dfPA1Label <- data.frame(range = full_df_PA$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 ```
 
@@ -298,8 +289,6 @@ ggplot(full_df_PA,
 
 
 
-data.frame(full_df_PA$MVPA_Quant_PA1 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 ```
 
@@ -316,8 +305,8 @@ full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_P
 full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
 
 
-dfPA1Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2Label <- data.frame(rangeMin = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 
 
@@ -446,7 +435,9 @@ dt <- full_df_PA %>%  dplyr::select(
   oily_fish,
   non_oily_fish,
   fresh_fruit,
-  cooked_vg
+  cooked_vg, 
+  MVPA_Quant_PA1_trucated, 
+  MVPA_Quant_PA2_trucated
   )
 
 
@@ -505,7 +496,9 @@ dt <- dt %>%
     rename(!!!var_names)
 
 
-tb <- dt %>%
+tb <- dt %>% 
+  dplyr::select(-contains("trucated")) %>% 
+  dplyr::select( -MVPA_Quant_PA1) %>% 
   tbl_summary(
     by = MVPA_Quant_PA2,  
     #statistic = all_continuous() ~ "{mean} ({sd})"
@@ -513,8 +506,7 @@ tb <- dt %>%
   ) %>% 
   as_flex_table()
 
-# cOMPRESSED table 
-theme_gtsummary_compact() 
+
 
 # Landscape (word format)
 sect_properties <- prop_section(
@@ -573,14 +565,10 @@ f_stroke <-   "Surv(`Follow_up time`,`Myocardial Infarction`)"
 f_MI <- "Surv(`Follow_up time`,`Stroke`)"
 
 
-as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
-as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
+#as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
+#as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
 
 
-
-
-dfPA1Label <- data.frame(range = full_df_PA$MVPA_Quant_PA1 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% unique(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 ```
 
@@ -590,11 +578,13 @@ dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% unique(), Q = c("
 
 # Model for PA 1 
 fitDf1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
-tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+tb1<- tbl_regression(fitDf1, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
 
 
 fitDf2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
-tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+tb2<- tbl_regression(fitDf2, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
 
 
@@ -602,8 +592,9 @@ tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" 
 #Merge tables 
 tb3 <- tbl_merge(
   tbls = list(tb1, tb2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
-)
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")) %>% 
+  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
 
 
 # Landscape (word format)
@@ -618,10 +609,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-#flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
-#  path = "HR_main_MI.docx", 
-#  pr_section = sect_properties
-#)  
+flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
+  path = "HR_main_MI.docx", 
+  pr_section = sect_properties
+)  
 
 
 ```
@@ -641,18 +632,12 @@ tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" 
 fitDf2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
 tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
-
-
-
-
 tb3 <- tbl_merge(
   tbls = list(tb1, tb2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
-)
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")) %>% 
+  bold_labels() %>% 
+  modify_column_hide(columns = c(p.value_1, p.value_2))
 
-
-tb3 <- as_flex_table(tb3)
-tb3 <- width(tb3, j = 1:4, width = c(1,1,1,1), unit = "cm")
 
 # Landscape (word format)
 sect_properties <- prop_section(
@@ -678,11 +663,288 @@ flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,
 
 
 
+# Sensitivity anlaysi s  
+### sensitivity - no Mediator , withoubt BMI and Diabetes , Stroke 
+See covarite set - no mediator (BMI  and diabetes)
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )# %>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA1Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA1Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA1Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA1Label[4, "range"], "Q4",label)
+  #           )) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  #%>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA2Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA2Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA2Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA2Label[4, "range"], "Q4",label)
+  #           ))
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Without BMI and Diabetes" = t3,  
+  path = "HR_Sens_Diabetes_Stroke.docx", 
+  pr_section = sect_properties
+)  
+```
+### sensitivity - no Mediator , withoubt BMI and Diabetes , MI
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Without BMI and Diabetes" = t3,  
+  path = "HR_Sens_Diabetes_MI.docx", 
+  pr_section = sect_properties
+)  
+```
 
 
 
 
 
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA Stroke 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3,  
+  path = "HR_Sens_truncated_Stroke.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+
+
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA, MI 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence MI, truncated MVPA" = t3,  
+  path = "HR_Sens_truncated_MI.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+### Sensitivity 3 - Male and Female separate 
+See the data soruce in the regression command
+Female 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Female - azard ratios for icidence stroke" = t3,  
+  path = "HR_Sens_Female_stroke.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Male - azard ratios for icidence stroke" = t3,  
+  path = "HR_Sens_Male_stroke.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+
+
+
+
+
+
+
+
+
+### Sensitivity 4 - 2 years of survival 
 
 
 
