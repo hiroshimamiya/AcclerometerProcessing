@@ -1052,9 +1052,8 @@ Log-log tentative:
 
 ```{r}
 
-# we create function to transform KM model to Log-log function:
-# we create a function to transform the KM model to Log-log function
->>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
+
+# we create a function to transform the KM model to Log-log function:
 log_log_transform <- function(surv_fit) {
   surv_summary <- summary(surv_fit)
   data.frame(
@@ -1070,27 +1069,11 @@ log_log_kmfit2_mi <- log_log_transform(kmfit2_mi)
 log_log_kmfit2_stroke <- log_log_transform(kmfit2_stroke)
 
 
-
-<<<<<<< HEAD
-# we create fuction to create Log-log survival plots:
-plot_log_log_survival <- function(log_log_data, title) {
-  ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
-    geom_step() +
-    labs(title = title, x = "Time", y = "Log-log Survival Function") +
-    theme_minimal()
-}
-
-# Plot each log-log transformed survival curve
-plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO by Quarters")
-plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO by Quarters")
-plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML by Quarters")
-plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML by Quarters")
-=======
 # we create a function to create Log-log function plots
 plot_log_log_survival <- function(log_log_data, title) {
   ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
     geom_step() +
-    labs(title = title, x = "Time in Month", y = "Log-log Survival Function") +
+    labs(title = title, x = "Time in Month", y = "Log-log Survival") +
     #xlim(c(0, NA)) + # start x-axis at time == 0
     theme_minimal()
 }
@@ -1100,7 +1083,6 @@ plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival C
 plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML Quarters Comparison")
 plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML Quarters Comparison")
 
->>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
 
 print(plot1_mi)
 print(plot1_stroke)
@@ -1108,28 +1090,7 @@ print(plot2_mi)
 print(plot2_stroke)
 
 
-<<<<<<< HEAD
 ```
-
-
-Schoenfeld residuals: 
-
-```{r}
-
-# we test the ph assumption of a Cox regression model
-test_ph1 <- cox.zph(fitDf1)
-test_ph2 <- cox.zph(fitDf2)
-
-test_ph1
-test_ph2
-
-
-# we plot the Schoenfeld residuals:
-=======
-
-
-```
-
 
 
 Schoenfeld residuals: 
@@ -1144,23 +1105,17 @@ test_ph2 <- cox.zph(fitDf2)
 
 
 # we plot the Schoenfeld residuals graphs using the Cox regression model: 
->>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
 
 ggcoxzph(test_ph1, var = 'MVPA_Quant_PA1')
 ggcoxzph(test_ph2, var = 'MVPA_Quant_PA2')
 
-<<<<<<< HEAD
 
 
-
-
-```
-
-
-=======
 #?ggcoxzph
 
 
-
 ```
->>>>>>> e18f7e7 (added code for creating and ploting log log function of the KM model as well as plotting the Schoenfeld residuals)
+
+
+
+
