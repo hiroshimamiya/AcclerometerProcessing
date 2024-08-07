@@ -1048,6 +1048,9 @@ mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
 
 
 
+
+
+
 Log-log tentative: 
 
 ```{r}
