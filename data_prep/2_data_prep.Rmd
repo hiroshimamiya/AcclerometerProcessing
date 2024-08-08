@@ -41,6 +41,14 @@ full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc_recode.csv") # full df with
 ```
 
 
+## We load the data:
+```{r}
+#full_df <- read.csv("/home/yacine/final_df_full.csv") # full df w/o exclusions
+#full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc.csv") # full df with exclusions
+full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc_recode.csv") # full df with exclusions + recoding
+```
+
+
 
 ## CVD 
 We change the date format for the start and end accelerometer variables - which
@@ -109,6 +117,7 @@ hist(full_df$fu_time, main = "survival time in Month")
 
 
 ```
+
 
 ### CVD indicator (strokes and MI)
 
@@ -251,6 +260,8 @@ dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("
 
 ```
 
+
+
 ### Plot MVPA 
 ```{r}
 # check plot to see if there are extreme data points or not 
@@ -291,6 +302,24 @@ ggplot(full_df_PA,
 
 
 ```
+
+
+
+### Excess duration - Flag people with too high values of MVPA and make new category removing them 
+```{r}
+full_df_PA <- full_df_PA %>%  
+  mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
+          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2)) 
+
+
+full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
+
+
+dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+```
+
 
 ## Covariates - reorder 
 ```{r}
@@ -383,6 +412,8 @@ levels(full_df_PA$education_level) <- list( "None of the above" = "None of the a
                                     "College or University degree" = "College or University degree") 
 
 ```
+
+
 
 ## Table 1
 ```{r}
@@ -509,7 +540,8 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
 ```
 
 
-We save the the final df:
+
+
 
 ```{r}
 write.csv(dt, "/home/yacine/UKBB_beluga/prepped_dt.csv", row.names = FALSE)
