@@ -1,0 +1,847 @@
+---
+title: "UKBB Data Exclusion"
+author: "Yalap"
+output: rmarkdown::github_document
+---
+
+We load and/or install the packages we will be using:
+
+```{r, include=FALSE}
+rm(list=ls())
+library(dplyr)
+library(readr)
+library(data.table)
+#install.packages(tidyverse)
+library(tidyverse)
+```
+
+We import all data for participants with accelerometer data:
+
+```{r}
+# Change the locations to your user folder data files
+#full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
+full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv") # copy in /home/yacine/survival_analysis
+
+```
+
+############ Data prep intro ############
+
+We combine some of the PA data for instances 1 (2012-2013) and instances 2 (2014+)
+```{r}
+full_df <- full_df %>%
+  mutate(
+    duration_moderate_activity = coalesce(duration_moderate_activity_1, duration_moderate_activity_2),
+    duration_vigorous_activity = coalesce(duration_vigorous_activity_1, duration_vigorous_activity_2),
+    duration_heavy_DIY = coalesce(duration_heavy_DIY_1, duration_heavy_DIY_2),
+    duration_light_DIY = coalesce(duration_light_DIY_1, duration_light_DIY_2)
+  )
+```
+
+######## REMOVE UNNECESSARY COLUMNS
+After looking at the data, I realised that some columns that we extracted (for
+multiple instances) provided more "NA" data than actual data, so I removed these 
+columns:
+```{r}
+
+full_df <- full_df %>%
+  dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
+         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_0, -duration_moderate_activity_3, -duration_vigorous_activity_0, -duration_vigorous_activity_3, -duration_heavy_DIY_0, -duration_heavy_DIY_3, -duration_light_DIY_0, -duration_light_DIY_3)
+```
+
+
+```{r}
+
+
+```
+
+########## Exclusions: these following commands will only keep the data we are ##########  
+            not seeking to exclude
+
+First, we would like to keep count of the number of participants that are excluded
+at each step. So we create this function that will allow us to do so:
+```{r}
+count_exclusions <- function(df_before, df_after) {
+  n_before <- nrow(df_before)
+  n_after <- nrow(df_after)
+  excluded <- n_before - n_after
+  print(paste("Participants excluded:", excluded))
+  return(list(df = df_after, excluded = excluded))
+}
+
+initial_n <- nrow(full_df) # number of participants at the beginning
+print(initial_n)
+```
+
+## Exclusion 1: Low quality accelerometer data
+
+```{r}
+# we want to count how many people were excluded in this section
+total_excluded_lq <- 0
+
+# Added by Hiroshi
+df_before <- full_df
+full_df <- full_df[full_df$accel_raw != "", ]
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.1. Devices poorly calibrated
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$quality_good_calibration == "Yes", ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.2. Participants for whom \>1% of values were clipped (fell outside the 
+sensor's range) before or after calibration:
+```{r}
+df_before <- full_df
+full_df <- full_df[(full_df$clips_before_cal < 0.01 * full_df$total_reads) & (full_df$clips_after_cal < 0.01 * full_df$total_reads), ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.3 Insufficient wear time
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$quality_good_wear_time == "Yes", ]# OxWearable note: Note that this has already been calculated in UKB, we don't need to manually calculate it: https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=90015
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.4 Unrealistically high acceleration values
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$overall_activity < 100, ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+```{r}
+print(paste("Total participants excluded due to not being in acceleromete subcohort or low accelerometer data quality:", total_excluded_lq))
+```
+
+
+## Exclusion 2: Reported CVD
+
+```{r}
+# we extract the CVD date columns
+date_columns <- c(
+  'stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date', 
+  'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date' , 'date_end_accel', 'date_start_accel' 
+)
+
+# we format the date columns
+for (col in date_columns) {
+  full_df[[col]] <- as.Date(full_df[[col]], format="%Y-%m-%d")
+}
+```
+
+
+### Removal of CVD cases based on the baseline date of acceleroemter for each person:
+
+```{r}
+# Max date of diagnosis (hospital record update) is 2022 Dec. 
+summary(full_df$stroke_date) #originally 1140 excluded
+summary(full_df$ischaemic_stroke_date)
+summary(full_df$intracerebral_haemorrhage_date)
+summary(full_df$myocardial_infarction_date) # orignally 1796  excluded
+summary(full_df$STEMI_date)
+summary(full_df$NSTEMI_date)
+df_beforeExclusion <- full_df %>% dplyr::select(all_of(c(date_columns, "eid")))
+
+# cut-off date = 2013-01-01 because we do not want to keep participants that reported
+# having a CVD < 2013
+cut_off_date <- "2013-01-01"
+cut_off_date_personal <- full_df$date_end_accel 
+full_df$indicator_drop_stroke <- 1
+full_df$indicator_drop_mi <- 1
+full_df[is.na(full_df[["stroke_date"]]) | full_df[["stroke_date"]] >= as.Date(cut_off_date_personal), "indicator_drop_stroke"] <- 0 
+full_df[is.na(full_df[["myocardial_infarction_date"]]) | full_df[["myocardial_infarction_date"]] >= as.Date(cut_off_date_personal), "indicator_drop_mi"] <- 0
+
+sum(full_df$indicator_drop_stroke) # to remove. 1251
+sum(full_df$indicator_drop_mi)  # to remove, 2181
+full_df %>% dplyr::filter(indicator_drop_mi == 1 & indicator_drop_stroke==1) %>% nrow 
+
+# 
+print("Number of people excluded based on the exact date of acclerometer is \n")
+full_df %>% filter(indicator_drop_mi == 1 | indicator_drop_stroke==1) %>% dim()
+
+# Create data frame after exclusion 
+full_df_CVD <- full_df %>% # 3315 removed by this definition 
+  filter(indicator_drop_mi == 0 & indicator_drop_stroke==0)
+
+# Check dates 
+min(full_df_CVD$stroke_date, na.rm = T)
+max(full_df_CVD$stroke_date, na.rm = T)
+min(full_df_CVD$myocardial_infarction_date, na.rm = T)
+max(full_df_CVD$myocardial_infarction_date, na.rm = T)
+
+# Confirm the last date of diagnosis among those who are removed
+df_beforeExclusion %>% 
+  anti_join(full_df_CVD, by =join_by(eid)) %>% 
+  select(all_of(date_columns)) %>% 
+  apply(1, FUN = min, na.rm=T) %>% max()
+
+# Confirm the # of excluded # 2936
+df_beforeExclusion %>% 
+    anti_join(full_df_CVD, by =join_by(eid)) %>% 
+    select(all_of(date_columns)) %>% 
+    apply(1, FUN = min, na.rm=T) %>% length
+#format(as.Date(.), "%Y-%m") %>% unique()  %>%  sort
+
+```
+
+
+### Find the last date of hospital records and make exclusion based on the dates:
+
+```{r}
+# we create an empty list that will be filled with the number of excluded participants
+exclusions <- list()
+
+# we create a function which will allow us to count the number of excluded participants
+count_and_filter_dates <- function(df, date_column, cut_off_date) {
+  initial_count <- nrow(df)
+  df <- df[is.na(df[[date_column]]) | df[[date_column]] >= as.Date(cut_off_date), ]
+  final_count <- nrow(df)
+  excluded_count <- initial_count - final_count # number of excluded rows (participants)
+  print(paste("Excluded", date_column, excluded_count))
+  return(list(df = df, excluded_count = excluded_count))
+}
+
+# create loop to count number of participants excluded for each CVD
+total_excluded_cvd <- 0
+for (col in date_columns) {
+  result <- count_and_filter_dates(full_df, col, cut_off_date)
+  full_df <- result$df
+  exclusions[[paste("Excluded based on", col)]] <- result$excluded_count
+  total_excluded_cvd <- total_excluded_cvd + result$excluded_count
+}
+
+# Print total exclusions for step 2
+print(paste("Total participants excluded because of CVD:", total_excluded_cvd)) #originally 2936
+
+```
+
+
+## Exclusion 3: Remove participants for whom we have lost follow-up data
+
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$date_lost_followup == "", ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lfu <- result$excluded
+
+# Print total exclusions for step 3
+print(paste("Total participants excluded in step 3:", total_excluded_lfu))
+
+```
+
+## Final count after exclusion steps 1 to 3:
+```{r}
+final_n <- nrow(full_df)
+print(paste("After applying exclusions 1 to 3, we end up with a sample of n =", final_n," participants"))
+```
+
+
+## Save df with all excluded participants:
+
+```{r}
+#write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+```
+
+
+
+########## Data Recoding ########## 
+
+We recode certain variables: 
+### Note: all the data coding/mapping was an extra step we had to do ###
+
+1. Ethnicity:
+
+```{r}
+
+##first we create a dictionnary mapping for the ethnicity codes
+## *** important: this is not a step that was shown by OxWearables. We had to this
+## ourselves. The codes are provided here: https://biobank.ctsu.ox.ac.uk/crystal/coding.cgi?id=1001
+
+ethnicity_coding <- c(
+  "1" = "White",
+  "1001" = "British",
+  "2001" = "White and Black Caribbean",
+  "3001" = "Indian",
+  "4001" = "Caribbean",
+  "2" = "Mixed",
+  "1002" = "Irish",
+  "2002" = "White and Black African",
+  "3002" = "Pakistani",
+  "4002" = "African",
+  "3" = "Asian or Asian British",
+  "1003" = "Any other white background",
+  "2003" = "White and Asian",
+  "3003" = "Bangladeshi",
+  "4003" = "Any other Black background",
+  "4" = "Black or Black British",
+  "2004" = "Any other mixed background",
+  "3004" = "Any other Asian background",
+  "5" = "Chinese",
+  "6" = "Other ethnic group",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(ethnicity_raw = recode(as.character(ethnicity_raw), !!!ethnicity_coding))
+
+
+## 2. now we can proceed with the recoding suggested by OxWearables:
+full_df$ethnicity <-
+  plyr::revalue(
+    full_df$ethnicity_raw,
+    c(
+      "British" = "White",
+      "Any other white background" = "White",
+      "Irish" = "White",
+      "White and Asian" = "Nonwhite",
+      "Caribbean" = "Nonwhite",
+      "Chinese"   = "Nonwhite",
+      "Pakistani"  = "Nonwhite",
+      "White and Black African" = "Nonwhite",
+      "Other ethnic group"  = "Nonwhite",
+      "Any other mixed background" = "Nonwhite",
+      "African"    = "Nonwhite",
+      "White and Black Caribbean" = "Nonwhite",
+      "Prefer not to answer" = NA,
+      "Indian"  = "Nonwhite",
+      "White" = "White",
+      "Do not know" = NA,
+      "Any other Black background" = "Nonwhite",
+      "Any other Asian background"  = "Nonwhite",
+      "Bangladeshi"  = "Nonwhite",
+      "Mixed"  = "Nonwhite",
+      "Asian or Asian British"  = "Nonwhite",
+      "Black or Black British"  = "Nonwhite"
+    )
+  )
+
+
+
+table(full_df$ethnicity_raw, full_df$ethnicity, useNA = "always")
+```
+
+
+2. Smoking and tdi:
+
+```{r}
+# Townsend Index:
+full_df$tdi <- full_df$tdi_raw
+
+# Smoking
+## 1. Data coding for smoking: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=90
+smoking_coding <- c(
+  "0" = "Never",
+  "1" =	"Previous",
+  "2" =	"Current",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(smoking = recode(as.character(smoking_raw), !!!smoking_coding))
+
+## 2. OxWearable recoding:
+full_df$smoking <-
+  plyr::revalue(full_df$smoking, replace = c("Prefer not to answer" = NA)) 
+
+table(full_df$smoking, full_df$smoking_raw, useNA = "always")
+```
+
+
+
+3. Fish and meats:
+
+```{r}
+##### Recoding we added
+
+# Recording for oily and non-oily fish and processed meats
+meat_coding <- c(
+  "1" = "Less than once a week",
+  "2" =	"Once a week",
+  "3" =	"2-4 times a week",
+  "4" =	"5-6 times a week",
+  "5" =	"Once or more daily",
+  "0" =	"Never",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+### oily fish:
+full_df$oily_fish_raw <- full_df$oily_fish  
+full_df <- full_df %>%
+  mutate(oily_fish = recode(as.character(oily_fish), !!!meat_coding))
+
+### non-oily fish:
+full_df$non_oily_fish_raw <- full_df$non_oily_fish  
+full_df <- full_df %>%
+  mutate(non_oily_fish = recode(as.character(non_oily_fish  ), !!!meat_coding))
+
+### processed meats:
+full_df <- full_df %>%
+  mutate(processed_meat_0 = recode(as.character(processed_meat_0), !!!meat_coding ))
+
+table(full_df$oily_fish, full_df$oily_fish_raw, useNA = "always" ) # Yacine comment: remove? There twice
+
+
+
+# Oily fish
+full_df <- full_df %>%
+  mutate(oily_fish = case_when(
+    oily_fish == "2-4 times a week" ~ "2-4 times a week",
+    oily_fish == "Prefer not to answer" ~ "Prefer not to answer",
+    oily_fish == "Do not know" ~ "Do not know",
+    oily_fish %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    oily_fish %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
+
+table(full_df$oily_fish, full_df$oily_fish_raw, useNA = "always" )
+
+# Non-oily fish
+full_df <- full_df %>%
+  mutate(non_oily_fish = case_when(
+    non_oily_fish == "2-4 times a week" ~ "2-4 times a week",
+    non_oily_fish == "Prefer not to answer" ~ "Prefer not to answer",
+    non_oily_fish == "Do not know" ~ "Do not know",
+    non_oily_fish %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    non_oily_fish %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
+
+table(full_df$non_oily_fish, full_df$non_oily_fish_raw, useNA = "always" )
+
+
+# Processed meats
+full_df$processed_meat_raw <- full_df$processed_meat_0
+full_df <- full_df %>%
+  mutate(processed_meat_0 = case_when(
+    processed_meat_0 == "2-4 times a week" ~ "2-4 times a week",
+    processed_meat_0 == "Prefer not to answer" ~ "Prefer not to answer",
+    processed_meat_0 == "Do not know" ~ "Do not know",
+    processed_meat_0 %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    processed_meat_0 %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
+
+# rename processed_meat variable
+full_df$processed_meat <- full_df$processed_meat_0
+full_df <- full_df %>%
+  select(-processed_meat_0)
+
+table(full_df$processed_meat, full_df$processed_meat_raw, useNA = "always" )
+```
+
+4. Red meats:
+* we need to create the red_meat column as the UKBiobank data only provides data 
+for different types of red meat separately (i.e. lamb, beef and pork) *
+
+```{r}
+
+## we replace "Do not know"s and "Prefer not to say"s by NAs - we will drop
+## them later on anyways:
+full_df <- full_df %>%
+  mutate(across(c(beef, lamb, pork), ~ na_if(., -1))) %>%
+  mutate(across(c(beef, lamb, pork), ~ na_if(., -3)))
+
+## we create the red meat column by adding all the values for beef, lamb and pork: 
+full_df$red_meat <- rowSums(full_df[c("beef", "lamb", "pork")], na.rm = TRUE)
+
+table(full_df$red_meat) # visualize all the value that take red_meat
+
+## we create coding for red meats:
+red_meat_coding <- c(
+  "0" = "Never",
+  "1"  = "Less than once a week",
+  "2"  = "Once a week",
+  "3"  = "2-4 times a week",
+  "4"  = "5-6 times a week",
+  "5"  = "Once or more daily",
+  "6"  = "Once or more daily",
+  "7"  = "Once or more daily",
+  "8"  = "Once or more daily",
+  "9"  = "Once or more daily",
+  "10" = "Once or more daily",
+  "11" = "Once or more daily",
+  "12" = "Once or more daily",
+  "13" = "Once or more daily",
+  "15" = "Once or more daily"
+)
+
+## we replace the coding by their meaning:
+full_df$red_meat_raw <- full_df$red_meat
+full_df <- full_df %>%
+  mutate(red_meat = recode(as.character(red_meat), !!!red_meat_coding))
+
+# Red meat
+full_df <- full_df %>%
+  mutate(red_meat = case_when(
+    red_meat == "2-4 times a week" ~ "2-4 times a week",
+    red_meat %in% c("Once a week", "Less than once a week", "Never") ~ "Less than 2 times a week",
+    red_meat %in% c("5-6 times a week", "Once or more daily") ~ "More than 4 times a week",
+    TRUE ~ NA_character_
+  ))
+
+table(full_df$red_meat, full_df$red_meat_raw, useNA = "always" )
+
+
+```
+
+
+
+5. Education:
+
+```{r}
+#### Note: OxWearable use "age education"; we are using "qualifications education"
+## so this is our recoding
+education_coding <- c(
+  "1" = "College or University degree",
+  "2" =	"A levels/AS levels or equivalent",
+  "3" =	"O levels/GCSEs or equivalent",
+  "4" =	"CSEs or equivalent",
+  "5" =	"NVQ or HND or HNC or equivalent",
+  "6" =	"Other professional qualifications eg: nursing, teaching",
+  "-7" = "None of the above",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the education codes by their meaning:
+full_df <- full_df %>%
+  mutate(education_level = recode(as.character(education_raw), !!!education_coding))
+
+## we recode again to have less education classifications
+full_df <- full_df %>%
+  mutate(education_level = case_when(
+    education_level == "College or University degree" ~ "College or University degree",
+    education_level %in% c("A levels/AS levels or equivalent", 
+                         "NVQ or HND or HNC or equivalent", 
+                         "Other professional qualifications eg: nursing, teaching") ~ 
+                         "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
+    education_level %in% c("O levels/GCSEs or equivalent", "CSEs or equivalent") ~ 
+                         "O levels/GCSEs or equivalent, CSEs or equivalent",
+    education_level == "None of the above" ~ "None of the above",
+    education_level == "Prefer not to answer" ~ "Prefer not to answer",
+    TRUE ~ NA_character_
+  ))
+
+
+table(full_df$education_level, full_df$education_raw, useNA = "always")
+```
+
+
+
+6. BMI:
+
+```{r}
+full_df$BMI <- full_df$BMI_raw
+
+## recode the BMI variable 
+full_df <- full_df %>%
+  mutate(BMI = case_when(
+    BMI < 18.5 ~ "Underweight (< 18.5 kg/m2)",
+    BMI >= 18.5 & BMI < 25 ~ "Normal (18.5 kg/m2 to < 25 kg/m2)",
+    BMI >= 25 & BMI < 30 ~ "Overweight (25 kg/m2 to < 30 kg/m2)",
+    BMI >= 30 ~ "Obesity Class I, II or III (> 30 kg/m2)",
+    TRUE ~ NA_character_  
+  ))
+
+boxplot(BMI_raw ~ BMI, data = full_df)
+```
+
+
+7. Fruit and veggies:
+
+```{r}
+# Hiroshi Comment: Zero serving is treated as missing - it should not be. ALso, here you have a varaible in mix of discrete number (integer) and character, and youa re applying oepration for integer. Is this char, integer, factor variable? 
+# Hiroshi Comment Zero serving is treated as missing - it should not be
+## recode the fruit variables to have less classifications
+full_df$fresh_fruit_raw <- full_df$fresh_fruit
+
+full_df <- full_df %>%
+  mutate(fresh_fruit = case_when(
+    fresh_fruit %in% c(-10, 0) | (fresh_fruit > 0 & fresh_fruit < 2) ~ "< 2 servings/day",
+    fresh_fruit == -1 ~ "Do not know",
+    fresh_fruit == -3 ~ "Prefer not to answer",
+    fresh_fruit >= 2 & fresh_fruit <= 4 ~ "2 to 4 servings/day",
+    fresh_fruit > 4 ~ "More than 4 servings/day"
+  ))
+ 
+
+# Veggies:
+full_df$cooked_vg_raw <- full_df$cooked_vg
+
+full_df <- full_df %>%
+  mutate(cooked_vg = case_when(
+    cooked_vg %in% c(-10, 0) | (cooked_vg > 0 & cooked_vg < 2) ~ "< 2 servings/day",
+    cooked_vg == -1 ~ "Do not know",
+    cooked_vg == -3 ~ "Prefer not to answer",
+    cooked_vg >= 2 & cooked_vg <= 4 ~ "2 to 4 servings/day",
+    cooked_vg > 4 ~ "More than 4 servings/day"
+  ))
+
+
+
+table(full_df$fresh_fruit, full_df$fresh_fruit_raw, useNA = "always")
+table(full_df$cooked_vg, full_df$cooked_vg_raw, useNA = "always")
+
+
+
+```
+
+
+8. Alcohol:
+
+```{r}
+# Alcohol
+## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
+alcohol_coding <- c(
+  "1" = "Daily or almost daily",
+  "2" =	"Three or four times a week",
+  "3" =	"Once or twice a week",
+  "4" =	"One to three times a month",
+  "5" =	"Special occasions only",
+  "6" =	"Never",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(alcohol = recode(as.character(alcohol_raw), !!!alcohol_coding))
+
+## we recode alcohol to have less classifications
+full_df <- full_df %>%
+  mutate(alcohol = case_when(
+    alcohol == "Daily or almost daily" ~ "Daily or almost daily",
+    alcohol == "Never" ~ "Never",
+    alcohol == "Once or twice a week" ~ "Once or twice a week",
+    alcohol == "Three or four times a week" ~ "Three or four times a week",
+    alcohol %in% c("One to three times a month", "Special occasions only") ~ "Less than once a week",
+    alcohol == "Prefer not to answer" ~ "Prefer not to answer",
+    TRUE ~ NA_character_
+  ))
+
+
+table(full_df$alcohol, full_df$alcohol_raw, useNA = "always")
+```
+
+
+9. Diabetes and other comorbidities:
+
+```{r}
+# Diabetes
+diabetes_coding <- c(
+  "0" = "Yes",
+  "1" = "No",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+
+full_df$diabetes_raw <- full_df$diabetes_0
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(diabetes = recode(as.character(diabetes_0), !!!diabetes_coding))
+
+full_df <- full_df %>%
+  select(-diabetes_0)
+
+table(full_df$diabetes_raw, full_df$diabetes, useNA = "always")
+
+
+```
+
+
+10. Sex:
+
+```{r}
+# recode binary variables 
+full_df <- full_df %>%
+  mutate(sex = recode(sex, `1` = "Male", `0` = "Female"))
+
+table(full_df$sex)
+```
+
+11. Average Houselhold Gross Income:
+
+```{r}
+income_coding <- c(
+  "1" =	"Less than 18,000",
+  "2" =	"18,000 to 30,999",
+  "3" =	"31,000 to 51,999",
+  "4" =	"52,000 to 100,000",
+  "5" =	"Greater than 100,000",
+  "-1" = "Do not know/Prefer not to answer",
+  "-3" = "Do not know/Prefer not to answer"
+)
+
+full_df$avg_hh_income_raw <- full_df$avg_hh_income # to keep an exemple of coding
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(avg_hh_income = recode(as.character(avg_hh_income_raw), !!!income_coding))
+
+
+```
+
+############ Final exclusion ############
+
+## Exclusion 4: Missing covariate data
+
+### 4.1 We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
+
+```{r}
+
+df_before <- full_df
+
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
+
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_covd <- result$excluded
+
+# Print total exclusions for step 4.1
+print(paste("Total participants excluded in step 4.1:", total_excluded_covd))
+```
+
+
+### 4.2 We remove all rows where any column contains the entry "Prefer not to answer" and
+"Don't know":
+```{r}
+
+
+## we transform all the values marked as "Prefer not to answer" and "Don't know" as NAs:
+answers_to_remove <- c("Prefer not to answer", "Do not know")
+
+full_df <- full_df %>%
+  mutate(across(where(is.character), ~ ifelse(. %in% answers_to_remove, NA, .)))
+
+
+# we remove the NA amongst the following columns:
+df_before <- full_df
+keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat', 'diabetes', 'avg_hh_income')
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+
+# we count the exclusions just like we did before
+count_exclusions <- function(df_before, df_after) {
+  total_before <- nrow(df_before)
+  total_after <- nrow(df_after)
+  excluded <- total_before - total_after
+  return(list(excluded = excluded))
+}
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_NA <- result$excluded
+
+print(paste("Total participants excluded after removing newly generated NAs:", total_excluded_NA))
+```
+
+## Final count:
+```{r}
+final_n <- nrow(full_df)
+print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
+```
+
+
+
+############ Inclusion of PA data ############
+# Link PA1 and PA2 (Exposure) data
+
+```{r}
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+
+ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+  )
+
+```
+
+
+We create a "age-at-accelerometer-wear variable":
+
+```{r}
+# add date of birth
+full_df$approx_dob <-
+  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
+          "%Y-%m-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+# add age at entry in days
+full_df$age_entry_days <- as.numeric(difftime(full_df$date_end_accel,
+                                              full_df$approx_dob,
+                                              units = "days"))
+# Convert to age at entry in years
+full_df$age_entry_years <- as.double(full_df$age_entry_days)/365.25
+
+# Add age groups
+full_df$age_gp <-
+  cut(
+    full_df$age_entry_years,
+    breaks = c(40, 50, 60, 70, 80),
+    right = FALSE,
+    labels = c("40-49", "50-59", "60-69", "70-79")
+  )
+
+
+
+boxplot(age_entry_years ~ age_gp, data = full_df)
+```
+
+We make a function to cut by quantile:
+
+```{r}
+qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
+    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
+    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
+    return(out)
+}
+```
+
+
+We cut overall activity and Townsend Deprivation Index into quarters:
+
+```{r}
+full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+# OxWearable Note: The TDI classification here was quarters of the study population, which was used in the example papers. However, our group now typically uses TDI scaled to quarters of the UK population, 
+# as listed [here](https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/Townsend_Deprivation_Scores/UK%20Townsend%20Deprivation%20Scores%20from%202011%20census%20data.pdf, page 15)
+
+full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+
+
+boxplot(overall_activity ~ overall_activity_quarters, data = full_df)
+boxplot(tdi ~ tdi_quarters, data = full_df)
+
+
+```
+
+
+We save the the final df which includes the exlucded participants and the recoding
+suggested by OxWearables (as well as the data mapping we had to do)
+
+```{r}
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc_recode.csv", row.names = FALSE)
+```
+
+
+

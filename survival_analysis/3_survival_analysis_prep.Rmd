@@ -1,0 +1,746 @@
+---
+title: "survival_analysis_prep"
+author: "yacine"
+date: "2024-07-16"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+We load and/or install the packages we will be using:
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Refresh environment 
+rm(list= ls())
+library(dplyr)
+library(survival)
+library(data.table)
+library(readr)
+library(dvmisc)
+library(gtsummary)
+library(gt)
+library(kableExtra)
+library(broom.helpers)
+library(flextable)
+library(officer)
+library(ggplot2)
+
+theme_gtsummary_journal("jama")
+```
+
+## We load the data:
+```{r}
+dt <- read.csv("/home/yacine/UKBB_beluga/prepped_dt.csv", check.names = FALSE) # full df with exclusions + recoding and all data prepared for survival analysis
+```
+
+
+
+###################
+
+  
+  
+## Regression - Associations with risk of incident cardiovascular disease 
+
+In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
+
+
+First , create formula 
+```{r}
+
+f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Body Mass Index`"
+
+f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish`"
+
+f_stroke <-   "Surv(`Follow_up time`,`Myocardial Infarction`)"
+
+f_MI <- "Surv(`Follow_up time`,`Stroke`)"
+
+
+#as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
+#as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
+
+
+
+```
+
+
+### Stroke - Main 
+```{r}
+
+# Model for PA 1 
+fitDf1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1<- tbl_regression(fitDf1, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+
+
+fitDf2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2<- tbl_regression(fitDf2, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+
+
+
+
+#Merge tables 
+tb3 <- tbl_merge(
+  tbls = list(tb1, tb2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")) %>% 
+  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+
+# Landscape (word format)
+tb3 <- as_flex_table(tb3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
+  path = "HR_main_MI.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+  
+  
+  
+  
+### MI - Main 
+```{r}
+
+# Model for PA 1 
+fitDf1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+
+
+#Model for PA 2 
+fitDf2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+
+tb3 <- tbl_merge(
+  tbls = list(tb1, tb2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")) %>% 
+  bold_labels() %>% 
+  modify_column_hide(columns = c(p.value_1, p.value_2))
+
+
+# Landscape (word format)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,  
+  path = "HR_main_Stroke.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+
+
+
+
+
+
+# Sensitivity anlaysis  
+### sensitivity - no Mediator , withoubt BMI and Diabetes , Stroke 
+See covarite set - no mediator (BMI  and diabetes)
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )# %>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA1Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA1Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA1Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA1Label[4, "range"], "Q4",label)
+  #           )) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  #%>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA2Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA2Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA2Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA2Label[4, "range"], "Q4",label)
+  #           ))
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Without BMI and Diabetes" = t3,  
+  path = "HR_Sens_Diabetes_Stroke.docx", 
+  pr_section = sect_properties
+)  
+```
+### sensitivity - no Mediator , withoubt BMI and Diabetes , MI
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Without BMI and Diabetes" = t3,  
+  path = "HR_Sens_Diabetes_MI.docx", 
+  pr_section = sect_properties
+)  
+```
+
+
+
+
+
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA Stroke 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3,  
+  path = "HR_Sens_truncated_Stroke.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+
+
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA, MI 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for icidence MI, truncated MVPA" = t3,  
+  path = "HR_Sens_truncated_MI.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+### Sensitivity 3 - Male and Female separate 
+See the data soruce in the regression command
+Female 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,  
+  path = "HR_Sens_Female_stroke.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+Male - stroke 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Male - azard ratios for icidence stroke" = t3,  
+  path = "HR_Sens_Male_stroke.docx", 
+  pr_section = sect_properties
+)  
+
+```
+
+
+
+
+Female - MI
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Female - Hazard ratios for icidence MI" = t3,  
+  path = "HR_Sens_Female_MI.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+
+
+Male - MI
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Male - Hazard ratios for icidence MI" = t3,  
+  path = "HR_Sens_Mmale_MI.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+
+
+
+
+Interaction of MVPA and Male/Female 
+Female 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1*Sex + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2*Sex + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,  
+  path = "HR_Sens_Female_stroke.docx", 
+  pr_section = sect_properties
+)  
+```
+
+
+### Sensitivity 4 - 2 years of survival 
+
+
+
+
+
+
+##########
+Kaplan_Meier:
+  - 2 groups: PA1 and PA2 or Stroke and MI?
+  - d_stroke == 1; d_MI == 1
+  - end_of_fu = censoring time
+  
+```{r}
+  
+kmfit1_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA1`, data = dt)
+kmfit1_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA1`, data = dt)
+
+
+kmfit2_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA2`, data = dt)
+kmfit2_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
+
+
+```
+
+
+
+```{r}
+
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA1 by Quarters")
+
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA1 by Quarters")
+
+
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"),
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA2 by Quarters")
+
+
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA2 by Quarters")
+
+```
+
+
+```{r}
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+
+# ENMO MI
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5,
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - ENMO by Quarters")
+
+# ENMO Stroke
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - ENMO by Quarters")
+
+# ML MI
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - ML by Quarters")
+
+# ML Stroke
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - ML by Quarters")
+
+
+mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
+#legend("bottomleft", legend = c("Q1", "Q2", "Q3", "Q4"), 
+       #col = c("black", "grey", "blue", "red"), lty = 1, cex = 0.8) # legend for one graph only
+#mtext("Survival time per month", side = 1, outer = TRUE, line = 2.5) # y-axis title for full figure
+#mtext("Survival Probabilities", side = 2, outer = TRUE, line = 2.5) # x-axis title for full figure
+```
+
+
+
+
+
+
+Log-log tentative: 
+
+```{r}
+
+
+# we create a function to transform the KM model to Log-log function:
+log_log_transform <- function(surv_fit) {
+  surv_summary <- summary(surv_fit)
+  data.frame(
+    time = surv_summary$time,
+    log_log_surv = log(-log(surv_summary$surv)),
+    strata = surv_summary$strata
+  )
+}
+
+log_log_kmfit1_mi <- log_log_transform(kmfit1_mi)
+log_log_kmfit1_stroke <- log_log_transform(kmfit1_stroke)
+log_log_kmfit2_mi <- log_log_transform(kmfit2_mi)
+log_log_kmfit2_stroke <- log_log_transform(kmfit2_stroke)
+
+
+# we create a function to create Log-log function plots
+plot_log_log_survival <- function(log_log_data, title) {
+  ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
+    geom_step() +
+    labs(title = title, x = "Time in Month", y = "Log-log Survival") +
+    #xlim(c(0, NA)) + # start x-axis at time == 0
+    theme_minimal()
+}
+
+plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO Quarters Comparison")
+plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO Quarters Comparison")
+plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML Quarters Comparison")
+plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML Quarters Comparison")
+
+
+print(plot1_mi)
+print(plot1_stroke)
+print(plot2_mi)
+print(plot2_stroke)
+
+
+```
+
+
+Schoenfeld residuals: 
+
+```{r}
+library(survminer)
+
+# we test the proportional hazards assumption of a Cox regression model:
+
+test_ph1 <- cox.zph(fitDf1)
+test_ph2 <- cox.zph(fitDf2)
+
+test_ph_fit1 <- cox.zph(fit1)
+test_ph_fit2 <- cox.zph(fit2)
+
+# we plot the Schoenfeld residuals graphs using the Cox regression model: 
+
+ggcoxzph(test_ph1, var = 'MVPA_Quant_PA1')
+ggcoxzph(test_ph2, var = 'MVPA_Quant_PA2')
+
+ggcoxzph(test_ph_fit1, var = 'MVPA_Quant_PA1_trucated')
+ggcoxzph(test_ph_fit2, var = 'MVPA_Quant_PA2_trucated')
+
+
+#?ggcoxzph
+
+
+```
+
+
+
+
