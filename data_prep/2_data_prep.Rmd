@@ -145,10 +145,53 @@ full_df <- full_df %>%
 ```
 
 
+## 2 years of survival:
+We create two new columns ("2_years_survival_stroke" and "2_years_survival_MI")
+which will indicate if the participant has had either disease in the next two years
+following the end of the accelerometer tracking. Therefore, the value for the two
+new columns will be 0 if the person has had the disease within the 2 following years; 
+1 if they had the disease more than 2 years after, or if they simply never had the disease. 
+These columns will be used for sensitivity analysis 4.
+
+### 2 years of survival - Stroke:
+
+```{r}
+
+full_df <- full_df %>%
+  mutate(date_end_accel = as.Date(date_end_accel),
+         stroke_date = as.Date(stroke_date)) %>%
+  
+  mutate('2_years_survival_stroke' = case_when(
+    is.na(stroke_date) ~ 1,   # never had stroke == 0
+    !is.na(stroke_date) & !is.na(date_end_accel) &
+      as.numeric(difftime(stroke_date, date_end_accel, units = 'days')) > (2*365) ~ 1, # date_end_accel - stroke_date > 2                                                                                                                        == 1
+    !is.na(stroke_date) & !is.na(date_end_accel) ~ 0, # date_end_accel - stroke_date < 2 == 0
+    TRUE ~ NA  
+  ))
+
+table(full_df$'2_years_survival_stroke')
+```
+
+### 2 years of survival - MI:
+
+```{r}
+
+full_df <- full_df %>%
+  mutate(date_end_accel = as.Date(date_end_accel),
+         myocardial_infarction_date = as.Date(myocardial_infarction_date)) %>%
+  
+  mutate('2_years_survival_MI' = case_when(
+    is.na(myocardial_infarction_date) ~ 1,  # never had MI == 1
+    !is.na(myocardial_infarction_date) & !is.na(date_end_accel) &
+      as.numeric(difftime(myocardial_infarction_date, date_end_accel, units = 'days')) > (2*365) ~ 1, # date_end_accel - MI_date > 2 == 1
+    !is.na(myocardial_infarction_date) & !is.na(date_end_accel) ~ 0, # date_end_accel - MI_date < 2 == 0
+    TRUE ~ NA  
+  ))
 
 
+table(full_df$'2_years_survival_MI')
 
-
+```
 
 ## PA 
 ### Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
