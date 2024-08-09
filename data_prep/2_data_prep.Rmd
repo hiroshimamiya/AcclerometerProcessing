@@ -146,7 +146,7 @@ full_df <- full_df %>%
 
 
 ## 2 years of survival:
-We create two new columns ("2_years_survival_stroke" and "2_years_survival_MI")
+We create two new columns ('2_years_survival_stroke' and '2_years_survival_MI')
 which will indicate if the participant has had either disease in the next two years
 following the end of the accelerometer tracking. Therefore, the value for the two
 new columns will be 0 if the person has had the disease within the 2 following years; 
@@ -491,7 +491,9 @@ dt <- full_df_PA %>%  dplyr::select(
   fresh_fruit,
   cooked_vg, 
   MVPA_Quant_PA1_trucated, 
-  MVPA_Quant_PA2_trucated
+  MVPA_Quant_PA2_trucated,
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`
   )
 
 
@@ -517,7 +519,9 @@ varNameDf <- data.frame(
               "Non-oily fish",
               "Sex", 
               "Follow_up time", 
-              "Body Mass Index"
+              "Body Mass Index",
+              "Two Years Stroke Survival",
+              "Two Years MI Survival"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -538,7 +542,9 @@ varNameDf <- data.frame(
               "non_oily_fish",
               "sex", 
               "fu_time", 
-              "BMI")
+              "BMI",
+              "2_years_survival_stroke",
+              "2_years_survival_MI")
 )
 
 
