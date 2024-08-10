@@ -396,6 +396,7 @@ t1<- tbl_regression(fit1, exponentiate = TRUE,
                     include = "MVPA_Quant_PA1_trucated"
                     ) 
 
+# Model for PA 2
 fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
 t2<- tbl_regression(fit2, exponentiate = TRUE,  
                     label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
@@ -431,16 +432,107 @@ flextable::save_as_docx("Male - azard ratios for icidence stroke" = t3,
 
 
 
-
-
-
-
-
-
 ### Sensitivity 4 - 2 years of survival 
+We perform a sensitivity analysis by first extracting people that have had a stroke
+within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
+
+#### Remove people who have had a Stroke within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years Stroke Survival' != 0)
 
 
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
 
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for incidence stroke: 2 years stroke survival" = t3,  
+  path = "HR_Sens_twoyears_stroke.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
+
+
+#### Remove people who have had a MI within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_MI' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years MI Survival' != 0)
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3 <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+flextable::save_as_docx("Hazard ratios for incidence MI: 2 years MI survival" = t3,  
+  path = "HR_Sens_twoyears_MI.docx", 
+  pr_section = sect_properties
+)  
+
+
+```
 
 
 
