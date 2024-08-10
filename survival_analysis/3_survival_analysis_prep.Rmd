@@ -533,6 +533,8 @@ flextable::save_as_docx("Hazard ratios for incidence MI: 2 years MI survival" = 
 
 
 ```
+Yacine Note: Should we combine Two Years MI Survival and Two Years Stroke Survival
+instead?
 
 
 
