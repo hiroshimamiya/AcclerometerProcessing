@@ -102,8 +102,8 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
-  path = "HR_main_MI.docx", 
+flextable::save_as_docx("Hazard ratios for icidence Stroke" = tb3,  
+  path = "HR_main_Stroke.docx", 
   pr_section = sect_properties
 )  
 
@@ -143,8 +143,8 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,  
-  path = "HR_main_Stroke.docx", 
+flextable::save_as_docx("Hazard ratios for icidence MI" = tb3,  
+  path = "HR_main_MI.docx", 
   pr_section = sect_properties
 )  
 
