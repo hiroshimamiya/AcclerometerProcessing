@@ -152,6 +152,26 @@ flextable::save_as_docx("Hazard ratios for incidence MI" = tb3_main_MI,
 ```
 
 
+### Merge Main analysis results for stroke and MI
+```{r}
+
+main_results_doc <- read_docx()
+
+# Main Stroke and MI
+main_results_doc <- main_results_doc %>%
+  body_add_par("Main Analysis: Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(tb3_main_stroke) %>%
+  body_add_par("")  
+
+main_results_doc <- main_results_doc %>%
+  body_add_par("Main Analysis: Hazard ratios for incidence MI", style = "heading 1") %>%
+  body_add_flextable(tb3_main_MI) %>%
+  body_add_par("")  
+
+
+# save
+print(main_results_doc, target = "main_results.docx")
+```
 
 
 
@@ -209,10 +229,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_stroke,  
-  path = "HR_Sens_Diabetes_Stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_stroke,  
+  #path = "HR_Sens_Diabetes_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
 ```
 ### sensitivity - no Mediator , withoubt BMI and Diabetes , MI
 ```{r}
@@ -247,10 +267,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_MI,  
-  path = "HR_Sens_Diabetes_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_MI,  
+  #path = "HR_Sens_Diabetes_MI.docx", 
+  #pr_section = sect_properties
+#)  
 ```
 
 
@@ -292,10 +312,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3_sensa2_stroke,  
-  path = "HR_Sens_truncated_Stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3_sensa2_stroke,  
+  #path = "HR_Sens_truncated_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
 
 ```
 
@@ -336,10 +356,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for incidence MI, truncated MVPA" = t3_sensa2_MI,  
-  path = "HR_Sens_truncated_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for incidence MI, truncated MVPA" = t3_sensa2_MI,  
+  #path = "HR_Sens_truncated_MI.docx", 
+  #pr_section = sect_properties
+#)  
 
 ```
 
@@ -379,10 +399,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Female - Hazard ratios for incidence stroke" = t3_sensa3_stroke_f,  
-  path = "HR_Sens_Female_stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Female - Hazard ratios for incidence stroke" = t3_sensa3_stroke_f,  
+  #path = "HR_Sens_Female_stroke.docx", 
+  #pr_section = sect_properties
+#)  
 
 
 ```
@@ -422,10 +442,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Male - Hazard ratios for incidence Stroke" = t3_sensa3_stroke_m,  
-  path = "HR_Sens_Male_stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Male - Hazard ratios for incidence Stroke" = t3_sensa3_stroke_m,  
+ # path = "HR_Sens_Male_stroke.docx", 
+ # pr_section = sect_properties
+#)  
 
 
 ```
@@ -478,10 +498,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for incidence Stroke - 2 years stroke survival" = t3_sensa4_stroke,  
-  path = "HR_Sens_twoyears_stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for incidence Stroke - 2 years stroke survival" = t3_sensa4_stroke,  
+  #path = "HR_Sens_twoyears_stroke.docx", 
+  #pr_section = sect_properties
+#)  
 
 
 ```
@@ -527,10 +547,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for incidence MI - 2 years MI survival" = t3_sensa4_MI,  
-  path = "HR_Sens_twoyears_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for incidence MI - 2 years MI survival" = t3_sensa4_MI,  
+  #path = "HR_Sens_twoyears_MI.docx", 
+  #pr_section = sect_properties
+#)  
 
 
 ```
