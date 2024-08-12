@@ -66,6 +66,18 @@ full_df <- full_df %>%
   )
 ```
 
+### PA4 prep:
+Combining the newly created duration_moderate_activity and duration_vigorous_activity
+we create the "MVPA_min_PA4" by adding both columns
+
+```{r}
+
+full_df <- full_df %>%
+  mutate(
+    MVPA_min_PA4 = coalesce(duration_vigorous_activity) + coalesce(duration_moderate_activity)
+  )
+
+```
 
 ######## REMOVE UNNECESSARY COLUMNS
 After looking at the data, I realized that some columns that we extracted (for
@@ -863,6 +875,8 @@ boxplot(tdi ~ tdi_quarters, data = full_df)
 
 
 ```
+
+
 
 
 We save the the final df which includes the exlucded participants and the recoding
