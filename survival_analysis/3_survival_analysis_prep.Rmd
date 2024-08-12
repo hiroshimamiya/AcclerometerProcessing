@@ -91,7 +91,7 @@ tb3 <- tbl_merge(
 
 
 # Landscape (word format)
-tb3 <- as_flex_table(tb3)
+tb3_main_stroke <- as_flex_table(tb3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -102,8 +102,8 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence Myocardial Infarction" = tb3,  
-  path = "HR_main_MI.docx", 
+flextable::save_as_docx("Hazard ratios for incidence Stroke" = tb3_main_stroke,  
+  path = "HR_main_Stroke.docx", 
   pr_section = sect_properties
 )  
 
@@ -125,7 +125,7 @@ tb1<- tbl_regression(fitDf1, exponentiate = TRUE, label = list("MVPA_Quant_PA1" 
 fitDf2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
 tb2<- tbl_regression(fitDf2, exponentiate = TRUE, label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
 
-tb3 <- tbl_merge(
+t3 <- tbl_merge(
   tbls = list(tb1, tb2),
   tab_spanner = c("**ENMO**", "**Random Forest and HMM**")) %>% 
   bold_labels() %>% 
@@ -133,6 +133,7 @@ tb3 <- tbl_merge(
 
 
 # Landscape (word format)
+tb3_main_MI <- as_flex_table(tb3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -143,14 +144,34 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence stroke" = tb3,  
-  path = "HR_main_Stroke.docx", 
+flextable::save_as_docx("Hazard ratios for incidence MI" = tb3_main_MI,  
+  path = "HR_main_MI.docx", 
   pr_section = sect_properties
 )  
 
 ```
 
 
+### Merge Main analysis results for stroke and MI
+```{r}
+
+main_results_doc <- read_docx()
+
+# Main Stroke and MI
+main_results_doc <- main_results_doc %>%
+  body_add_par("Main Analysis: Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(tb3_main_stroke) %>%
+  body_add_par("")  
+
+main_results_doc <- main_results_doc %>%
+  body_add_par("Main Analysis: Hazard ratios for incidence MI", style = "heading 1") %>%
+  body_add_flextable(tb3_main_MI) %>%
+  body_add_par("")  
+
+
+# save
+print(main_results_doc, target = "main_results.docx")
+```
 
 
 
@@ -197,7 +218,7 @@ t3 <- tbl_merge(
    modify_column_hide(columns = c(p.value_1, p.value_2))
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa1_stroke <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -208,10 +229,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Without BMI and Diabetes" = t3,  
-  path = "HR_Sens_Diabetes_Stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_stroke,  
+  #path = "HR_Sens_Diabetes_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
 ```
 ### sensitivity - no Mediator , withoubt BMI and Diabetes , MI
 ```{r}
@@ -235,7 +256,7 @@ t3 <- tbl_merge(
    modify_column_hide(columns = c(p.value_1, p.value_2))
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa1_MI <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -246,10 +267,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Without BMI and Diabetes" = t3,  
-  path = "HR_Sens_Diabetes_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_MI,  
+  #path = "HR_Sens_Diabetes_MI.docx", 
+  #pr_section = sect_properties
+#)  
 ```
 
 
@@ -280,7 +301,7 @@ t3 <- tbl_merge(
 )
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa2_stroke <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -291,10 +312,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3,  
-  path = "HR_Sens_truncated_Stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3_sensa2_stroke,  
+  #path = "HR_Sens_truncated_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
 
 ```
 
@@ -324,7 +345,7 @@ t3 <- tbl_merge(
 )
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa2_MI <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -335,10 +356,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Hazard ratios for icidence MI, truncated MVPA" = t3,  
-  path = "HR_Sens_truncated_MI.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Hazard ratios for incidence MI, truncated MVPA" = t3_sensa2_MI,  
+  #path = "HR_Sens_truncated_MI.docx", 
+  #pr_section = sect_properties
+#)  
 
 ```
 
@@ -367,7 +388,7 @@ t3 <- tbl_merge(
 )
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa3_stroke_f <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -378,10 +399,17 @@ sect_properties <- prop_section(
   )
 
 # Save 
+<<<<<<< HEAD
 flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,  
   path = "HR_Sens_Female_stroke.docx", 
   pr_section = sect_properties
 )  
+=======
+#flextable::save_as_docx("Female - Hazard ratios for incidence stroke" = t3_sensa3_stroke_f,  
+  #path = "HR_Sens_Female_stroke.docx", 
+  #pr_section = sect_properties
+#)  
+>>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 
 
 ```
@@ -396,7 +424,12 @@ t1<- tbl_regression(fit1, exponentiate = TRUE,
                     include = "MVPA_Quant_PA1"
                     ) 
 
+<<<<<<< HEAD
 fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+=======
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+>>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 t2<- tbl_regression(fit2, exponentiate = TRUE,  
                     label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
                     include = "MVPA_Quant_PA2"
@@ -409,7 +442,7 @@ t3 <- tbl_merge(
 )
 
 # Landscape (word format)
-t3 <- as_flex_table(t3)
+t3_sensa3_stroke_m <- as_flex_table(t3)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -420,10 +453,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-flextable::save_as_docx("Male - azard ratios for icidence stroke" = t3,  
-  path = "HR_Sens_Male_stroke.docx", 
-  pr_section = sect_properties
-)  
+#flextable::save_as_docx("Male - Hazard ratios for incidence Stroke" = t3_sensa3_stroke_m,  
+ # path = "HR_Sens_Male_stroke.docx", 
+ # pr_section = sect_properties
+#)  
 
 ```
 
@@ -519,6 +552,7 @@ flextable::save_as_docx("Male - Hazard ratios for icidence MI" = t3,
 
 
 
+<<<<<<< HEAD
 
 Interaction of MVPA and Male/Female 
 Female 
@@ -562,7 +596,176 @@ flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,
 ```
 
 
+=======
+>>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 ### Sensitivity 4 - 2 years of survival 
+We perform a sensitivity analysis by first extracting people that have had a stroke
+within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
+
+#### Remove people who have had a Stroke within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years Stroke Survival' != 0)
+
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa4_stroke <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for incidence Stroke - 2 years stroke survival" = t3_sensa4_stroke,  
+  #path = "HR_Sens_twoyears_stroke.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+
+
+#### Remove people who have had a MI within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_MI' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years MI Survival' != 0)
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa4_MI <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for incidence MI - 2 years MI survival" = t3_sensa4_MI,  
+  #path = "HR_Sens_twoyears_MI.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+Yacine Note: Should we combine Two Years MI Survival and Two Years Stroke Survival
+instead?
+
+
+### We merge all sensitivity analysis results into one doc:
+
+```{r}
+
+surv_analysis_doc <- read_docx()
+
+# Sensitivity analysis 1
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 1: Without BMI and Diabetes - Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa1_stroke) %>%
+  body_add_par("No Mediator , withoubt BMI and Diabetes (Stroke) ")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 1: Without BMI and Diabetes - MI", style = "heading 1") %>%
+  body_add_flextable(t3_sensa1_MI) %>%
+  body_add_par("No Mediator , withoubt BMI and Diabetes (MI)")  
+
+
+# Sensitivity analysis 2
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 2: Hazard ratios for incidence Stroke, truncated MVPA", style = "heading 1") %>%
+  body_add_flextable(t3_sensa2_stroke) %>%
+  body_add_par("Removed people with huge duration (>1200min) of MVPA, Stroke")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 2: Hazard ratios for incidence MI, truncated MVPA", style = "heading 1") %>%
+  body_add_flextable(t3_sensa2_MI) %>%
+  body_add_par("Removed people with huge duration (>1200min) of MVPA, MI")  
+
+
+# Sensitivity analysis 3
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Female - Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_stroke_f) %>%
+  body_add_par("Male and Female separate (Stroke)")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Male - Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_stroke_m) %>%
+  body_add_par("Male and Female separate (MI)") 
+
+
+
+# Sensitivity analysis 4
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 4: Hazard ratios for incidence Stroke - 2 years Stroke survival", style = "heading 1") %>%
+  body_add_flextable(t3_sensa4_stroke) %>%
+  body_add_par("Removed people who have had a Stroke within 2 years following end of accelerometer following")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 4: Hazard ratios for incidence MI - 2 years MI survival", style = "heading 1") %>%
+  body_add_flextable(t3_sensa4_MI) %>%
+  body_add_par("Removed people who have had a MI within 2 years following end of accelerometer following")  
+
+
+
+# Save the combined document
+print(surv_analysis_doc, target = "sensa_results_combined.docx")
+
+
+```
+
+
 
 
 
