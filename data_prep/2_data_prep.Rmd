@@ -279,7 +279,7 @@ full_df_PA<- inner_join(full_df_PA,
 
 
 
-### Cretea quantile pA group...
+### Create quantile pA group...
 ```{r}
 sum(full_df_PA$MVPA_min_PA1 > 2500 )
 summary(full_df_PA$MVPA_min_PA1)
@@ -593,6 +593,6 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
 
 
 ```{r}
-write.csv(dt, "/home/yacine/UKBB_beluga/prepped_dt.csv", row.names = FALSE)
+saveRDS(dt, "/home/yacine/UKBB_beluga/prepped_dt.csv")
 
 ```

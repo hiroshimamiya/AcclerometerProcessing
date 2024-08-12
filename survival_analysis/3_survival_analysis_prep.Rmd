@@ -32,7 +32,7 @@ theme_gtsummary_journal("jama")
 
 ## We load the data:
 ```{r}
-dt <- read.csv("/home/yacine/UKBB_beluga/prepped_dt.csv", check.names = FALSE) # full df with exclusions + recoding and all data prepared for survival analysis
+dt <- readRDS("/home/yacine/UKBB_beluga/prepped_dt.csv") # full df with exclusions + recoding and all data prepared for survival analysis
 ```
 
 
@@ -234,6 +234,7 @@ sect_properties <- prop_section(
   #pr_section = sect_properties
 #)  
 ```
+
 ### sensitivity - no Mediator , withoubt BMI and Diabetes , MI
 ```{r}
 # Model for PA 1 
