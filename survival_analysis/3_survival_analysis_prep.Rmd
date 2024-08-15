@@ -313,13 +313,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 1 Forest Plot - Stroke", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -396,13 +396,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 1 Forest Plot - MI", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_MI.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_MI.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -483,13 +483,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 2 Forest Plot - Stroke", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_stroke.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_stroke.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -569,13 +569,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 2 Forest Plot - MI", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_MI.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_MI.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -660,13 +660,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 3 Forest Plot - Stroke - Female", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_f.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_f.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -745,13 +745,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 3 Forest Plot - Stroke - Male", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_m.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_m.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -833,13 +833,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 3 Forest Plot - MI - Female", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_f.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_f.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -918,13 +918,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 3 Forest Plot - MI - Male", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_m.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_m.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -1017,13 +1017,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 4 Forest Plot - Stroke", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_stroke.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_stroke.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
@@ -1111,13 +1111,13 @@ data_t2 <- data_t2 %>%
 forest_data <- bind_rows(data_t1, data_t2)
 
 # we can now create the plot using the funcPlotForest function created earlier:
-plot <- funcPlotForest(forest_data, 
+funcPlotForest(forest_data, 
                        title = "Sensitivity Analysis 4 Forest Plot - MI", 
                        subtitle = "HR for MVPA Quartiles with 95% CI", 
                        maxX = 2.0)
 
 # Save the plot
-ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_MI.png", plot, width = 10, height = 6, dpi = 300)
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_MI.png", plot, width = 10, height = 6, dpi = 300)
 
 ```
 
