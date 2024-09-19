@@ -593,6 +593,6 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
 
 
 ```{r}
-saveRDS(dt, "/home/yacine/UKBB_beluga/prepped_dt.csv")
+saveRDS(dt, "./prepped_dt.rds")
 
 ```

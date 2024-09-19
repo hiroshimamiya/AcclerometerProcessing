@@ -32,7 +32,7 @@ theme_gtsummary_journal("jama")
 
 ## We load the data:
 ```{r}
-dt <- readRDS("/home/yacine/UKBB_beluga/prepped_dt.csv") # full df with exclusions + recoding and all data prepared for survival analysis
+dt <- readRDS("../data_prep/prepped_dt.rds") # full df with exclusions + recoding and all data prepared for survival analysis
 ```
 
 

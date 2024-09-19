@@ -1,0 +1,394 @@
+---
+title: "UKBB Data Exclusion"
+author: "Yalap"
+output: rmarkdown::github_document
+---
+
+We load and/or install the packages we will be using:
+
+```{r, include=FALSE}
+rm(list=ls())
+library(dplyr)
+library(readr)
+library(data.table)
+install.packages(tidyverse)
+#library(tidyverse)
+```
+
+We import all data for participants with accelerometer data:
+
+```{r}
+# Change the locations to your user folder data files
+#full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
+full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/final_df_full.csv")
+```
+
+# Exclusions: these following commands will only keep the data we are not seeking to exclude
+
+First, we would like to keep count of the number of participants that are excluded
+at each step. So we create this function that will allow us to do so:
+```{r}
+count_exclusions <- function(df_before, df_after) {
+  n_before <- nrow(df_before)
+  n_after <- nrow(df_after)
+  excluded <- n_before - n_after
+  print(paste("Participants excluded:", excluded))
+  return(list(df = df_after, excluded = excluded))
+}
+
+initial_n <- nrow(full_df) # number of participants at the beginning
+print(initial_n)
+```
+
+## Exclusion 1: Low quality accelerometer data
+
+```{r}
+# we want to count how many people were excluded in this section
+total_excluded_lq <- 0
+
+# Added by Hiroshi
+df_before <- full_df
+full_df <- full_df[full_df$accel_raw != "", ]
+
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.1. Devices poorly calibrated
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$quality_good_calibration == "Yes", ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.2. Participants for whom \>1% of values were clipped (fell outside the 
+sensor's range) before or after calibration:
+```{r}
+df_before <- full_df
+full_df <- full_df[(full_df$clips_before_cal < 0.01 * full_df$total_reads) & (full_df$clips_after_cal < 0.01 * full_df$total_reads), ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.3 Insufficient wear time
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$quality_good_wear_time == "Yes", ]# OxWearable note: Note that this has already been calculated in UKB, we don't need to manually calculate it: https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=90015
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+### 1.4 Unrealistically high acceleration values
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$overall_activity < 100, ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lq <- total_excluded_lq + result$excluded
+```
+
+```{r}
+print(paste("Total participants excluded due to not being in acceleromete subcohort or low accelerometer data quality:", total_excluded_lq))
+```
+
+
+## Exclusion 2: Reported CVD
+
+```{r}
+# we extract the CVD date columns
+date_columns <- c(
+  'stroke_date', 'ischaemic_stroke_date', 'intracerebral_haemorrhage_date',
+  'myocardial_infarction_date', 'STEMI_date', 'NSTEMI_date'
+)
+
+# we format the date columns
+for (col in date_columns) {
+  full_df[[col]] <- as.Date(full_df[[col]], format="%Y-%m-%d")
+}
+
+# cut-off date = 2013-01-01 because we do not want to keep participants that reported
+# having a CVD < 2013
+cut_off_date <- "2013-01-01"
+
+# we create an empty list that will be filled with the number of excluded participants
+exclusions <- list()
+
+# we create a function which will allow us to count the number of excluded participants
+count_and_filter_dates <- function(df, date_column, cut_off_date) {
+  initial_count <- nrow(df)
+  df <- df[is.na(df[[date_column]]) | df[[date_column]] >= as.Date(cut_off_date), ]
+  final_count <- nrow(df)
+  excluded_count <- initial_count - final_count # number of excluded rows (participants)
+  return(list(df = df, excluded_count = excluded_count))
+}
+
+# create loop to count number of participants excluded for each CVD
+total_excluded_cvd <- 0
+for (col in date_columns) {
+  result <- count_and_filter_dates(full_df, col, cut_off_date)
+  full_df <- result$df
+  exclusions[[paste("Excluded based on", col)]] <- result$excluded_count
+  total_excluded_cvd <- total_excluded_cvd + result$excluded_count
+}
+
+# Print total exclusions for step 2
+print(paste("Total participants excluded because of CVD:", total_excluded_cvd))
+```
+
+## Exclusion 3: Missing covariate data
+
+We remove rows for participants that have missing data for ethnicity, education, sex, birth date, smoking status, alcohol consumption, Townsend Deprivation Index; oily fish, fresh fruit, cooked veggies or processed meat consumption, and BMI.
+
+```{r}
+df_before <- full_df
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth')
+full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_covd <- result$excluded
+
+# Print total exclusions for step 3
+print(paste("Total participants excluded in step 3:", total_excluded_covd))
+```
+
+## Exclusion 4: Remove participants for whom we have lost follow-up data.
+
+```{r}
+df_before <- full_df
+full_df <- full_df[full_df$date_lost_followup == "", ]
+result <- count_exclusions(df_before, full_df)
+total_excluded_lfu <- result$excluded
+
+# Print total exclusions for step 4
+print(paste("Total participants excluded in step 4:", total_excluded_lfu))
+
+```
+
+## Final count
+
+```{r}
+final_n <- nrow(full_df)
+print(paste("After applying all exclusions, we end up with a sample of n =", final_n," participants"))
+```
+
+
+## Save df with all excluded participants:
+```{r}
+<<<<<<< HEAD
+ML_derived_PA2 <- fread("/home/hiroshi/projects/UKBB/PA2_category_1020.csv")
+ML_derived_PA2 <- ML_derived_PA2 %>%  dplyr::select(
+  eid, 
+  "40048-0.0",  
+  "40049-0.0",
+  "40047-0.0", 
+  "40046-0.0", 
+  "40044-0.0",  
+  "40045-0.0",
+  "40043-0.0", 
+  "40042-0.0" 
+=======
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc.csv", row.names = FALSE)
+```
+
+
+
+########## Other suggested variable manipulation by OxWearable
+
+We recode certain variables: 
+### Note: all the data coding/mapping was an extra step we had to do ###
+```{r}
+
+# Ethnicity:
+
+## 1. first we create a dictionnary mapping for the ethincity codes
+## *** important: this is not a step that was shown by OxWearables. We had to this
+## ourselves. The codes are provided here: https://biobank.ctsu.ox.ac.uk/crystal/coding.cgi?id=1001
+
+ethnicity_coding <- c(
+  "1" = "White",
+  "1001" = "British",
+  "2001" = "White and Black Caribbean",
+  "3001" = "Indian",
+  "4001" = "Caribbean",
+  "2" = "Mixed",
+  "1002" = "Irish",
+  "2002" = "White and Black African",
+  "3002" = "Pakistani",
+  "4002" = "African",
+  "3" = "Asian or Asian British",
+  "1003" = "Any other white background",
+  "2003" = "White and Asian",
+  "3003" = "Bangladeshi",
+  "4003" = "Any other Black background",
+  "4" = "Black or Black British",
+  "2004" = "Any other mixed background",
+  "3004" = "Any other Asian background",
+  "5" = "Chinese",
+  "6" = "Other ethnic group",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+>>>>>>> e51fb10b2853572c662214d152ca7c95026c2192
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(ethnicity_raw = recode(as.character(ethnicity_raw), !!!ethnicity_coding))
+
+
+## 2. now we can proceed with the recoding suggested by OxWearables:
+full_df$ethnicity <-
+  plyr::revalue(
+    full_df$ethnicity_raw,
+    c(
+      "British" = "White",
+      "Any other white background" = "White",
+      "Irish" = "White",
+      "White and Asian" = "Nonwhite",
+      "Caribbean" = "Nonwhite",
+      "Chinese"   = "Nonwhite",
+      "Pakistani"  = "Nonwhite",
+      "White and Black African" = "Nonwhite",
+      "Other ethnic group"  = "Nonwhite",
+      "Any other mixed background" = "Nonwhite",
+      "African"    = "Nonwhite",
+      "White and Black Caribbean" = "Nonwhite",
+      "Prefer not to answer" = NA,
+      "Indian"  = "Nonwhite",
+      "White" = "White",
+      "Do not know" = NA,
+      "Any other Black background" = "Nonwhite",
+      "Any other Asian background"  = "Nonwhite",
+      "Bangladeshi"  = "Nonwhite",
+      "Mixed"  = "Nonwhite",
+      "Asian or Asian British"  = "Nonwhite",
+      "Black or Black British"  = "Nonwhite"
+    )
+  )
+
+
+# Townsend Index:
+full_df$tdi <- full_df$tdi_raw
+
+# Education
+full_df$age_education <- full_df$age_education_numeric_raw 
+full_df$age_education[grepl("College or University degree", full_df$qualif_raw)] <- 21
+# check there are no values below 0, which shouldn't be possible:
+print(nrow(full_df[!is.na(full_df$age_education) & full_df$age_education < 0, ]))
+# recode any values above 21 as 21 (for consistency with imputation):
+full_df$age_education[full_df$age_education > 21] <- 21 
+
+
+# Smoking
+## 1. Data coding for smoking: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=90
+smoking_coding <- c(
+  "0" = "Never",
+  "1" =	"Previous",
+  "2" =	"Current",
+  "-3" = "Prefer not to answer"
+)
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(smoking_raw = recode(as.character(smoking_raw), !!!smoking_coding))
+
+## 2. OxWearable recoding:
+full_df$smoking <-
+  plyr::revalue(full_df$smoking_raw, replace = c("Prefer not to answer" = NA)) 
+
+
+# Alcohol
+
+## 1. Data coding for alochol: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=100402
+alcohol_coding <- c(
+  "1" = "Daily or almost daily",
+  "2" =	"Three or four times a week",
+  "3" =	"Once or twice a week",
+  "4" =	"One to three times a month",
+  "5" =	"Special occasions only",
+  "6" =	"Never",
+  "-3" = "Prefer not to answer"
+)
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(alcohol_raw = recode(as.character(alcohol_raw), !!!alcohol_coding))
+
+
+## 2. we proceed with the OxWearable recoding
+full_df$alcohol <-
+  plyr::revalue(
+    full_df$alcohol_raw,
+    replace = c(
+      "Prefer not to answer" = NA,
+      "Three or four times a week" = "3+ times/week",
+      "Special occasions only" = "<3 times/week",
+      "One to three times a month" = "<3 times/week",
+      "Daily or almost daily" = "3+ times/week",
+      "Once or twice a week" = "<3 times/week"
+    )
+  )
+
+
+# BMI
+full_df$BMI <- full_df$BMI_raw
+```
+
+
+
+We create a "age-at-accelerometer-wear variable":
+```{r}
+<<<<<<< HEAD
+library(readr)
+enmoTSParallel_PA1 <- list.files(path="/home/hiroshi/projects/UKBB/PA1_parallel_TS_ENMO/outputs/", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+=======
+# Add date of birth
+full_df$approx_dob <-
+  as.Date(paste(full_df$year_birth, full_df$month_birth, "15", sep = "-"),
+          "%Y-%B-%d") # UK Biobank doesn't contain day of birth as it would be unnecessary identifying information, so we roughly impute it as the 15th of the birth month.
+# Add age at entry in days
+full_df$age_entry_days <-
+  difftime(full_df$date_end_accel,
+           full_df$approx_dob,
+           units = "days")
+
+# Convert to age at entry in years
+full_df$age_entry_years <- as.double(full_df$age_entry_days)/365.25
+
+# Add age groups
+full_df$age_gp <-
+  cut(
+    full_df$age_entry_years,
+    breaks = c(40, 50, 60, 70, 80),
+    right = FALSE,
+    labels = c("40-49", "50-59", "60-69", "70-79")
+  )
+```
+
+We make a function to cut by quantile:
+```{r}
+qtile_cut <-  function(x, probs = seq(0, 1, 0.25), na.rm = TRUE, labels = NULL) {
+    breaks <- quantile(x = x, probs = probs, na.rm = na.rm)
+    out <- cut(x = x, breaks = breaks, labels = labels, right = FALSE, include.lowest = TRUE)
+    return(out)
+}
+```
+
+
+We cut overall activity and Townsend Deprivation Index into quarters:
+```{r}
+full_df$overall_activity_quarters <- qtile_cut(full_df$overall_activity, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+# OxWearable Note: The TDI classification here was quarters of the study population, which was used in the example papers. However, our group now typically uses TDI scaled to quarters of the UK population, 
+# as listed [here](https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/Townsend_Deprivation_Scores/UK%20Townsend%20Deprivation%20Scores%20from%202011%20census%20data.pdf, page 15)
+
+full_df$tdi_quarters <- qtile_cut(full_df$tdi, labels = c("Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"))
+```
+
+We save the the final df which includes the exlucded participants and the recoding
+suggested by OxWearables (as well as the data mapping we had to do)
+```{r}
+write.csv(full_df, "/home/yacine/UKBB_beluga/df_exc_recode.csv", row.names = FALSE)
+>>>>>>> e51fb10b2853572c662214d152ca7c95026c2192
+```
+
+
+
