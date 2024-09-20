@@ -26,33 +26,91 @@ full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/
 
 ############ Data prep intro ############
 
-We combine some of the PA data for instances 1 (2012-2013) and instances 2 (2014+)
+We convert "-1" and "-3" values to NAs for the self-reported PA values for 
+instance 0
 ```{r}
 full_df <- full_df %>%
   mutate(
-    duration_moderate_activity = coalesce(duration_moderate_activity_1, duration_moderate_activity_2),
-    duration_vigorous_activity = coalesce(duration_vigorous_activity_1, duration_vigorous_activity_2),
-    duration_heavy_DIY = coalesce(duration_heavy_DIY_1, duration_heavy_DIY_2),
-    duration_light_DIY = coalesce(duration_light_DIY_1, duration_light_DIY_2)
+    duration_moderate_activity_0 = na_if(as.numeric(as.character(duration_moderate_activity_0)), -1),
+    duration_moderate_activity_0 = na_if(duration_moderate_activity_0, -3),
+    
+    duration_vigorous_activity_0 = na_if(as.numeric(as.character(duration_vigorous_activity_0)), -1),
+    duration_vigorous_activity_0 = na_if(duration_vigorous_activity_0, -3),
+    
+    duration_heavy_DIY_0 = na_if(as.numeric(as.character(duration_heavy_DIY_0)), -1),
+    duration_heavy_DIY_0 = na_if(duration_heavy_DIY_0, -3),
+    
+    duration_light_DIY_0 = na_if(as.numeric(as.character(duration_light_DIY_0)), -1),
+    duration_light_DIY_0 = na_if(duration_light_DIY_0, -3),
   )
+
+```
+
+
+We convert "-1" and "-3" values to NAs for the self-reported PA values for 
+instances 1 (2012-2013) and instances 2 (2014+)
+```{r}
+#full_df <- full_df %>%
+  #mutate(
+    #duration_moderate_activity_1 = na_if(as.numeric(as.character(duration_moderate_activity_1)), -1),
+    #duration_moderate_activity_1 = na_if(duration_moderate_activity_1, -3),
+    #duration_moderate_activity_2 = na_if(as.numeric(as.character(duration_moderate_activity_2)), -1),
+    #duration_moderate_activity_2 = na_if(duration_moderate_activity_2, -3),    
+    
+    #duration_vigorous_activity_1 = na_if(as.numeric(as.character(duration_vigorous_activity_1)), -1),
+    #duration_vigorous_activity_1 = na_if(duration_vigorous_activity_1, -3),
+    #duration_vigorous_activity_2 = na_if(as.numeric(as.character(duration_vigorous_activity_2)), -1),
+    #duration_vigorous_activity_2 = na_if(duration_vigorous_activity_2, -3),
+    
+    
+    #duration_heavy_DIY_1 = na_if(as.numeric(as.character(duration_heavy_DIY_1)), -1),
+    #duration_heavy_DIY_1 = na_if(duration_heavy_DIY_1, -3),
+    #duration_heavy_DIY_2 = na_if(as.numeric(as.character(duration_heavy_DIY_2)), -1),
+    #duration_heavy_DIY_2 = na_if(duration_heavy_DIY_2, -3),
+    
+    #duration_light_DIY_1 = na_if(as.numeric(as.character(duration_light_DIY_1)), -1),
+    #duration_light_DIY_1 = na_if(duration_light_DIY_1, -3),
+    #duration_light_DIY_2 = na_if(as.numeric(as.character(duration_light_DIY_2)), -1),
+    #duration_light_DIY_2 = na_if(duration_light_DIY_2, -3)    
+  #)
+```
+
+We combine the self reported PA data for instances 0
+```{r}
+
+#full_df <- full_df %>%
+ #mutate(
+    #duration_moderate_activity = coalesce(duration_moderate_activity_1, duration_moderate_activity_2),
+    #duration_vigorous_activity = coalesce(duration_vigorous_activity_1, duration_vigorous_activity_2),
+    #duration_heavy_DIY = coalesce(duration_heavy_DIY_1, duration_heavy_DIY_2),
+    #duration_light_DIY = coalesce(duration_light_DIY_1, duration_light_DIY_2)
+  #)
+```
+
+### PA4 prep:
+Combining the duration_moderate_activity_0 and duration_vigorous_activity_0
+we create the "MVPA_min_PA4" by doing the sum of both columns
+
+```{r}
+
+full_df <- full_df %>%
+  mutate(
+    MVPA_min_PA4 = coalesce(duration_vigorous_activity_0) + coalesce(duration_moderate_activity_0)
+  )
+
 ```
 
 ######## REMOVE UNNECESSARY COLUMNS
-After looking at the data, I realised that some columns that we extracted (for
+After looking at the data, I realized that some columns that we extracted (for
 multiple instances) provided more "NA" data than actual data, so I removed these 
 columns:
 ```{r}
 
 full_df <- full_df %>%
   dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
-         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_0, -duration_moderate_activity_3, -duration_vigorous_activity_0, -duration_vigorous_activity_3, -duration_heavy_DIY_0, -duration_heavy_DIY_3, -duration_light_DIY_0, -duration_light_DIY_3)
+         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_1, -duration_moderate_activity_2, -duration_moderate_activity_3, -duration_vigorous_activity_1, -duration_vigorous_activity_2, -duration_vigorous_activity_3, -duration_heavy_DIY_1, -duration_heavy_DIY_2, -duration_heavy_DIY_3, -duration_light_DIY_1, -duration_light_DIY_2, -duration_light_DIY_3)
 ```
 
-
-```{r}
-
-
-```
 
 ########## Exclusions: these following commands will only keep the data we are ##########  
             not seeking to exclude
@@ -693,7 +751,17 @@ full_df <- full_df %>%
   mutate(avg_hh_income = recode(as.character(avg_hh_income_raw), !!!income_coding))
 
 
+# count how many participants are in each average income ranges
+count_avg_hh_income <- full_df %>%
+  count(avg_hh_income)
+
+print(count_avg_hh_income)
+
 ```
+
+
+
+
 
 ############ Final exclusion ############
 
@@ -834,6 +902,8 @@ boxplot(tdi ~ tdi_quarters, data = full_df)
 
 
 ```
+
+
 
 
 We save the the final df which includes the exlucded participants and the recoding
