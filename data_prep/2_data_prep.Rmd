@@ -33,13 +33,6 @@ library(ggplot2)
 theme_gtsummary_journal("jama")
 ```
 
-## We load the data:
-```{r}
-#full_df <- read.csv("/home/yacine/final_df_full.csv") # full df w/o exclusions
-#full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc.csv") # full df with exclusions
-full_df <- read.csv("/home/yacine/UKBB_beluga/df_exc_recode.csv") # full df with exclusions + recoding
-```
-
 
 ## We load the data:
 ```{r}
@@ -195,10 +188,11 @@ table(full_df$'2_years_survival_MI')
 
 ## PA 
 ### Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
-- There are 3 diferent accelerometric measures   
+- There are 4 different accelerometric measures   
   1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
   2. PA2 - machine-learning derived mesared, for Field ID 1020
   3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
+  4. PA4 - Self reported PA data
 
 
 ### PA2 Load derived accelerometer from UKBB, PA2 data 
@@ -279,7 +273,7 @@ full_df_PA<- inner_join(full_df_PA,
 
 
 
-### Create quantile pA group...
+### Create quantile pA group and remove outliers
 ```{r}
 sum(full_df_PA$MVPA_min_PA1 > 2500 )
 summary(full_df_PA$MVPA_min_PA1)
@@ -288,24 +282,48 @@ sum(full_df_PA$MVPA_min_PA2 > 2500 )
 summary(full_df_PA$MVPA_min_PA2)
 
 
+# we create a new table to include PA4
+full_df_PA_2 <- full_df_PA
+sum(full_df_PA_2$MVPA_min_PA4 > 1000)
+summary(full_df_PA_2$MVPA_min_PA4)
+
+
 dim(full_df_PA)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
 dim(full_df_PA)
 
+# full_df_PA_2
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 1000)
+dim(full_df_PA_2)
+
 
 full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
 
+# full_df_PA_2
+full_df_PA_2$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA4 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4, 4) %>% factor()
+
 
 dfPA1Label <- data.frame(range = full_df_PA$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+
+# full_df_PA_2
+dfPA1Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA4Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 ```
 
 
 
 ### Plot MVPA 
+
+#### PA1 (ENMO) and PA2 (ML)
 ```{r}
 # check plot to see if there are extreme data points or not 
 boxplot(MVPA_min_PA1 ~ MVPA_Quant_PA1, data = full_df_PA, main = "Categorical MVPA CV Numeric MVPA")
@@ -346,13 +364,65 @@ ggplot(full_df_PA,
 
 ```
 
+#### PA4 (self-reported) and PA2 (ML)
+```{r}
+# check plot to see if there are extreme data points or not 
+boxplot(MVPA_min_PA4 ~ MVPA_Quant_PA4, data = full_df_PA_2, main = "Categorical MVPA CV Numeric MVPA")
+boxplot(MVPA_min_PA2 ~ MVPA_Quant_PA2, data = full_df_PA_2, main = "Categorical MVPA CV Numeric MVPA")
+
+
+
+
+# And scatter plot 
+library(ggExtra)
+library(BlandAltmanLeh)
+print(ggExtra::ggMarginal(
+  bland.altman.plot(
+    full_df_PA_2$MVPA_min_PA4, 
+    full_df_PA_2$MVPA_min_PA2, 
+    graph.sys = "ggplot2"
+    ),
+  theme_minimal(),
+  type = "histogram", size=4)
+)
+
+
+
+
+ggplot(full_df_PA_2, 
+       aes(x=full_df_PA_2$MVPA_min_PA4, 
+           y=full_df_PA_2$MVPA_min_PA2)) + 
+  geom_point(color="black", size = 0.3) +
+  theme_classic() + 
+  xlab("MVPA minues / week - Self-Reported") + 
+  ylab("MVPA minues / week - ML") +  
+  geom_smooth(method=lm, 
+    se=FALSE, 
+    linetype="dashed",
+    color="grey"
+  )
+
+
+# get the slope 
+reg <- lm(MVPA_min_PA2 ~ MVPA_min_PA4, data = full_df_PA_2)
+coefficients <- coef(reg)
+slope <- coefficients["MVPA_min_PA4"]
+print(slope)
+
+
+```
+
+
+
+
 
 
 ### Excess duration - Flag people with too high values of MVPA and make new category removing them 
 ```{r}
 full_df_PA <- full_df_PA %>%  
   mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
-          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2)) 
+          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2)
+          ) 
 
 
 full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
@@ -361,6 +431,24 @@ full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_P
 
 dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+```
+### Same as previous step but with PA4 included (full_df_PA_2 df)
+```{r}
+full_df_PA_2 <- full_df_PA_2 %>%  
+  mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
+          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2),
+          MVPA_min_PA4_truncated = ifelse(MVPA_min_PA4 > 1000, NA, MVPA_min_PA4)
+          ) 
+
+
+full_df_PA_2$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA4_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4_truncated, 4) %>% factor()
+
+
+dfPA1LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA4LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 
 
@@ -456,6 +544,97 @@ levels(full_df_PA$education_level) <- list( "None of the above" = "None of the a
 
 ```
 
+### Covariates - reorder for full_df_PA_2 df
+```{r}
+# Re-order categories 
+full_df_PA_2$cooked_vg %>% table
+full_df_PA_2$cooked_vg <- factor(full_df_PA_2$cooked_vg)
+levels(full_df_PA_2$cooked_vg)
+levels(full_df_PA_2$cooked_vg) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA_2$cooked_vg %>% table
+
+
+full_df_PA_2$fresh_fruit %>% table
+full_df_PA_2$fresh_fruit <- factor(full_df_PA_2$fresh_fruit)
+levels(full_df_PA_2$fresh_fruit)
+levels(full_df_PA_2$fresh_fruit) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA_2$fresh_fruit %>% table
+
+
+full_df_PA_2$smoking %>% table 
+full_df_PA_2$smoking<- factor(full_df_PA_2$smoking)
+levels(full_df_PA_2$smoking)
+levels(full_df_PA_2$smoking) <- list( 'Never' = "Never", 
+                                    'Previous' = "Previous", 
+                                    'Current' =  "Current") 
+
+
+full_df_PA_2$BMI %>% table 
+full_df_PA_2$BMI <- factor(full_df_PA_2$BMI)
+levels(full_df_PA_2$BMI)
+levels(full_df_PA_2$BMI) <- list( "Underweight (< 18.5 kg/m2)" = "Underweight (< 18.5 kg/m2)",
+                                "Normal (18.5 kg/m2 to < 25 kg/m2)" = "Normal (18.5 kg/m2 to < 25 kg/m2)" ,
+                                "Overweight (25 kg/m2 to < 30 kg/m2)" = "Overweight (25 kg/m2 to < 30 kg/m2)",
+                                "Obesity Class I, II or III (> 30 kg/m2)" = "Obesity Class I, II or III (> 30 kg/m2)") 
+
+full_df_PA_2$alcohol %>% table 
+full_df_PA_2$alcohol <- factor(full_df_PA_2$alcohol)
+levels(full_df_PA_2$alcohol)
+levels(full_df_PA_2$alcohol) <- list( "Never" = "Never", 
+                                    "Less than once a week" = "Less than once a week", 
+                                    "Once or twice a week" =  "Once or twice a week",
+                                    "Three or four times a week" = "Three or four times a week",
+                                    "Daily or almost daily" = "Daily or almost daily") 
+
+
+full_df_PA_2$avg_hh_income %>% table 
+full_df_PA_2$avg_hh_income <- factor(full_df_PA_2$avg_hh_income)
+levels(full_df_PA_2$avg_hh_income)
+levels(full_df_PA_2$avg_hh_income) <- list( "Less than 18,000" = "Less than 18,000",
+                                          "18,000 to 30,999" = "18,000 to 30,999",
+                                          "31,000 to 51,999" = "31,000 to 51,999",
+                                          "52,000 to 100,000" = "52,000 to 100,000",
+                                          "Greater than 100,000" = "Greater than 100,000",
+                                          "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer") 
+
+
+full_df_PA_2$processed_meat %>% table 
+full_df_PA_2$processed_meat <- factor(full_df_PA_2$processed_meat)
+levels(full_df_PA_2$processed_meat)
+levels(full_df_PA_2$processed_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_2$oily_fish %>% table 
+full_df_PA_2$oily_fish <- factor(full_df_PA_2$oily_fish)
+levels(full_df_PA_2$oily_fish)
+levels(full_df_PA_2$oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_2$non_oily_fish %>% table 
+full_df_PA_2$non_oily_fish <- factor(full_df_PA_2$non_oily_fish)
+levels(full_df_PA_2$non_oily_fish)
+levels(full_df_PA_2$non_oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_2$red_meat %>% table 
+full_df_PA_2$red_meat <- factor(full_df_PA_2$red_meat)
+levels(full_df_PA_2$red_meat)
+levels(full_df_PA_2$red_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_2$education_level %>% table 
+full_df_PA_2$education_level <- factor(full_df_PA_2$education_level)
+levels(full_df_PA_2$education_level)
+levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the above", 
+                                    "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
+                                    "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS, NVQ/HND/HNC or equivalent",
+                                    "College or University degree" = "College or University degree") 
+
+```
 
 
 ## Table 1
@@ -469,8 +648,10 @@ dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
   MVPA_Quant_PA2,  
   MVPA_Quant_PA1,  
+  #MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2, 
+  #MVPA_min_PA4, 
   MI, 
   stroke,
   age_entry_years, 
@@ -492,18 +673,20 @@ dt <- full_df_PA %>%  dplyr::select(
   cooked_vg, 
   MVPA_Quant_PA1_trucated, 
   MVPA_Quant_PA2_trucated,
+  #MVPA_Quant_PA4_trucated,  
   `2_years_survival_stroke`,
   `2_years_survival_MI`
   )
 
 
 
-# Convert varaible names into deescriptive tabl enames 
+# Convert variable names into desruptive table names 
 varNameDf <- data.frame(
   varName = c("Myocardial Infarction",
               "Stroke",
               "Age",
               "MVPA min/week",
+              "MVPA min/week ML",
               "Race", 
               "Type II Diabetes", 
               "Deprivation index", 
@@ -527,6 +710,7 @@ varNameDf <- data.frame(
               "stroke",
               "age_entry_years",
               "MVPA_min_PA1", 
+              "MVPA_min_PA2",
               "ethnicity", 
               "diabetes", 
               "tdi_quarters", 
@@ -587,12 +771,143 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
                pr_section = sect_properties
                )  
 ```
+## Table 2 (incudes PA4)
+```{r}
+# Variables to add to the table - this variable cannot be used to select columns now, since cooked_veg is not rendered into summary table 
 
+# Obesity category names can be shortened 
+# Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
+dt2 <- full_df_PA_2 %>%  dplyr::select(
+  fu_time, 
+  MVPA_Quant_PA2,  
+  MVPA_Quant_PA1,  
+  MVPA_Quant_PA4,  
+  MVPA_min_PA1, 
+  MVPA_min_PA2, 
+  MVPA_min_PA4, 
+  MI, 
+  stroke,
+  age_entry_years, 
+  ethnicity, 
+  sex, 
+  education_level,
+  avg_hh_income,
+  tdi_quarters,
+  avg_hh_income,
+  BMI,
+  diabetes, 
+  smoking, 
+  alcohol, 
+  processed_meat, 
+  red_meat,
+  oily_fish,
+  non_oily_fish,
+  fresh_fruit,
+  cooked_vg, 
+  MVPA_Quant_PA1_trucated, 
+  MVPA_Quant_PA2_trucated,
+  MVPA_Quant_PA4_trucated,  
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`
+)
+
+# Convert variable names into descriptive table names 
+varNameDf <- data.frame(
+  varName = c("Myocardial Infarction",
+              "Stroke",
+              "Age",
+              "MVPA min/week",
+              "MVPA min/week ML",
+              "MVPA min/week Self-Report",
+              "Race", 
+              "Type II Diabetes", 
+              "Deprivation index", 
+              "Education", 
+              "Household Income",
+              "Smoking", 
+              "Alcohol", 
+              "Processed meat",
+              "Red meat",
+              "Fresh fruit", 
+              "Cooked vegetables", 
+              "Oily fish", 
+              "Non-oily fish",
+              "Sex", 
+              "Follow_up time", 
+              "Body Mass Index",
+              "Two Years Stroke Survival",
+              "Two Years MI Survival"
+  ), 
+  ChartName = c("MI", 
+              "stroke",
+              "age_entry_years",
+              "MVPA_min_PA1", 
+              "MVPA_min_PA2",
+              "MVPA_min_PA4",
+              "ethnicity", 
+              "diabetes", 
+              "tdi_quarters", 
+              "education_level", 
+              "avg_hh_income",
+              "smoking", 
+              "alcohol", 
+              "processed_meat", 
+              "red_meat",
+              "fresh_fruit", 
+              "cooked_vg", 
+              "oily_fish", 
+              "non_oily_fish",
+              "sex", 
+              "fu_time", 
+              "BMI",
+              "2_years_survival_stroke",
+              "2_years_survival_MI")
+)
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    tibble::deframe()
+
+dt2 <- dt2 %>% 
+    rename(!!!var_names)
+
+tb2 <- dt2 %>% 
+  dplyr::select(-contains("trucated")) %>% 
+  dplyr::select( -MVPA_Quant_PA1) %>% 
+  tbl_summary(
+    by = MVPA_Quant_PA2,  
+    #statistic = all_continuous() ~ "{mean} ({sd})"
+    #digits = all_continuous() ~ 1,
+  ) %>% 
+  as_flex_table()
+
+# Landscape (word format)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "landscape",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+print(tb2)
+
+# Save 
+flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb2,  
+               path = "testTable.docx", 
+               pr_section = sect_properties
+)
+
+```
 
 
 
 
 ```{r}
-saveRDS(dt, "/home/yacine/UKBB_beluga/prepped_dt.csv")
+
+saveRDS(dt, "/home/yacine/AcclerometerProcessing/prepped_dt.rds")
+saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
+
 
 ```
