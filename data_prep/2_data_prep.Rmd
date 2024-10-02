@@ -191,7 +191,7 @@ table(full_df$'2_years_survival_MI')
 - There are 4 different accelerometric measures   
   1. PA1 - Vector magnitude based measures as calcuated from time-series of vector magnitude by UKBB 
   2. PA2 - machine-learning derived mesared, for Field ID 1020
-  3. PA3 (pending) - Actigraph count-based measure, based on Freedson cutoff 
+  3. PA3 - Activity Count count-based measure, based on Freedson cutoff 
   4. PA4 - Self reported PA data
 
 
@@ -232,7 +232,31 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 ```
 
+### PA3 - we merge PA3 df to full_df
+```{r}
+PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/combined_df_drop_duplicates.csv",col_select = -1)
 
+PA3_proportions_data <- PA3_proportions_data %>%
+  rename(
+    eid = participant_id,
+    PA3_light = light,
+    PA3_MVPA = `moderate-vigorous`,
+    PA3_sedentary = sedentary 
+  )
+
+PA3_proportions_data$MVPA_min <- PA3_proportions_data$PA3_MVPA * 7 * 24 * 60 
+
+
+
+PA3_proportions_data$MVPA_min <- PA3_proportions_data$PA3_MVPA* 7*24*60
+PA3_proportions_data$LPA_min <- PA3_proportions_data$PA3_light* 7*24*60
+PA3_proportions_data$SB_min <- PA3_proportions_data$PA3_sedentary* 7*24*60
+
+colnames(PA3_proportions_data) <- paste(colnames(PA3_proportions_data), "_PA3", sep = "")
+colnames(PA3_proportions_data)[1] <- "eid"
+
+PA3_proportions_data <- na.omit(PA3_proportions_data)
+```
 
 
 ### PA1 Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
@@ -268,10 +292,19 @@ full_df_PA<- inner_join(full_df_PA,
     dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
   by = "eid")
 
+
+
 ```
 
 
+### Merge PA3
+```{r}
+full_df_PA<- inner_join(full_df_PA, 
+  PA3_proportions_data %>% 
+    dplyr::select(eid, MVPA_min_PA3, LPA_min_PA3, SB_min_PA3),
+  by = "eid")
 
+```
 
 ### Create quantile pA group and remove outliers
 ```{r}
@@ -281,6 +314,8 @@ summary(full_df_PA$MVPA_min_PA1)
 sum(full_df_PA$MVPA_min_PA2 > 2500 )
 summary(full_df_PA$MVPA_min_PA2)
 
+sum(full_df_PA$MVPA_min_PA3 > 2500 )
+summary(full_df_PA$MVPA_min_PA3)
 
 # we create a new table to include PA4
 full_df_PA_2 <- full_df_PA
@@ -291,30 +326,37 @@ summary(full_df_PA_2$MVPA_min_PA4)
 dim(full_df_PA)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
+full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3 < 2500)
 dim(full_df_PA)
 
 # full_df_PA_2
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 1000)
 dim(full_df_PA_2)
 
 
+##### might want to remove that part
 full_df_PA$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA3 <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA3, 4) %>% factor()
 
 # full_df_PA_2
 full_df_PA_2$MVPA_Quant_PA1 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1, 4) %>% factor()
 full_df_PA_2$MVPA_Quant_PA2 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA3 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA3, 4) %>% factor()
 full_df_PA_2$MVPA_Quant_PA4 <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4, 4) %>% factor()
 
 
 dfPA1Label <- data.frame(range = full_df_PA$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2Label <- data.frame(range = full_df_PA$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA3Label <- data.frame(range = full_df_PA$MVPA_Quant_PA3 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 # full_df_PA_2
 dfPA1Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA3 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA4Label <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4 %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 
 ```
@@ -351,8 +393,8 @@ ggplot(full_df_PA,
            y=full_df_PA$MVPA_min_PA2)) + 
   geom_point(color="black", size = 0.3) +
   theme_classic() + 
-  xlab("MVPA minues / week - ENMO") + 
-  ylab("MVPA minues / week - ML") +  
+  xlab("MVPA minutes / week - ENMO") + 
+  ylab("MVPA minutes / week - ML") +  
   geom_smooth(method=lm, 
     se=FALSE, 
     linetype="dashed",
@@ -363,6 +405,48 @@ ggplot(full_df_PA,
 
 
 ```
+
+##### PA3 (Activity Count) and PA2 (ML)
+```{r}
+# check plot to see if there are extreme data points or not 
+boxplot(MVPA_min_PA3 ~ MVPA_Quant_PA3, data = full_df_PA, main = "Categorical MVPA CV Numeric MVPA")
+boxplot(MVPA_min_PA2 ~ MVPA_Quant_PA2, data = full_df_PA, main = "Categorical MVPA CV Numeric MVPA")
+
+
+
+# And scatter plot 
+library(ggExtra)
+library(BlandAltmanLeh)
+print(ggExtra::ggMarginal(
+  bland.altman.plot(
+    full_df_PA$MVPA_min_PA3, 
+    full_df_PA$MVPA_min_PA2, 
+    graph.sys = "ggplot2"
+    ),
+  theme_minimal(),
+  type = "histogram", size=4)
+)
+
+
+
+ggplot(full_df_PA, 
+       aes(x=full_df_PA$MVPA_min_PA3, 
+           y=full_df_PA$MVPA_min_PA2)) + 
+  geom_point(color="black", size = 0.3) +
+  theme_classic() + 
+  xlab("MVPA minutes / week - Activity Count") + 
+  ylab("MVPA minutes / week - ML") +  
+  geom_smooth(method=lm, 
+    se=FALSE, 
+    linetype="dashed",
+    color="grey"
+  )
+
+
+
+```
+
+
 
 #### PA4 (self-reported) and PA2 (ML)
 ```{r}
@@ -421,33 +505,38 @@ print(slope)
 ```{r}
 full_df_PA <- full_df_PA %>%  
   mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
-          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2)
+          MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2),
+          MVPA_min_PA3_truncated = ifelse(MVPA_min_PA3 > 1250, NA, MVPA_min_PA3)
           ) 
 
 
 full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
 full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
-
+full_df_PA$MVPA_Quant_PA3_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA3_truncated, 4) %>% factor()
 
 dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA3LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA3_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 ### Same as previous step but with PA4 included (full_df_PA_2 df)
 ```{r}
 full_df_PA_2 <- full_df_PA_2 %>%  
   mutate( MVPA_min_PA1_truncated = ifelse(MVPA_min_PA1 > 1250, NA, MVPA_min_PA1), 
           MVPA_min_PA2_truncated = ifelse(MVPA_min_PA2 > 1250, NA, MVPA_min_PA2),
+          MVPA_min_PA3_truncated = ifelse(MVPA_min_PA3 > 1250, NA, MVPA_min_PA3),
           MVPA_min_PA4_truncated = ifelse(MVPA_min_PA4 > 1000, NA, MVPA_min_PA4)
           ) 
 
 
 full_df_PA_2$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1_truncated, 4) %>% factor()
 full_df_PA_2$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA3_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA3_truncated, 4) %>% factor()
 full_df_PA_2$MVPA_Quant_PA4_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4_truncated, 4) %>% factor()
 
 
 dfPA1LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA3_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 dfPA4LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 
@@ -647,10 +736,12 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
   MVPA_Quant_PA2,  
-  MVPA_Quant_PA1,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1, 
-  MVPA_min_PA2, 
+  MVPA_min_PA2,
+  MVPA_min_PA3,
   #MVPA_min_PA4, 
   MI, 
   stroke,
@@ -673,6 +764,7 @@ dt <- full_df_PA %>%  dplyr::select(
   cooked_vg, 
   MVPA_Quant_PA1_trucated, 
   MVPA_Quant_PA2_trucated,
+  MVPA_Quant_PA3_trucated,
   #MVPA_Quant_PA4_trucated,  
   `2_years_survival_stroke`,
   `2_years_survival_MI`
@@ -687,6 +779,7 @@ varNameDf <- data.frame(
               "Age",
               "MVPA min/week",
               "MVPA min/week ML",
+              "MVPA min/week Activity Count",
               "Race", 
               "Type II Diabetes", 
               "Deprivation index", 
@@ -711,6 +804,7 @@ varNameDf <- data.frame(
               "age_entry_years",
               "MVPA_min_PA1", 
               "MVPA_min_PA2",
+              "MVPA_min_PA3",
               "ethnicity", 
               "diabetes", 
               "tdi_quarters", 
@@ -742,7 +836,7 @@ dt <- dt %>%
 
 tb <- dt %>% 
   dplyr::select(-contains("trucated")) %>% 
-  dplyr::select( -MVPA_Quant_PA1) %>% 
+  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3) %>% 
   tbl_summary(
     by = MVPA_Quant_PA2,  
     #statistic = all_continuous() ~ "{mean} ({sd})"
@@ -766,7 +860,7 @@ sect_properties <- prop_section(
 print(tb)
 
 # Save 
-flextable::save_as_docx("Distribution of participant characteristics by Qurtile of Moderate_Vigorous Physical Activity" = tb,  
+flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb,  
                path = "testTable.docx", 
                pr_section = sect_properties
                )  
@@ -780,10 +874,12 @@ flextable::save_as_docx("Distribution of participant characteristics by Qurtile 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
   MVPA_Quant_PA2,  
-  MVPA_Quant_PA1,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA3,
   MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2, 
+  MVPA_min_PA3,
   MVPA_min_PA4, 
   MI, 
   stroke,
@@ -818,6 +914,7 @@ varNameDf <- data.frame(
               "Age",
               "MVPA min/week",
               "MVPA min/week ML",
+              "MVPA min/week Activity Count",
               "MVPA min/week Self-Report",
               "Race", 
               "Type II Diabetes", 
@@ -843,6 +940,7 @@ varNameDf <- data.frame(
               "age_entry_years",
               "MVPA_min_PA1", 
               "MVPA_min_PA2",
+              "MVPA_min_PA3",
               "MVPA_min_PA4",
               "ethnicity", 
               "diabetes", 
@@ -873,7 +971,7 @@ dt2 <- dt2 %>%
 
 tb2 <- dt2 %>% 
   dplyr::select(-contains("trucated")) %>% 
-  dplyr::select( -MVPA_Quant_PA1) %>% 
+  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3) %>% 
   tbl_summary(
     by = MVPA_Quant_PA2,  
     #statistic = all_continuous() ~ "{mean} ({sd})"
