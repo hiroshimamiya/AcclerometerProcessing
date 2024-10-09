@@ -26,6 +26,11 @@ library(broom.helpers)
 library(flextable)
 library(officer)
 library(ggplot2)
+library(splines)
+library(splines2)
+#install.packages("splines2")
+splines::bs
+splines2::bSpline
 
 theme_gtsummary_journal("jama")
 ```
@@ -1718,6 +1723,67 @@ ggcoxzph(test_ph_fit2, var = 'MVPA_Quant_PA2_trucated')
 
 
 ```
+
+
+Restricted Cubic Spline : relationship is non-linear
+- Number of knots: "five knots are enough to provide a good fit to any patterns 
+  that are likely to arise in practice." (Stone, 1986)
+quote from: https://support.sas.com/resources/papers/proceedings16/5621-2016.pdf
+source: Stone, C. J. (1986). [Generalized Additive Models: Comment]. Statistical Science, 1(3), 312-314.
+```{r}
+
+# in order for the bs function to work, we need to transform the MVPA_Quant_PA# 
+# data into numerical values
+dt$MVPA_Quant_PA1 <- as.numeric(dt$MVPA_Quant_PA1)
+dt$MVPA_Quant_PA2 <- as.numeric(dt$MVPA_Quant_PA2)
+dt$MVPA_Quant_PA3 <- as.numeric(dt$MVPA_Quant_PA3)
+
+pdf("/home/yacine/termplots.pdf") 
+
+
+# we apply a spline to the coxph model
+# PA1
+fit1_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA1, df = 4), data = dt)
+
+fit1_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       bs(MVPA_Quant_PA1, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit1_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA1")
+termplot(fit1_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA1")
+
+
+# PA2
+fit2_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA2, df = 4), data = dt)
+
+#fit2_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       #bs(MVPA_Quant_PA2, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit2_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA2")
+termplot(fit2_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA2")
+
+
+# PA3
+fit3_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA3, df = 4), data = dt)
+
+fit3_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       bs(MVPA_Quant_PA3, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit3_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA3")
+termplot(fit3_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA3")
+
+dev.off()
+
+```
+
+
+
+
 
 
 
