@@ -879,7 +879,7 @@ funcPlotForest(forest_data,
 ```
 
 Male - Stroke
->>>>>>> 3f755cf6ab7659f91a246916ba5d52e46e35672b
+#>>>>>>> 3f755cf6ab7659f91a246916ba5d52e46e35672b
 ```{r}
 
 # Model for PA 1 
@@ -889,12 +889,12 @@ t1<- tbl_regression(fit1, exponentiate = TRUE,
                     include = "MVPA_Quant_PA1"
                     ) 
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
-=======
+#=======
 # Model for PA 2
 fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
->>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
+#>>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 t2<- tbl_regression(fit2, exponentiate = TRUE,  
                     label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
                     include = "MVPA_Quant_PA2"
