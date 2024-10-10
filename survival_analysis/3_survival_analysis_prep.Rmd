@@ -292,7 +292,6 @@ fitDf3 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov)), da
 tb3 <- tbl_regression(fitDf3, exponentiate = TRUE, 
                         label = list("MVPA_Quant_PA3" = "MVPA Quartile"))
 
-
 # Model for PA 4
 fitDf4_2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
 tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
@@ -419,8 +418,7 @@ main_results_doc <- read_docx()
 
 # Sensitivity anlaysis  
 
-
-### sensitivity1 - no Mediator , withoubt BMI and Diabetes , Stroke 
+### Sensitivity 1 - no Mediator , withoubt BMI and Diabetes , Stroke 
 See covarite set - no mediator (BMI  and diabetes)
 ```{r}
 # Model for PA 1 
@@ -452,15 +450,32 @@ t2<- tbl_regression(fit2, exponentiate = TRUE,
   #      label  = ifelse(label ==  dfPA2Label[4, "range"], "Q4",label)
   #           ))
 
+
+fit3 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov_noMediator)), data = dt)
+t3<- tbl_regression(fit3, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA3" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA3"
+                    )  #%>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA2Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA2Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA2Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA2Label[4, "range"], "Q4",label)
+  #           ))
+
+
+
 #Merge tables 
-t3 <- tbl_merge(
-  tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+tbl_merge <- tbl_merge(
+  tbls = list(t1, t2, t3),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
-   modify_column_hide(columns = c(p.value_1, p.value_2))
+   modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
 # Landscape (word format)
-t3_sensa1_stroke <- as_flex_table(t3)
+tbl_merge_sensa1_stroke <- as_flex_table(tbl_merge)
 sect_properties <- prop_section(
   page_size = page_size(
   orient = "portrait",
@@ -471,7 +486,7 @@ sect_properties <- prop_section(
   )
 
 # Save 
-#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_stroke,  
+#flextable::save_as_docx("Without BMI and Diabetes" = tbl_merge_sensa1_stroke,  
   #path = "HR_Sens_Diabetes_Stroke.docx", 
   #pr_section = sect_properties
 #)  
@@ -482,6 +497,7 @@ Forest Plot - Sensitivity 1 - Stroke:
 # to use the generated "funcPlotForest" function and we combine the two
 data_t1 <- as.data.frame(t1$table_body)
 data_t2 <- as.data.frame(t2$table_body)
+data_t3 <- as.data.frame(t3$table_body)
 
 data_t1 <- data_t1 %>%
   rename(
@@ -493,6 +509,7 @@ data_t1 <- data_t1 %>%
   mutate(
     foodName = "ENMO"  # or another identifier if applicable
   )
+
 
 data_t2 <- data_t2 %>%
   rename(
@@ -506,14 +523,29 @@ data_t2 <- data_t2 %>%
   )
 
 
-forest_data <- bind_rows(data_t1, data_t2)
+data_t3 <- data_t3 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Activity Count" 
+  )
+
+forest_data <- bind_rows(data_t1, data_t2, data_t3)
+
+
+#======== This step is to change the variable names but I wasn't able to do 
+#======== it without messing up the order of the plot lines 
 
 # we can now create the plot using the funcPlotForest function created earlier:
-custom_labels <- c("Q2", "Q3", "Q4", "Q2", "Q3", "Q4")  
-funcPlotForest(forest_data, 
-               title = "Sensitivity Analysis 1 Forest Plot - Stroke", 
-               subtitle = "HR for MVPA Quartiles with 95% CI",
-               maxX = 1.5)
+#custom_labels <- c("Q2", "Q3", "Q4", "Q2", "Q3", "Q4")  
+#funcPlotForest(forest_data, 
+               #title = "Sensitivity Analysis 1 Forest Plot - Stroke", 
+              # subtitle = "HR for MVPA Quartiles with 95% CI",
+               #maxX = 1.5)
 
 
 # Save the plot
@@ -607,7 +639,7 @@ funcPlotForest(forest_data,
 
 
 
-### sensitivity2 - Removed people with huge duration (>1200min) of MVPA Stroke 
+### Sensitivity 2 - Removed people with huge duration (>1200min) of MVPA Stroke 
 ```{r}
 
 # Model for PA 1 
@@ -694,7 +726,7 @@ funcPlotForest(forest_data,
 
 
 
-### sensitivity2 - Removed people with huge duration (>1200min) of MVPA, MI 
+### Sensitivity 2 - Removed people with huge duration (>1200min) of MVPA, MI 
 ```{r}
 
 # Model for PA 1 
@@ -788,16 +820,16 @@ Female
 ```{r}
 
 # Model for PA 1 
-fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
 t1<- tbl_regression(fit1, exponentiate = TRUE, 
-                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA1"
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
                     ) 
 
-fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
 t2<- tbl_regression(fit2, exponentiate = TRUE,  
-                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA2"
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
                     )  
 
 #Merge tables 
@@ -818,17 +850,10 @@ sect_properties <- prop_section(
   )
 
 # Save 
-<<<<<<< HEAD
-flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,  
-  path = "HR_Sens_Female_stroke.docx", 
-  pr_section = sect_properties
-)  
-=======
 #flextable::save_as_docx("Female - Hazard ratios for incidence stroke" = t3_sensa3_stroke_f,  
   #path = "HR_Sens_Female_stroke.docx", 
   #pr_section = sect_properties
 #)  
->>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 
 
 ```
@@ -861,9 +886,6 @@ data_t2 <- data_t2 %>%
     foodName = "Random Forest and HMM (ML)" 
   )
 
-<<<<<<< HEAD
-Male - stroke 
-=======
 
 forest_data <- bind_rows(data_t1, data_t2)
 
@@ -879,25 +901,20 @@ funcPlotForest(forest_data,
 ```
 
 Male - Stroke
-#>>>>>>> 3f755cf6ab7659f91a246916ba5d52e46e35672b
 ```{r}
 
 # Model for PA 1 
-fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
 t1<- tbl_regression(fit1, exponentiate = TRUE, 
-                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA1"
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
                     ) 
 
-#<<<<<<< HEAD
-fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
-#=======
 # Model for PA 2
 fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
-#>>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
 t2<- tbl_regression(fit2, exponentiate = TRUE,  
-                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA2"
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
                     )  
 
 #Merge tables 
@@ -922,94 +939,6 @@ sect_properties <- prop_section(
  # path = "HR_Sens_Male_stroke.docx", 
  # pr_section = sect_properties
 #)  
-
-```
-
-
-
-
-Female - MI
-```{r}
-
-# Model for PA 1 
-fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
-t1<- tbl_regression(fit1, exponentiate = TRUE, 
-                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA1"
-                    ) 
-
-fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
-t2<- tbl_regression(fit2, exponentiate = TRUE,  
-                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA2"
-                    )  
-
-#Merge tables 
-t3 <- tbl_merge(
-  tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
-)
-
-# Landscape (word format)
-t3 <- as_flex_table(t3)
-sect_properties <- prop_section(
-  page_size = page_size(
-  orient = "portrait",
-  #width = 8, height = 11.7
-  ),
-  type = "continuous",
-  page_margins = page_mar(0) 
-  )
-
-# Save 
-flextable::save_as_docx("Female - Hazard ratios for icidence MI" = t3,  
-  path = "HR_Sens_Female_MI.docx", 
-  pr_section = sect_properties
-)  
-
-
-```
-
-
-
-Male - MI
-```{r}
-
-# Model for PA 1 
-fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
-t1<- tbl_regression(fit1, exponentiate = TRUE, 
-                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA1"
-                    ) 
-
-fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
-t2<- tbl_regression(fit2, exponentiate = TRUE,  
-                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
-                    include = "MVPA_Quant_PA2"
-                    )  
-
-#Merge tables 
-t3 <- tbl_merge(
-  tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
-)
-
-# Landscape (word format)
-t3 <- as_flex_table(t3)
-sect_properties <- prop_section(
-  page_size = page_size(
-  orient = "portrait",
-  #width = 8, height = 11.7
-  ),
-  type = "continuous",
-  page_margins = page_mar(0) 
-  )
-
-# Save 
-flextable::save_as_docx("Male - Hazard ratios for icidence MI" = t3,  
-  path = "HR_Sens_Mmale_MI.docx", 
-  pr_section = sect_properties
-)  
 
 
 ```
@@ -1144,7 +1073,11 @@ funcPlotForest(forest_data,
 
 ```
 
-Male - MI
+
+
+
+
+Sensitivity 3 - Male - MI
 ```{r}
 
 # Model for PA 1 
@@ -1231,11 +1164,7 @@ funcPlotForest(forest_data,
 
 
 
-
-
-<<<<<<< HEAD
-
-Interaction of MVPA and Male/Female 
+Interaction of MVPA and Male/Female # Note Yacine: Did you add this?
 Female 
 ```{r}
 
@@ -1277,8 +1206,8 @@ flextable::save_as_docx("Female - Hazard ratios for icidence stroke" = t3,
 ```
 
 
-=======
->>>>>>> 21156a3a499ba7f1c349d1d8719c4bebc622787e
+
+
 ### Sensitivity 4 - 2 years of survival 
 We perform a sensitivity analysis by first extracting people that have had a stroke
 within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
