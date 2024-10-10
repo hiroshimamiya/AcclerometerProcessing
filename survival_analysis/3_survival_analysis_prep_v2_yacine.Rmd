@@ -1,0 +1,1641 @@
+---
+title: "survival_analysis_prep"
+author: "yacine"
+date: "2024-07-16"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+We load and/or install the packages we will be using:
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Refresh environment 
+rm(list= ls())
+library(dplyr)
+library(survival)
+library(data.table)
+library(readr)
+library(dvmisc)
+library(gtsummary)
+library(gt)
+library(kableExtra)
+library(broom.helpers)
+library(flextable)
+library(officer)
+library(ggplot2)
+library(splines)
+library(splines2)
+#install.packages("splines2")
+splines::bs
+splines2::bSpline
+
+theme_gtsummary_journal("jama")
+```
+
+## We load the data:
+```{r}
+#dt <- readRDS("/home/yacine/UKBB_beluga/prepped_dt.rds") # full df with exclusions + recoding and all data prepared for survival analysis
+dt <- readRDS("/home/yacine/AcclerometerProcessing/prepped_dt.rds")
+dt2 <- readRDS("/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
+```
+
+
+
+###################
+## Forest Plot Function 
+We create the forest plot function which we will be using to visualize the regression analysis 
+
+```{r}
+
+
+funcPlotForest <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2) {
+  # Ensure 'index' is treated as a factor with levels ordered from lowest to highest
+  forest_data <- forest_data %>%
+    filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
+    mutate(index = factor(index, levels = rev(unique(index))))  # Reversing the order here
+
+  xname <- "Hazard Ratio and 95% CI"
+  
+  ggplot(data = forest_data, aes(y = index, x = est, xmin = lwr, xmax = upr, color = foodName)) + 
+    geom_point(size = 3) + 
+    geom_errorbarh(height = 0.4) +
+    scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
+    scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
+    geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
+    scale_color_manual(values = c("ENMO" = "blue", "Random Forest and HMM (ML)" = "red")) +  # Set colors for groups
+    theme_classic() + 
+    theme(
+axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
+      axis.text.y = element_text(color = "black", size = 14, angle = 0, hjust = 1, vjust = 0, face = "plain"),
+      axis.title.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0, face = "plain"),
+      axis.title.y = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
+      plot.title = element_text(color = "black", size = 20, face = "bold"),
+      plot.subtitle = element_text(color = "black", size = 20),
+      legend.text = element_text(size = 20),
+      legend.title = element_blank() 
+    ) +
+    labs(title = title, subtitle = subtitle) +
+    theme(
+      strip.text.y = element_text(size = 20, vjust = 1),
+      strip.background = element_rect(colour = "white", fill = "white")
+    ) +
+    theme(strip.text.y.left = element_text(angle = 0)) +
+    theme(strip.placement = "outside") +
+    coord_cartesian(xlim = c(0.1, maxX))  
+}
+
+
+```
+  
+
+Function forest plot 2
+```{r}
+funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2) {
+  # Ensure 'index' is treated as a factor with levels ordered from lowest to highest
+  forest_data <- forest_data %>%
+    filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
+    mutate(index = factor(index, levels = rev(unique(index))))  # Reversing the order here
+
+  xname <- "Hazard Ratio and 95% CI"
+  
+  ggplot(data = forest_data, aes(y = index, x = est, xmin = lwr, xmax = upr, color = foodName)) + 
+    geom_point(size = 3) + 
+    geom_errorbarh(height = 0.4) +
+    scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
+    scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
+    geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
+    scale_color_manual(values = c("ENMO" = "blue", "Random Forest and HMM (ML)" = "red","Activity Count" = "brown", "Self-Report" = "black")) +  # Set colors for groups
+    theme_classic() + 
+    theme(
+axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
+      axis.text.y = element_text(color = "black", size = 14, angle = 0, hjust = 1, vjust = 0, face = "plain"),
+      axis.title.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0, face = "plain"),
+      axis.title.y = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
+      plot.title = element_text(color = "black", size = 20, face = "bold"),
+      plot.subtitle = element_text(color = "black", size = 20),
+      legend.text = element_text(size = 20),
+      legend.title = element_blank() 
+    ) +
+    labs(title = title, subtitle = subtitle) +
+    theme(
+      strip.text.y = element_text(size = 20, vjust = 1),
+      strip.background = element_rect(colour = "white", fill = "white")
+    ) +
+    theme(strip.text.y.left = element_text(angle = 0)) +
+    theme(strip.placement = "outside") +
+    coord_cartesian(xlim = c(0.1, maxX))  
+}
+
+
+```
+  
+  
+  
+## Regression - Associations with risk of incident cardiovascular disease 
+
+In the data preparation step, we added an event status indicator at exit and a follow-up time variable. Using these, we can run a Cox model to associate overall activity with risk of incident cardiovascular disease. We'll start by using time-on-study as the timescale and set it up using the 'survival' package in R. We'll also adjust for various possible confounding variables (following the confounders used by [Ramakrishnan et al.](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003487)):
+
+
+First , create formula 
+```{r}
+
+f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Body Mass Index`"
+
+f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish`"
+
+f_stroke <-   "Surv(`Follow_up time`,`Myocardial Infarction`)"
+
+f_MI <- "Surv(`Follow_up time`,`Stroke`)"
+
+
+#as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
+#as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
+
+
+
+```
+  
+
+### Stroke - Main
+```{r}
+
+# Model for PA 1 
+fitDf1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+
+# Model for PA 2
+fitDf2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+
+# Model for PA 3
+fitDf3 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov)), data = dt)
+tb3<- tbl_regression(fitDf3, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA3" = "MVPA Quartile"))
+
+# Model for PA 4
+fitDf4_2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
+tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
+                     label = list("MVPA_Quant_PA4" = "MVPA Quartile"))
+
+
+#Merge tables 
+tb_merge <- tbl_merge(
+  tbls = list(tb1, tb2, tb3, tb4),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**", "**Self-Report**")) %>% 
+  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3, p.value_4))
+
+
+# Landscape (word format)
+tb_main_stroke <- as_flex_table(tb_merge)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+```
+#### Forest Plot 
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(tb1$table_body)
+data_t2 <- as.data.frame(tb2$table_body)
+data_t3 <- as.data.frame(tb3$table_body)
+data_t4 <- as.data.frame(tb4$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+data_t3 <- data_t3 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Activity Count" 
+  )
+
+data_t4 <- data_t4 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Self-Report" 
+  )
+
+forest_data <- bind_rows(data_t1, data_t2, data_t3, data_t4)
+forest_data <- forest_data %>%
+  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3", "MVPA_Quant_PA4"))
+
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest2(forest_data, 
+               title = "Main Analysis - Stroke", 
+               subtitle = "HR for MVPA Quartiles with 95% CI",
+               maxX = 1.5)
+
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+### MI Main 
+```{r}
+
+# Model for PA 1 
+fitDf1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov)), data = dt)
+tb1 <- tbl_regression(fitDf1, exponentiate = TRUE, 
+                        label = list("MVPA_Quant_PA1" = "MVPA Quartile"))
+
+# Model for PA 2
+fitDf2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov)), data = dt)
+tb2 <- tbl_regression(fitDf2, exponentiate = TRUE, 
+                        label = list("MVPA_Quant_PA2" = "MVPA Quartile"))
+
+# Model for PA 3
+fitDf3 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov)), data = dt)
+tb3 <- tbl_regression(fitDf3, exponentiate = TRUE, 
+                        label = list("MVPA_Quant_PA3" = "MVPA Quartile"))
+
+
+# Model for PA 4
+fitDf4_2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
+tb3 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
+                        label = list("MVPA_Quant_PA4" = "MVPA Quartile"))
+
+
+```
+ Forest Plot 
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(tb1$table_body)
+data_t2 <- as.data.frame(tb2$table_body)
+data_t3 <- as.data.frame(tb3$table_body)
+data_t4 <- as.data.frame(tb4$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+data_t3 <- data_t3 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Activity Count" 
+  )
+
+data_t4 <- data_t4 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Self-Report" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2, data_t3, data_t4)
+forest_data <- forest_data %>%
+  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3", "MVPA_Quant_PA4"))
+
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest2(forest_data, 
+               title = "Main Analysis - MI", 
+               subtitle = "HR for MVPA Quartiles with 95% CI",
+               maxX = 2.5)
+
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+
+### Merge Main analysis results for stroke and MI
+```{r}
+
+main_results_doc <- read_docx()
+
+# Main Stroke and MI
+#main_results_doc <- main_results_doc %>%
+  #body_add_par("Main Analysis: Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  #body_add_flextable(tb3_main_stroke) %>%
+  #body_add_par("")  
+
+#main_results_doc <- main_results_doc %>%
+  #body_add_par("Main Analysis: Hazard ratios for incidence MI", style = "heading 1") %>%
+  #body_add_flextable(tb3_main_MI) %>%
+  #body_add_par("")  
+
+
+# save
+#print(main_results_doc, target = "main_results.docx")
+
+
+# Main Stroke and MI - dt2
+#main_results_doc <- main_results_doc %>%
+  #body_add_par("Main Analysis: Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  #body_add_flextable(tb3_main_stroke_2) %>%
+  #body_add_par("")  
+
+#main_results_doc <- main_results_doc %>%
+  #body_add_par("Main Analysis: Hazard ratios for incidence MI", style = "heading 1") %>%
+  #body_add_flextable(tb3_main_MI_2) %>%
+  #body_add_par("")  
+
+
+# save
+#print(main_results_doc, target = "main_results.docx")
+
+```
+
+
+
+
+
+# Sensitivity anlaysis  
+
+
+### sensitivity1 - no Mediator , withoubt BMI and Diabetes , Stroke 
+See covarite set - no mediator (BMI  and diabetes)
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )# %>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA1Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA1Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA1Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA1Label[4, "range"], "Q4",label)
+  #           )) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  #%>%  
+  #modify_table_body(
+  #  ~.x %>% 
+  #    mutate(
+  #      label  = ifelse(label ==  dfPA2Label[1, "range"], "Q1",label),
+  #      label  = ifelse(label ==  dfPA2Label[2, "range"], "Q2",label),
+  #      label  = ifelse(label ==  dfPA2Label[3, "range"], "Q3",label),
+  #      label  = ifelse(label ==  dfPA2Label[4, "range"], "Q4",label)
+  #           ))
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3_sensa1_stroke <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_stroke,  
+  #path = "HR_Sens_Diabetes_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
+```
+Forest Plot - Sensitivity 1 - Stroke:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+custom_labels <- c("Q2", "Q3", "Q4", "Q2", "Q3", "Q4")  
+funcPlotForest(forest_data, 
+               title = "Sensitivity Analysis 1 Forest Plot - Stroke", 
+               subtitle = "HR for MVPA Quartiles with 95% CI",
+               maxX = 1.5)
+
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+### sensitivity1 - no Mediator , withoubt BMI and Diabetes , MI
+```{r}
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1 + ",  f_cov_noMediator)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1"
+                    )
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov_noMediator)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2"
+                    )  
+
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+) %>%  bold_labels() %>% 
+   modify_column_hide(columns = c(p.value_1, p.value_2))
+
+# Landscape (word format)
+t3_sensa1_MI <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Without BMI and Diabetes" = t3_sensa1_MI,  
+  #path = "HR_Sens_Diabetes_MI.docx", 
+  #pr_section = sect_properties
+#)  
+```
+Forest Plot - Sensitivity 1 - MI:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 1 Forest Plot - MI", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_MI.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA Stroke 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa2_stroke <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for icidence stroke, truncated MVPA" = t3_sensa2_stroke,  
+  #path = "HR_Sens_truncated_Stroke.docx", 
+  #pr_section = sect_properties
+#)  
+
+```
+Forest Plot - Sensitivity 2 - Stroke:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 2 Forest Plot - Stroke", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_stroke.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+### sensitivity2 - Removed people with huge duration (>1200min) of MVPA, MI 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa2_MI <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for incidence MI, truncated MVPA" = t3_sensa2_MI,  
+  #path = "HR_Sens_truncated_MI.docx", 
+  #pr_section = sect_properties
+#)  
+
+```
+Forest Plot - Sensitivity 2 - MI:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 2 Forest Plot - MI", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_2_MI.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+### Sensitivity 3 - Male and Female separate 
+See the data source in the regression command
+
+#### Stroke
+Female 
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa3_stroke_f <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Female - Hazard ratios for incidence stroke" = t3_sensa3_stroke_f,  
+  #path = "HR_Sens_Female_stroke.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 3 - Stroke - Female:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 3 Forest Plot - Stroke - Female", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_f.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+Male - Stroke
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa3_stroke_m <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Male - Hazard ratios for incidence Stroke" = t3_sensa3_stroke_m,  
+ # path = "HR_Sens_Male_stroke.docx", 
+ # pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 3 - Stroke - Male:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 3 Forest Plot - Stroke - Male", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_stroke_m.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+#### MI
+Female
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Female", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa3_MI_f <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Female - Hazard ratios for incidence MI" = t3_sensa3_MI_f,  
+  #path = "HR_Sens_Female_MI.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 3 - MI - Female:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 3 Forest Plot - MI - Female", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_f.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+Male - MI
+```{r}
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  gsub(x = f_cov, pattern = "Sex \\+", replacement = ""))), data = dt[dt$Sex == "Male", ])
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa3_MI_m <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Male - Hazard ratios for incidence MI" = t3_sensa3_MI_m,  
+ # path = "HR_Sens_Male_MI.docx", 
+ # pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 3 - MI - Male:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 3 Forest Plot - MI - Male", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_3_MI_m.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+
+### Sensitivity 4 - 2 years of survival 
+We perform a sensitivity analysis by first extracting people that have had a stroke
+within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
+
+#### Remove people who have had a Stroke within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years Stroke Survival' != 0)
+
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa4_stroke <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for incidence Stroke - 2 years stroke survival" = t3_sensa4_stroke,  
+  #path = "HR_Sens_twoyears_stroke.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 4 - Stroke:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 4 Forest Plot - Stroke", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_stroke.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+
+#### Remove people who have had a MI within 2 years following date_end_accel:
+
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_MI' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years MI Survival' != 0)
+
+# Model for PA 1 
+fit1 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA1_trucated + ",  f_cov)), data = dt_sa4)
+t1<- tbl_regression(fit1, exponentiate = TRUE, 
+                    label = list("MVPA_Quant_PA1_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA1_trucated"
+                    ) 
+
+# Model for PA 2
+fit2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA2_trucated + ",  f_cov)), data = dt_sa4)
+t2<- tbl_regression(fit2, exponentiate = TRUE,  
+                    label = list("MVPA_Quant_PA2_trucated" = "MVPA Quartile"), 
+                    include = "MVPA_Quant_PA2_trucated"
+                    )  
+
+#Merge tables 
+t3 <- tbl_merge(
+  tbls = list(t1, t2),
+  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+)
+
+# Landscape (word format)
+t3_sensa4_MI <- as_flex_table(t3)
+sect_properties <- prop_section(
+  page_size = page_size(
+  orient = "portrait",
+  #width = 8, height = 11.7
+  ),
+  type = "continuous",
+  page_margins = page_mar(0) 
+  )
+
+# Save 
+#flextable::save_as_docx("Hazard ratios for incidence MI - 2 years MI survival" = t3_sensa4_MI,  
+  #path = "HR_Sens_twoyears_MI.docx", 
+  #pr_section = sect_properties
+#)  
+
+
+```
+Forest Plot - Sensitivity 4 - MI:
+```{r}
+# we first need to convert data from tbl_resgression to data.frame to be able 
+# to use the generated "funcPlotForest" function and we combine the two
+data_t1 <- as.data.frame(t1$table_body)
+data_t2 <- as.data.frame(t2$table_body)
+
+data_t1 <- data_t1 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "ENMO"  # or another identifier if applicable
+  )
+
+data_t2 <- data_t2 %>%
+  rename(
+    index = term,
+    est = estimate,
+    lwr = conf.low,
+    upr = conf.high
+  ) %>%
+  mutate(
+    foodName = "Random Forest and HMM (ML)" 
+  )
+
+
+forest_data <- bind_rows(data_t1, data_t2)
+
+# we can now create the plot using the funcPlotForest function created earlier:
+funcPlotForest(forest_data, 
+                       title = "Sensitivity Analysis 4 Forest Plot - MI", 
+                       subtitle = "HR for MVPA Quartiles with 95% CI", 
+                       maxX = 1.5)
+
+# Save the plot
+#ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_4_MI.png", plot, width = 10, height = 6, dpi = 300)
+
+```
+
+
+
+
+### We merge all sensitivity analysis results into one doc:
+
+```{r}
+
+surv_analysis_doc <- read_docx()
+
+# Sensitivity analysis 1
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 1: Without BMI and Diabetes - Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa1_stroke) %>%
+  body_add_par("No Mediator , withoubt BMI and Diabetes (Stroke) ")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 1: Without BMI and Diabetes - MI", style = "heading 1") %>%
+  body_add_flextable(t3_sensa1_MI) %>%
+  body_add_par("No Mediator , withoubt BMI and Diabetes (MI)")  
+
+
+# Sensitivity analysis 2
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 2: Hazard ratios for incidence Stroke, truncated MVPA", style = "heading 1") %>%
+  body_add_flextable(t3_sensa2_stroke) %>%
+  body_add_par("Removed people with huge duration (>1200min) of MVPA, Stroke")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 2: Hazard ratios for incidence MI, truncated MVPA", style = "heading 1") %>%
+  body_add_flextable(t3_sensa2_MI) %>%
+  body_add_par("Removed people with huge duration (>1200min) of MVPA, MI")  
+
+
+# Sensitivity analysis 3
+## Stroke
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Female - Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_stroke_f) %>%
+  body_add_par("Male and Female separate (Stroke)")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Male - Hazard ratios for incidence Stroke", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_stroke_m) %>%
+  body_add_par("Male and Female separate (MI)") 
+
+## MI
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Female - Hazard ratios for incidence MI", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_MI_f) %>%
+  body_add_par("Male and Female separate (MI)")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 3: Male - Hazard ratios for incidence MI", style = "heading 1") %>%
+  body_add_flextable(t3_sensa3_MI_m) %>%
+  body_add_par("Male and Female separate (MI)") 
+
+
+# Sensitivity analysis 4
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 4: Hazard ratios for incidence Stroke - 2 years Stroke survival", style = "heading 1") %>%
+  body_add_flextable(t3_sensa4_stroke) %>%
+  body_add_par("Removed people who have had a Stroke within 2 years following end of accelerometer following")  
+
+surv_analysis_doc <- surv_analysis_doc %>%
+  body_add_par("Sensitivity Analysis 4: Hazard ratios for incidence MI - 2 years MI survival", style = "heading 1") %>%
+  body_add_flextable(t3_sensa4_MI) %>%
+  body_add_par("Removed people who have had a MI within 2 years following end of accelerometer following")  
+
+
+
+# Save the combined document
+print(surv_analysis_doc, target = "sensa_results_combined.docx")
+
+  
+```
+
+
+
+
+
+
+
+
+##########
+Kaplan_Meier:
+  - 2 groups: PA1 and PA2 or Stroke and MI?
+  - d_stroke == 1; d_MI == 1
+  - end_of_fu = censoring time
+  
+```{r}
+  
+kmfit1_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA1`, data = dt)
+kmfit1_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA1`, data = dt)
+
+
+kmfit2_mi <- survfit(Surv(`Follow_up time`, `Myocardial Infarction`) ~ `MVPA_Quant_PA2`, data = dt)
+kmfit2_stroke <- survfit(Surv(`Follow_up time`, `Stroke`) ~ `MVPA_Quant_PA2`, data = dt)
+
+
+```
+
+
+
+```{r}
+
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA1 by Quarters")
+
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA1 by Quarters")
+
+
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"),
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - PA2 by Quarters")
+
+
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), xlab = "Survival time per month", ylab = "Survival Probabilities", ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - PA2 by Quarters")
+
+```
+
+
+```{r}
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+
+# ENMO MI
+plot(kmfit1_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5,
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - ENMO by Quarters")
+
+# ENMO Stroke
+plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - ENMO by Quarters")
+
+# ML MI
+plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "MI - ML by Quarters")
+
+# ML Stroke
+plot(kmfit2_stroke, col = c("black", "grey", "blue", "red"), 
+     xlab = "Survival time per month", 
+     ylab = "Survival Probabilities", 
+     ylim = c(1.0, 0.95))
+legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
+       col = c("black", "grey", "blue", "red"), lty = 1)
+title(main = "Stroke - ML by Quarters")
+
+
+mtext("KM Curves by Quartiles", outer = TRUE, cex = 1.5) # main title
+#legend("bottomleft", legend = c("Q1", "Q2", "Q3", "Q4"), 
+       #col = c("black", "grey", "blue", "red"), lty = 1, cex = 0.8) # legend for one graph only
+#mtext("Survival time per month", side = 1, outer = TRUE, line = 2.5) # y-axis title for full figure
+#mtext("Survival Probabilities", side = 2, outer = TRUE, line = 2.5) # x-axis title for full figure
+```
+
+
+
+
+
+
+Log-log tentative: 
+
+```{r}
+
+
+# we create a function to transform the KM model to Log-log function:
+log_log_transform <- function(surv_fit) {
+  surv_summary <- summary(surv_fit)
+  data.frame(
+    time = surv_summary$time,
+    log_log_surv = log(-log(surv_summary$surv)),
+    strata = surv_summary$strata
+  )
+}
+
+log_log_kmfit1_mi <- log_log_transform(kmfit1_mi)
+log_log_kmfit1_stroke <- log_log_transform(kmfit1_stroke)
+log_log_kmfit2_mi <- log_log_transform(kmfit2_mi)
+log_log_kmfit2_stroke <- log_log_transform(kmfit2_stroke)
+
+
+# we create a function to create Log-log function plots
+plot_log_log_survival <- function(log_log_data, title) {
+  ggplot(log_log_data, aes(x = time, y = log_log_surv, color = strata)) +
+    geom_step() +
+    labs(title = title, x = "Time in Month", y = "Log-log Survival") +
+    #xlim(c(0, NA)) + # start x-axis at time == 0
+    theme_minimal()
+}
+
+plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO Quarters Comparison")
+plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO Quarters Comparison")
+plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML Quarters Comparison")
+plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML Quarters Comparison")
+
+
+print(plot1_mi)
+print(plot1_stroke)
+print(plot2_mi)
+print(plot2_stroke)
+
+log_log_survival_curves <- grid.arrange(plot1_mi, plot1_stroke, plot2_mi, plot2_stroke, ncol = 2)
+ggsave("log_log_survival_curves.png", log_log_survival_curves, width = 12, height = 8)
+```
+
+
+Schoenfeld residuals: 
+
+```{r}
+library(survminer)
+
+# we test the proportional hazards assumption of a Cox regression model:
+
+test_ph1 <- cox.zph(fitDf1)
+test_ph2 <- cox.zph(fitDf2)
+
+test_ph_fit1 <- cox.zph(fit1)
+test_ph_fit2 <- cox.zph(fit2)
+
+# we plot the Schoenfeld residuals graphs using the Cox regression model: 
+
+ggcoxzph(test_ph1, var = 'MVPA_Quant_PA1')
+ggcoxzph(test_ph2, var = 'MVPA_Quant_PA2')
+
+ggcoxzph(test_ph_fit1, var = 'MVPA_Quant_PA1_trucated')
+ggcoxzph(test_ph_fit2, var = 'MVPA_Quant_PA2_trucated')
+
+
+#?ggcoxzph
+
+
+```
+
+
+Restricted Cubic Spline : relationship is non-linear
+- Number of knots: "five knots are enough to provide a good fit to any patterns 
+  that are likely to arise in practice." (Stone, 1986)
+quote from: https://support.sas.com/resources/papers/proceedings16/5621-2016.pdf
+source: Stone, C. J. (1986). [Generalized Additive Models: Comment]. Statistical Science, 1(3), 312-314.
+```{r}
+
+# in order for the bs function to work, we need to transform the MVPA_Quant_PA# 
+# data into numerical values
+dt$MVPA_Quant_PA1 <- as.numeric(dt$MVPA_Quant_PA1)
+dt$MVPA_Quant_PA2 <- as.numeric(dt$MVPA_Quant_PA2)
+dt$MVPA_Quant_PA3 <- as.numeric(dt$MVPA_Quant_PA3)
+
+pdf("/home/yacine/termplots.pdf") 
+
+
+# we apply a spline to the coxph model
+# PA1
+fit1_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA1, df = 4), data = dt)
+
+fit1_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       bs(MVPA_Quant_PA1, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit1_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA1")
+termplot(fit1_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA1")
+
+
+# PA2
+fit2_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA2, df = 4), data = dt)
+
+#fit2_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       #bs(MVPA_Quant_PA2, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit2_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA2")
+#termplot(fit2_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA2") 
+
+
+# PA3
+fit3_smooth_stroke <- coxph(Surv(`Follow_up time`, Stroke) ~ 
+                       bs(MVPA_Quant_PA3, df = 4), data = dt)
+
+fit3_smooth_MI <- coxph(Surv(`Follow_up time`, `Myocardial Infarction`) ~ 
+                       bs(MVPA_Quant_PA3, df = 4), data = dt)
+
+par(ask = FALSE) 
+termplot(fit3_smooth_stroke, se = TRUE, partial.resid = TRUE, main = "Stroke PA3")
+termplot(fit3_smooth_MI, se = TRUE, partial.resid = TRUE, main = "MI PA3")
+
+dev.off()
+
+```
+
+
+
+
+
+
+
+
