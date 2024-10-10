@@ -295,7 +295,7 @@ tb3 <- tbl_regression(fitDf3, exponentiate = TRUE,
 
 # Model for PA 4
 fitDf4_2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
-tb3 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
+tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
                         label = list("MVPA_Quant_PA4" = "MVPA Quartile"))
 
 
