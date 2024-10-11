@@ -314,8 +314,8 @@ summary(full_df_PA$MVPA_min_PA1)
 sum(full_df_PA$MVPA_min_PA2 > 2500 )
 summary(full_df_PA$MVPA_min_PA2)
 
-sum(full_df_PA$MVPA_min_PA3 > 2500 )
-summary(full_df_PA$MVPA_min_PA3)
+#sum(full_df_PA$MVPA_min_PA3 > 2500 )
+#summary(full_df_PA$MVPA_min_PA3)
 
 # we create a new table to include PA4
 full_df_PA_2 <- full_df_PA
@@ -326,13 +326,13 @@ summary(full_df_PA_2$MVPA_min_PA4)
 dim(full_df_PA)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
-full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3 < 2500)
+#full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3 < 2500)
 dim(full_df_PA)
 
 # full_df_PA_2
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
-full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
+#full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 1000)
 dim(full_df_PA_2)
 
