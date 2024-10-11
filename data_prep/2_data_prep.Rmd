@@ -726,7 +726,7 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 ```
 
 
-## Table 1
+## Table 1.1 - PA1, PA2 & PA3
 ```{r}
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
@@ -861,11 +861,11 @@ print(tb)
 
 # Save 
 flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb,  
-               path = "testTable.docx", 
+               path = "testTable1.docx", 
                pr_section = sect_properties
                )  
 ```
-## Table 2 (incudes PA4)
+## Table 1.2 (incudes PA4)
 ```{r}
 # Variables to add to the table - this variable cannot be used to select columns now, since cooked_veg is not rendered into summary table 
 
@@ -873,8 +873,8 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
-  MVPA_Quant_PA2,  
   MVPA_Quant_PA1,
+  MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
   MVPA_Quant_PA4,  
   MVPA_min_PA1, 
@@ -902,6 +902,7 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   cooked_vg, 
   MVPA_Quant_PA1_trucated, 
   MVPA_Quant_PA2_trucated,
+  MVPA_Quant_PA3_trucated, 
   MVPA_Quant_PA4_trucated,  
   `2_years_survival_stroke`,
   `2_years_survival_MI`
@@ -971,7 +972,7 @@ dt2 <- dt2 %>%
 
 tb2 <- dt2 %>% 
   dplyr::select(-contains("trucated")) %>% 
-  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3) %>% 
+  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>% 
   tbl_summary(
     by = MVPA_Quant_PA2,  
     #statistic = all_continuous() ~ "{mean} ({sd})"
@@ -1007,5 +1008,20 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 saveRDS(dt, "/home/yacine/AcclerometerProcessing/prepped_dt.rds")
 saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
 
+
+```
+
+
+
+
+### Histograms
+```{r}
+
+par(mfrow = c(2,2))
+hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min")
+hist(dt$`MVPA min/week ML`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ML")
+hist(dt$`MVPA min/week Activity Count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
+hist(dt2$`MVPA min/week Self-Report`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report")
+dev.off()
 
 ```
