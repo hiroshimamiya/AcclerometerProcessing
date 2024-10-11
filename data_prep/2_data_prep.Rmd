@@ -398,9 +398,9 @@ ggplot(full_df_PA,
   geom_smooth(method=lm, 
     se=FALSE, 
     linetype="dashed",
-    color="grey"
-  )
-
+    color="grey",
+  ) +
+  ggtitle("Accelerometer Data and ML")
 
 
 
@@ -439,9 +439,9 @@ ggplot(full_df_PA,
   geom_smooth(method=lm, 
     se=FALSE, 
     linetype="dashed",
-    color="grey"
-  )
-
+    color="grey",
+  ) +
+  ggtitle("Activity Count and ML")
 
 
 ```
@@ -467,7 +467,7 @@ print(ggExtra::ggMarginal(
     graph.sys = "ggplot2"
     ),
   theme_minimal(),
-  type = "histogram", size=4)
+  type = "histogram", size=4),
 )
 
 
@@ -478,13 +478,15 @@ ggplot(full_df_PA_2,
            y=full_df_PA_2$MVPA_min_PA2)) + 
   geom_point(color="black", size = 0.3) +
   theme_classic() + 
-  xlab("MVPA minues / week - Self-Reported") + 
-  ylab("MVPA minues / week - ML") +  
+  xlab("MVPA minutes / week - Self-Reported") + 
+  ylab("MVPA minutes / week - ML") +  
   geom_smooth(method=lm, 
     se=FALSE, 
     linetype="dashed",
-    color="grey"
-  )
+    color="grey",
+    main = "Self-Reported and ML"
+  ) +
+  ggtitle("Self-Reported and ML")
 
 
 # get the slope 
