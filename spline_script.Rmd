@@ -89,6 +89,7 @@ plotHR(fit_pa1_stroke,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Stroke Risk \nby Physical Activity (PA1)",
        xlim = c(0, max(dt$mvpa1)),
+       ylim = c(0.2,4),
        plot.bty = "U"
 )
 
@@ -98,6 +99,7 @@ plotHR(fit_pa1_MI,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity (PA1)",
        xlim = c(0, max(dt$mvpa1)),
+       ylim = c(0.2,4),
        plot.bty = "U" 
 )
 
@@ -109,6 +111,7 @@ plotHR(fit_pa2_stroke,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Stroke Risk \nby Physical Activity - ML (PA2)",
        xlim = c(0, max(dt$mvpa2)),
+       ylim = c(0.2,4),
        plot.bty = "U" 
 )
 
@@ -118,6 +121,7 @@ plotHR(fit_pa2_MI,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - ML (PA2)",
        xlim = c(0, max(dt$mvpa2)),
+       ylim = c(0.2,4),
        plot.bty = "U" 
 )
 
@@ -130,6 +134,7 @@ plotHR(fit_pa3_stroke,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Stroke Risk \nby Physical Activity - Activity Count (PA3)",
        xlim = c(0, max(dt$mvpa3)),
+       ylim = c(0.2,4),
        plot.bty = "U" 
 )
 
@@ -139,6 +144,7 @@ plotHR(fit_pa3_MI,
        xlab = "Weekly Activity (minutes/week)",
        main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Activity Count (PA3)",
        xlim = c(0, max(dt$mvpa3)),
+       ylim = c(0.2,4),
        plot.bty = "U" 
 )
 
