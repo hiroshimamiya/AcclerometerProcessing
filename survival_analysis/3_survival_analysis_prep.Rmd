@@ -28,6 +28,7 @@ library(officer)
 library(ggplot2)
 library(splines)
 library(splines2)
+library(survminer)
 #install.packages("splines2")
 splines::bs
 splines2::bSpline
@@ -65,7 +66,7 @@ funcPlotForest <- function(forest_data, title = "Forest Plot", subtitle = "Hazar
     scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
     scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
     geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
-    scale_color_manual(values = c("ENMO" = "blue", "Random Forest and HMM (ML)" = "red", "Activity Count" = "brown")) +  # Set colors for groups
+    scale_color_manual(values = c("Vector Magnitude (ENMO)" = "blue", "Random Forest and HMM (ML)" = "red", "Activity Count" = "brown")) +  # Set colors for groups
     theme_classic() + 
     theme(
 axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -107,7 +108,7 @@ funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Haza
     scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
     scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
     geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
-    scale_color_manual(values = c("ENMO" = "blue", "Random Forest and HMM (ML)" = "red","Activity Count" = "brown", "Self-Report" = "black")) +  # Set colors for groups
+    scale_color_manual(values = c("Vector Magnitude (ENMO)" = "blue", "Random Forest and HMM (ML)" = "red","Activity Count" = "brown", "Self-Report" = "black")) +  # Set colors for groups
     theme_classic() + 
     theme(
 axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -186,7 +187,7 @@ tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE,
 #Merge tables 
 tb_merge <- tbl_merge(
   tbls = list(tb1, tb2, tb3, tb4),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**", "**Self-Report**")) %>% 
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**", "**Self-Report**")) %>% 
   bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3, p.value_4))
 
@@ -220,7 +221,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -316,7 +317,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  # or another identifier if applicable
+    foodName = "Vector Magnitude (ENMO)"  # or another identifier if applicable
   )
 
 data_t2 <- data_t2 %>%
@@ -470,7 +471,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -507,7 +508,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  # or another identifier if applicable
+    foodName = "Vector Magnitude (ENMO)"  # or another identifier if applicable
   )
 
 
@@ -579,7 +580,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -616,7 +617,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -685,7 +686,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -723,7 +724,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -791,7 +792,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -829,7 +830,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -901,7 +902,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -940,7 +941,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -1005,7 +1006,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -1044,7 +1045,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -1112,7 +1113,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -1151,7 +1152,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -1222,7 +1223,7 @@ t3<- tbl_regression(fit3, exponentiate = TRUE,
 #Merge tables 
 tbl_merge <- tbl_merge(
   tbls = list(t1, t2, t3),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**", "**Activity Count**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")
 ) %>%  bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -1262,7 +1263,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  
+    foodName = "Vector Magnitude (ENMO)"  
   )
 
 data_t2 <- data_t2 %>%
@@ -1322,7 +1323,7 @@ t2<- tbl_regression(fit2, exponentiate = TRUE,
 #Merge tables 
 t3 <- tbl_merge(
   tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**")
 )
 
 # Landscape (word format)
@@ -1376,7 +1377,7 @@ t2<- tbl_regression(fit2, exponentiate = TRUE,
 #Merge tables 
 t3 <- tbl_merge(
   tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**")
 )
 
 # Landscape (word format)
@@ -1413,7 +1414,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  # or another identifier if applicable
+    foodName = "Vector Magnitude (ENMO)"  # or another identifier if applicable
   )
 
 data_t2 <- data_t2 %>%
@@ -1470,7 +1471,7 @@ t2<- tbl_regression(fit2, exponentiate = TRUE,
 #Merge tables 
 t3 <- tbl_merge(
   tbls = list(t1, t2),
-  tab_spanner = c("**ENMO**", "**Random Forest and HMM**")
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**")
 )
 
 # Landscape (word format)
@@ -1507,7 +1508,7 @@ data_t1 <- data_t1 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "ENMO"  # or another identifier if applicable
+    foodName = "Vector Magnitude (ENMO)"  # or another identifier if applicable
   )
 
 data_t2 <- data_t2 %>%
@@ -1676,7 +1677,7 @@ plot(kmfit1_mi, col = c("black", "grey", "blue", "red"),
      ylim = c(1.0, 0.95))
 legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5,
        col = c("black", "grey", "blue", "red"), lty = 1)
-title(main = "MI - ENMO by Quarters")
+title(main = "MI - Vector Magnitude (ENMO) by Quarters")
 
 # ENMO Stroke
 plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"), 
@@ -1685,7 +1686,7 @@ plot(kmfit1_stroke, col = c("black", "grey", "blue", "red"),
      ylim = c(1.0, 0.95))
 legend("bottomleft", c("[0.167,319]", "(319,464]", "(464,641]", "(641,2.39e+03]"), cex=0.5, 
        col = c("black", "grey", "blue", "red"), lty = 1)
-title(main = "Stroke - ENMO by Quarters")
+title(main = "Stroke - Vector Magnitude (ENMO) by Quarters")
 
 # ML MI
 plot(kmfit2_mi, col = c("black", "grey", "blue", "red"), 
@@ -1748,8 +1749,8 @@ plot_log_log_survival <- function(log_log_data, title) {
     theme_minimal()
 }
 
-plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per ENMO Quarters Comparison")
-plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per ENMO Quarters Comparison")
+plot1_mi <- plot_log_log_survival(log_log_kmfit1_mi, "Log-Log Survival Curve for MI per Vector Magnitude (ENMO) Quarters Comparison")
+plot1_stroke <- plot_log_log_survival(log_log_kmfit1_stroke, "Log-Log Survival Curve for Stroke per Vector Magnitude (ENMO) Quarters Comparison")
 plot2_mi <- plot_log_log_survival(log_log_kmfit2_mi, "Log-Log Survival Curve for MI per ML Quarters Comparison")
 plot2_stroke <- plot_log_log_survival(log_log_kmfit2_stroke, "Log-Log Survival Curve for Stroke per ML Quarters Comparison")
 
@@ -1767,8 +1768,6 @@ print(plot2_stroke)
 Schoenfeld residuals: 
 
 ```{r}
-library(survminer)
-
 # we test the proportional hazards assumption of a Cox regression model:
 
 test_ph1 <- cox.zph(fitDf1)

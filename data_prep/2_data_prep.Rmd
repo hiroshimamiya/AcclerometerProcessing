@@ -15,6 +15,7 @@ We load and/or install the packages we will be using:
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+
 #Refresh environment 
 rm(list= ls())
 library(dplyr)
@@ -393,7 +394,7 @@ ggplot(full_df_PA,
            y=full_df_PA$MVPA_min_PA2)) + 
   geom_point(color="black", size = 0.3) +
   theme_classic() + 
-  xlab("MVPA minutes / week - ENMO") + 
+  xlab("MVPA minutes / week - Vector Magnitude (ENMO)") + 
   ylab("MVPA minutes / week - ML") +  
   geom_smooth(method=lm, 
     se=FALSE, 
@@ -780,7 +781,7 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week",
-              "MVPA min/week ML",
+              "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
               "Race", 
               "Type II Diabetes", 
@@ -916,7 +917,7 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week",
-              "MVPA min/week ML",
+              "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
               "MVPA min/week Self-Report",
               "Race", 
@@ -1021,7 +1022,7 @@ saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
 
 par(mfrow = c(2,2))
 hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min")
-hist(dt$`MVPA min/week ML`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ML")
+hist(dt$`MVPA min/week Machine Learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ML")
 hist(dt$`MVPA min/week Activity Count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
 hist(dt2$`MVPA min/week Self-Report`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report")
 dev.off()

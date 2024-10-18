@@ -19,15 +19,7 @@ rm(list= ls())
 #install.packages('Greg')
 library(dplyr)
 library(survival)
-#library(data.table)
 library(readr)
-#library(dvmisc)
-#library(gtsummary)
-#library(gt)
-#library(kableExtra)
-#library(broom.helpers)
-#library(flextable)
-#library(officer)
 library(ggplot2)
 library(splines)
 library(splines2)
@@ -55,7 +47,7 @@ dt2 <- readRDS("/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
 dt <- dt %>% rename(fu_time = `Follow_up time`,
                     MI = `Myocardial Infarction`,
                     mvpa1 = `MVPA min/week`,
-                    mvpa2 = `MVPA min/week ML`,
+                    mvpa2 = `MVPA min/week Machine Learning`,
                     mvpa3 = `MVPA min/week Activity Count`
                     )
 
@@ -73,8 +65,8 @@ fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4), data = dt)
 fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4), data = dt)
 
 # PA2
-fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4), data = dt)
-fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 4), data = dt)
+fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3), data = dt)
+fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3), data = dt)
 
 # PA3
 fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3), data = dt)
@@ -96,8 +88,8 @@ fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3), data = dt2)
 ## Stroke
 plotHR(fit_pa1_stroke,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity (PA1)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Stroke Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U"
@@ -106,8 +98,8 @@ plotHR(fit_pa1_stroke,
 ## MI
 plotHR(fit_pa1_MI,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity (PA1)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -118,8 +110,8 @@ plotHR(fit_pa1_MI,
 ## Stroke
 plotHR(fit_pa2_stroke,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - ML (PA2)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -128,8 +120,8 @@ plotHR(fit_pa2_stroke,
 ## MI
 plotHR(fit_pa2_MI,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - ML (PA2)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -141,8 +133,8 @@ plotHR(fit_pa2_MI,
 ## Stroke
 plotHR(fit_pa3_stroke,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Activity Count (PA3)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -151,8 +143,8 @@ plotHR(fit_pa3_stroke,
 ## MI
 plotHR(fit_pa3_MI,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Activity Count (PA3)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -165,8 +157,8 @@ plotHR(fit_pa3_MI,
 ## Stroke
 plotHR(fit_pa4_stroke,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Self-Report (PA4)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Self-Report",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -175,8 +167,8 @@ plotHR(fit_pa4_stroke,
 ## MI
 plotHR(fit_pa4_MI,
        term = 1,
-       xlab = "Weekly Activity (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Self-Report (PA4)",
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Self-Report",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
