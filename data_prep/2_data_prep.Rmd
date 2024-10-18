@@ -479,15 +479,15 @@ ggplot(full_df_PA_2,
            y=full_df_PA_2$MVPA_min_PA2)) + 
   geom_point(color="black", size = 0.3) +
   theme_classic() + 
-  xlab("MVPA minutes / week - Self-Reported") + 
+  xlab("MVPA minutes / week - Self-Report (IPAQ)") + 
   ylab("MVPA minutes / week - ML") +  
   geom_smooth(method=lm, 
     se=FALSE, 
     linetype="dashed",
     color="grey",
-    main = "Self-Reported and ML"
+    main = "Self-Report (IPAQ) and Machine Learning"
   ) +
-  ggtitle("Self-Reported and ML")
+  ggtitle("Self-Report (IPAQ) and Machine Learning")
 
 
 # get the slope 
@@ -919,7 +919,7 @@ varNameDf <- data.frame(
               "MVPA min/week",
               "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
-              "MVPA min/week Self-Report",
+              "MVPA min/week Self-Report (IPAQ)",
               "Race", 
               "Type II Diabetes", 
               "Deprivation index", 
@@ -1022,9 +1022,9 @@ saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
 
 par(mfrow = c(2,2))
 hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min")
-hist(dt$`MVPA min/week Machine Learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ML")
+hist(dt$`MVPA min/week Machine Learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Machine Learning")
 hist(dt$`MVPA min/week Activity Count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
-hist(dt2$`MVPA min/week Self-Report`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report")
+hist(dt2$`MVPA min/week Self-Report (IPAQ)`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report (IPAQ)")
 dev.off()
 
 ```
