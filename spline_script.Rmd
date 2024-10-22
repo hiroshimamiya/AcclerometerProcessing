@@ -53,7 +53,7 @@ dt <- dt %>% rename(fu_time = `Follow_up time`,
 
 dt2 <- dt2 %>% rename(fu_time = `Follow_up time`,
                       MI = `Myocardial Infarction`,
-                      mvpa4 = `MVPA min/week Self-Report`
+                      mvpa4 = `MVPA min/week Self-Report (IPAQ)`
                       )
 
 
@@ -89,7 +89,7 @@ fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3), data = dt2)
 plotHR(fit_pa1_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity Vector Magnitude (ENMO)",
+       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U"
@@ -99,7 +99,7 @@ plotHR(fit_pa1_stroke,
 plotHR(fit_pa1_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
+       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -111,7 +111,7 @@ plotHR(fit_pa1_MI,
 plotHR(fit_pa2_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Machine Learning",
+       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -121,7 +121,7 @@ plotHR(fit_pa2_stroke,
 plotHR(fit_pa2_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
+       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -134,7 +134,7 @@ plotHR(fit_pa2_MI,
 plotHR(fit_pa3_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Activity Count",
+       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -144,7 +144,7 @@ plotHR(fit_pa3_stroke,
 plotHR(fit_pa3_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Activity Count",
+       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -158,7 +158,7 @@ plotHR(fit_pa3_MI,
 plotHR(fit_pa4_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Stroke Risk \nby Physical Activity - Self-Report",
+       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -168,7 +168,7 @@ plotHR(fit_pa4_stroke,
 plotHR(fit_pa4_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Mycordial Infarction Risk \nby Physical Activity - Self-Report",
+       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U" 
@@ -176,6 +176,118 @@ plotHR(fit_pa4_MI,
 
 
 ```
+
+
+## Female vs Male Spline Analysis
+
+```{r}
+# PA1
+fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) * Sex, data = dt)
+fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) * Sex, data = dt)
+
+# PA2
+fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) * Sex, data = dt)
+fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) * Sex, data = dt)
+
+# PA3
+fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) * Sex, data = dt)
+fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) * Sex, data = dt)
+
+# PA4
+fit_pa4_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) * Sex, data = dt2)
+fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) * Sex, data = dt2)
+
+
+```
+
+
+
+## Plotting Spline Cox PH Model Using the plotHR Function:
+```{r}
+
+# PA1
+ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+# PA2
+ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity Machine Learning by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity Machine Learning by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+# PA3
+ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity - Activity Count by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity - Activity Count by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+
+# PA4
+ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity - Self-Report by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity - Self-Report by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+```
+
 
 
 
