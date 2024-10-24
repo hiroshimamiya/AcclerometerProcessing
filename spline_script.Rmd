@@ -372,7 +372,8 @@ plotHR(fit_pa1_stroke,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U"
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -386,7 +387,8 @@ plotHR(fit_pa2_stroke_nk3,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -397,7 +399,8 @@ plotHR(fit_pa2_stroke_nk4,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -410,7 +413,8 @@ plotHR(fit_pa3_stroke,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -423,7 +427,8 @@ plotHR(fit_pa4_stroke,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 ```
@@ -466,7 +471,8 @@ plotHR(fit_pa1_MI,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U"
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -479,7 +485,8 @@ plotHR(fit_pa2_MI,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -491,7 +498,8 @@ plotHR(fit_pa3_MI,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -505,7 +513,8 @@ plotHR(fit_pa4_MI_nk3,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 ### 4 knots
@@ -515,7 +524,8 @@ plotHR(fit_pa4_MI_nk3,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ) \nknots ==3",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 plotHR(fit_pa4_MI_nk4,
@@ -524,7 +534,8 @@ plotHR(fit_pa4_MI_nk4,
        main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ) \nknots ==4",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -565,7 +576,8 @@ plotHR(fit_pa1_stroke_sa1,
        main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U"
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -579,7 +591,8 @@ plotHR(fit_pa2_stroke_nk3_sa1,
        main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -590,7 +603,8 @@ plotHR(fit_pa2_stroke_nk4_sa1,
        main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -603,7 +617,8 @@ plotHR(fit_pa3_stroke_sa1,
        main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
@@ -616,10 +631,204 @@ plotHR(fit_pa4_stroke_sa1,
        main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
-       plot.bty = "U" 
+       plot.bty = "U",
+       refline = 1
 )
 
 
 
 ```
+
+
+### MI
+
+```{r}
+# PA1
+fit_pa1_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish, data = dt)
+
+
+# PA2
+fit_pa2_mi_nk3_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish, data = dt)
+
+fit_pa2_mi_nk4_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish, data = dt)
+
+
+#PA3
+fit_pa3_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish, data = dt)
+
+
+#PA4 
+fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish, data = dt2)
+
+
+
+### Plotting
+
+# PA1
+## MI
+plotHR(fit_pa1_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity Vector Magnitude (ENMO)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+# PA2
+## MI
+
+### knots = 3
+plotHR(fit_pa2_mi_nk3_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Machine Learning \nknots = 3",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+### knots = 4
+plotHR(fit_pa2_mi_nk4_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Machine Learning \nknots = 4",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA3
+## MI
+plotHR(fit_pa3_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Activity Count",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA4
+## MI
+plotHR(fit_pa4_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Hazard of Myocardial Infarction \nby Physical Activity - Self-Report (IPAQ)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+```
+
+
+
+## Sensitivity analysis 2 - Removed people with huge duration (>1200min) of MVPA Stroke 
+
+### Stroke
+```{r}
+# PA1
+fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+# PA2
+fit_pa2_stroke_nk3_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+fit_pa2_stroke_nk4_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+#PA3
+fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+#PA4 
+fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt2)
+
+
+
+### Plotting
+
+# PA1
+## Stroke
+plotHR(fit_pa1_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+# PA2
+## Stroke
+
+### knots = 3
+plotHR(fit_pa2_stroke_nk3_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+### knots = 4
+plotHR(fit_pa2_stroke_nk4_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA3
+## Stroke
+plotHR(fit_pa3_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Activity Count",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA4
+## Stroke
+plotHR(fit_pa4_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+```
+
+
 
