@@ -37,11 +37,11 @@ full_df <- full_df %>%
     duration_vigorous_activity_0 = na_if(as.numeric(as.character(duration_vigorous_activity_0)), -1),
     duration_vigorous_activity_0 = na_if(duration_vigorous_activity_0, -3),
     
-    duration_heavy_DIY_0 = na_if(as.numeric(as.character(duration_heavy_DIY_0)), -1),
-    duration_heavy_DIY_0 = na_if(duration_heavy_DIY_0, -3),
+    #duration_heavy_DIY_0 = na_if(as.numeric(as.character(duration_heavy_DIY_0)), -1),
+    #duration_heavy_DIY_0 = na_if(duration_heavy_DIY_0, -3),
     
-    duration_light_DIY_0 = na_if(as.numeric(as.character(duration_light_DIY_0)), -1),
-    duration_light_DIY_0 = na_if(duration_light_DIY_0, -3),
+   # duration_light_DIY_0 = na_if(as.numeric(as.character(duration_light_DIY_0)), -1),
+   # duration_light_DIY_0 = na_if(duration_light_DIY_0, -3),
   )
 
 ```
