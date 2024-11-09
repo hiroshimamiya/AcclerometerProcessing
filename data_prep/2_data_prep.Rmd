@@ -235,7 +235,7 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 ### PA3 - we merge PA3 df to full_df
 ```{r}
-PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/combined_df_drop_duplicates.csv",col_select = -1)
+PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_data.csv",col_select = -1)
 
 PA3_proportions_data <- PA3_proportions_data %>%
   rename(
