@@ -29,6 +29,10 @@ full_df <- read.csv("/home/hiroshi/projects/UKBB_anaysis/AcclerometerProcessing/
 We convert "-1" and "-3" values to NAs for the self-reported PA values for 
 instance 0
 ```{r}
+
+
+
+
 full_df <- full_df %>%
   mutate(
     duration_moderate_activity_0 = na_if(as.numeric(as.character(duration_moderate_activity_0)), -1),
@@ -110,6 +114,7 @@ columns:
 full_df <- full_df %>%
   dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
          -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_1, -duration_moderate_activity_2, -duration_moderate_activity_3, -duration_vigorous_activity_1, -duration_vigorous_activity_2, -duration_vigorous_activity_3, -duration_heavy_DIY_1, -duration_heavy_DIY_2, -duration_heavy_DIY_3, -duration_light_DIY_1, -duration_light_DIY_2, -duration_light_DIY_3)
+
 ```
 
 
