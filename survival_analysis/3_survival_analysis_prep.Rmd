@@ -415,8 +415,6 @@ main_results_doc <- read_docx()
 
 
 
-
-
 # Sensitivity anlaysis  
 
 ### Sensitivity 1 - no Mediator , withoubt BMI and Diabetes , Stroke 
