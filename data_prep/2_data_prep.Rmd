@@ -928,7 +928,7 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_min_PA1_truncated, 
   MVPA_min_PA2_truncated,
   MVPA_min_PA3_truncated,
-  MVPA_min_PA3_truncated
+  MVPA_min_PA4_truncated
 )
 
 # Convert variable names into descriptive table names 
