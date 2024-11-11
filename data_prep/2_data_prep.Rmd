@@ -739,9 +739,9 @@ dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
   `2_years_survival_stroke`,
   `2_years_survival_MI`,
-  #MVPA_Quant_PA2,  
-  #MVPA_Quant_PA1,
-  #MVPA_Quant_PA3,
+  MVPA_Quant_PA2,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2,
@@ -768,11 +768,11 @@ dt <- full_df_PA %>%  dplyr::select(
   cooked_vg, 
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
-  MVPA_Quant_PA3_truncated
+  MVPA_Quant_PA3_truncated,
   #MVPA_Quant_PA4_truncated,
-  #MVPA_min_PA1_truncated, 
-  #MVPA_min_PA2_truncated,
-  #MVPA_min_PA3_truncated,
+  MVPA_min_PA1_truncated, 
+  MVPA_min_PA2_truncated,
+  MVPA_min_PA3_truncated
   #MVPA_min_PA4_truncated
   )
 
@@ -843,6 +843,7 @@ dt <- dt %>%
 # create table - one single column
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median}", 
     digits = all_continuous() ~ 1
@@ -893,10 +894,10 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
   `2_years_survival_stroke`,
   `2_years_survival_MI`,
-  #MVPA_Quant_PA1,
-  #MVPA_Quant_PA2,  
-  #MVPA_Quant_PA3,
-  #MVPA_Quant_PA4,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA2,  
+  MVPA_Quant_PA3,
+  MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2, 
   MVPA_min_PA3,
@@ -923,7 +924,11 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
   MVPA_Quant_PA3_truncated, 
-  MVPA_Quant_PA4_truncated
+  MVPA_Quant_PA4_truncated,
+  MVPA_min_PA1_truncated, 
+  MVPA_min_PA2_truncated,
+  MVPA_min_PA3_truncated,
+  MVPA_min_PA3_truncated
 )
 
 # Convert variable names into descriptive table names 
@@ -993,6 +998,7 @@ dt2 <- dt2 %>%
 # create table - one singcle column
 tb2 <- dt %>%
   dplyr::select(-contains("truncated")) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median}",  
     digits = all_continuous() ~ 1
