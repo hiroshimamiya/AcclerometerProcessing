@@ -734,10 +734,11 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
 
-# Obesity category names can be shortened 
 # Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
 dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`,
   #MVPA_Quant_PA2,  
   #MVPA_Quant_PA1,
   #MVPA_Quant_PA3,
@@ -767,14 +768,12 @@ dt <- full_df_PA %>%  dplyr::select(
   cooked_vg, 
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
-  MVPA_Quant_PA3_truncated,
+  MVPA_Quant_PA3_truncated
   #MVPA_Quant_PA4_truncated,
   #MVPA_min_PA1_truncated, 
   #MVPA_min_PA2_truncated,
   #MVPA_min_PA3_truncated,
-  #MVPA_min_PA4_truncated,
-  `2_years_survival_stroke`,
-  `2_years_survival_MI`
+  #MVPA_min_PA4_truncated
   )
 
 
@@ -845,7 +844,7 @@ dt <- dt %>%
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}",  # Show only median
+    statistic = all_continuous() ~ "{median}", 
     digits = all_continuous() ~ 1
   ) %>%
   as_flex_table()
@@ -892,6 +891,8 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`,
   #MVPA_Quant_PA1,
   #MVPA_Quant_PA2,  
   #MVPA_Quant_PA3,
@@ -922,9 +923,7 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
   MVPA_Quant_PA3_truncated, 
-  MVPA_Quant_PA4_truncated,  
-  `2_years_survival_stroke`,
-  `2_years_survival_MI`
+  MVPA_Quant_PA4_truncated
 )
 
 # Convert variable names into descriptive table names 
@@ -995,7 +994,7 @@ dt2 <- dt2 %>%
 tb2 <- dt %>%
   dplyr::select(-contains("truncated")) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}",  # Show only median
+    statistic = all_continuous() ~ "{median}",  
     digits = all_continuous() ~ 1
   ) %>%
   as_flex_table()
@@ -1009,6 +1008,8 @@ sect_properties <- prop_section(
   page_margins = page_mar(0)
 )
 
+
+print(tb2)
 
 
 
