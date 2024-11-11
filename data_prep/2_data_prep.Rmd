@@ -513,13 +513,13 @@ full_df_PA <- full_df_PA %>%
           ) 
 
 
-full_df_PA$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
-full_df_PA$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
-full_df_PA$MVPA_Quant_PA3_trucated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA3_truncated, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA1_truncated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA1_truncated, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA2_truncated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA2_truncated, 4) %>% factor()
+full_df_PA$MVPA_Quant_PA3_truncated <- dvmisc::quant_groups(full_df_PA$MVPA_min_PA3_truncated, 4) %>% factor()
 
-dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA3LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA3_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA1LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA1_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA2_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA3LabelTrunc <- data.frame(range = full_df_PA$MVPA_Quant_PA3_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 ### Same as previous step but with PA4 included (full_df_PA_2 df)
 ```{r}
@@ -531,16 +531,16 @@ full_df_PA_2 <- full_df_PA_2 %>%
           ) 
 
 
-full_df_PA_2$MVPA_Quant_PA1_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1_truncated, 4) %>% factor()
-full_df_PA_2$MVPA_Quant_PA2_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2_truncated, 4) %>% factor()
-full_df_PA_2$MVPA_Quant_PA3_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA3_truncated, 4) %>% factor()
-full_df_PA_2$MVPA_Quant_PA4_trucated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA1_truncated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA1_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA2_truncated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA2_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA3_truncated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA3_truncated, 4) %>% factor()
+full_df_PA_2$MVPA_Quant_PA4_truncated <- dvmisc::quant_groups(full_df_PA_2$MVPA_min_PA4_truncated, 4) %>% factor()
 
 
-dfPA1LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA3_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
-dfPA4LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4_trucated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA1LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA1_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA2_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA2LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA3_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
+dfPA4LabelTrunc <- data.frame(range = full_df_PA_2$MVPA_Quant_PA4_truncated %>% levels(), Q = c("Q1", "Q2", "Q3", "Q4"))
 ```
 
 
@@ -738,9 +738,9 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 # Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
 dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
-  MVPA_Quant_PA2,  
-  MVPA_Quant_PA1,
-  MVPA_Quant_PA3,
+  #MVPA_Quant_PA2,  
+  #MVPA_Quant_PA1,
+  #MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2,
@@ -765,10 +765,14 @@ dt <- full_df_PA %>%  dplyr::select(
   non_oily_fish,
   fresh_fruit,
   cooked_vg, 
-  MVPA_Quant_PA1_trucated, 
-  MVPA_Quant_PA2_trucated,
-  MVPA_Quant_PA3_trucated,
-  #MVPA_Quant_PA4_trucated,  
+  MVPA_Quant_PA1_truncated, 
+  MVPA_Quant_PA2_truncated,
+  MVPA_Quant_PA3_truncated,
+  #MVPA_Quant_PA4_truncated,
+  #MVPA_min_PA1_truncated, 
+  #MVPA_min_PA2_truncated,
+  #MVPA_min_PA3_truncated,
+  #MVPA_min_PA4_truncated,
   `2_years_survival_stroke`,
   `2_years_survival_MI`
   )
@@ -837,30 +841,42 @@ dt <- dt %>%
     rename(!!!var_names)
 
 
-tb <- dt %>% 
-  dplyr::select(-contains("trucated")) %>% 
-  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3) %>% 
+# create table - one single column
+tb <- dt %>%
+  dplyr::select(-contains("truncated")) %>%
   tbl_summary(
-    by = MVPA_Quant_PA2,  
-    #statistic = all_continuous() ~ "{mean} ({sd})"
-    #digits = all_continuous() ~ 1,
-  ) %>% 
+    statistic = all_continuous() ~ "{median}",  # Show only median
+    digits = all_continuous() ~ 1
+  ) %>%
   as_flex_table()
 
 
-
-# Landscape (word format)
 sect_properties <- prop_section(
   page_size = page_size(
-  orient = "landscape",
-  #width = 8, height = 11.7
+    orient = "landscape"
   ),
   type = "continuous",
-  page_margins = page_mar(0) 
-  )
+  page_margins = page_mar(0)
+)
 
 
 print(tb)
+
+
+
+### Table by Quantile
+#tb <- dt %>% 
+  #dplyr::select(-contains("truncated")) %>% 
+  #dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3) %>% 
+  #tbl_summary(
+    #by = MVPA_Quant_PA2,  
+    #statistic = all_continuous() ~ "{mean} ({sd})"
+    #digits = all_continuous() ~ 1,
+  #) %>% 
+  #as_flex_table()
+
+
+#print(tb)
 
 # Save 
 flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb,  
@@ -876,10 +892,10 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
-  MVPA_Quant_PA1,
-  MVPA_Quant_PA2,  
-  MVPA_Quant_PA3,
-  MVPA_Quant_PA4,  
+  #MVPA_Quant_PA1,
+  #MVPA_Quant_PA2,  
+  #MVPA_Quant_PA3,
+  #MVPA_Quant_PA4,  
   MVPA_min_PA1, 
   MVPA_min_PA2, 
   MVPA_min_PA3,
@@ -903,10 +919,10 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   non_oily_fish,
   fresh_fruit,
   cooked_vg, 
-  MVPA_Quant_PA1_trucated, 
-  MVPA_Quant_PA2_trucated,
-  MVPA_Quant_PA3_trucated, 
-  MVPA_Quant_PA4_trucated,  
+  MVPA_Quant_PA1_truncated, 
+  MVPA_Quant_PA2_truncated,
+  MVPA_Quant_PA3_truncated, 
+  MVPA_Quant_PA4_truncated,  
   `2_years_survival_stroke`,
   `2_years_survival_MI`
 )
@@ -973,30 +989,45 @@ var_names <- varNameDf %>%
 dt2 <- dt2 %>% 
     rename(!!!var_names)
 
-tb2 <- dt2 %>% 
-  dplyr::select(-contains("trucated")) %>% 
-  dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>% 
+
+
+# create table - one singcle column
+tb2 <- dt %>%
+  dplyr::select(-contains("truncated")) %>%
   tbl_summary(
-    by = MVPA_Quant_PA2,  
-    #statistic = all_continuous() ~ "{mean} ({sd})"
-    #digits = all_continuous() ~ 1,
-  ) %>% 
+    statistic = all_continuous() ~ "{median}",  # Show only median
+    digits = all_continuous() ~ 1
+  ) %>%
   as_flex_table()
 
-# Landscape (word format)
+
 sect_properties <- prop_section(
   page_size = page_size(
-  orient = "landscape",
-  #width = 8, height = 11.7
+    orient = "landscape"
   ),
   type = "continuous",
-  page_margins = page_mar(0) 
-  )
+  page_margins = page_mar(0)
+)
+
+
+
+
+### Table by quantile
+#tb2 <- dt2 %>% 
+  #dplyr::select(-contains("truncated")) %>% 
+  #dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>% 
+  #tbl_summary(
+    #by = MVPA_Quant_PA2,  
+    #statistic = all_continuous() ~ "{mean} ({sd})"
+    #digits = all_continuous() ~ 1,
+  #) %>% 
+  #as_flex_table()
+
 
 print(tb2)
 
 # Save 
-flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb2,  
+flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate Vigorous Physical Activity" = tb2,  
                path = "testTable.docx", 
                pr_section = sect_properties
 )
