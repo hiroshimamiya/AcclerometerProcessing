@@ -111,6 +111,21 @@ fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3), data = dt2)
 ```
 
 
+```{r}
+dt$mvpa1_centered <- dt$mvpa1 - 0
+
+fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1_centered, 4) + 
+                          Sex + Age + Race + deprivation_index + 
+                          Education + hh_income + Smoking + 
+                          Alcohol + pro_meat + fresh_fruit + 
+                          cooked_vg + oily_fish + non_oily_fish + 
+                          type_2_diab + bmi, data = dt)
+
+
+
+```
+
+
 ## Plotting Spline Cox PH Model Using the plotHR Function:
 ```{r}
 
@@ -209,116 +224,6 @@ plotHR(fit_pa4_MI,
 ```
 
 
-## Female vs Male Spline Analysis
-
-```{r}
-# PA1
-fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) * Sex, data = dt)
-fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) * Sex, data = dt)
-
-# PA2
-fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) * Sex, data = dt)
-fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) * Sex, data = dt)
-
-# PA3
-fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) * Sex, data = dt)
-fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) * Sex, data = dt)
-
-# PA4
-fit_pa4_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) * Sex, data = dt2)
-fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) * Sex, data = dt2)
-
-
-```
-
-
-
-## Plotting Spline Cox PH Model Using the plotHR Function:
-```{r}
-
-# PA1
-ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_stroke, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of Stroke \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_MI, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of MI  \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-              xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-
-# PA2
-ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_stroke, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of Stroke \nfor Physical Activity Machine Learning by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_MI, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of MI  \nfor Physical Activity Machine Learning by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-              xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-
-# PA3
-ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_stroke, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of Stroke \nfor Physical Activity - Activity Count by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-       xlim = c(0, 4000),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_MI, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of MI  \nfor Physical Activity - Activity Count by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-       xlim = c(0, 4000),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-
-
-# PA4
-ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_stroke, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of Stroke \nfor Physical Activity - Self-Report by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-              xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_MI, type = "risk"), color = Sex)) +
-  geom_line() +
-  labs(title = "Hazard of MI  \nfor Physical Activity - Self-Report by Sex",
-       x = "PA Duration (minutes/week)",
-       y = "Hazard Ratio",
-              xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       color = "Sex")
-
-
-```
-
 ## Sensitivity analysis:
 
 ### We create formulas for covariate
@@ -373,7 +278,7 @@ plotHR(fit_pa1_stroke,
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U",
-       refline = 1
+       ref = 1
 )
 
 
@@ -430,6 +335,9 @@ plotHR(fit_pa4_stroke,
        plot.bty = "U",
        refline = 1
 )
+
+
+
 
 ```
 
@@ -625,15 +533,15 @@ plotHR(fit_pa3_stroke_sa1,
 
 # PA4
 ## Stroke
-plotHR(fit_pa4_stroke_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
+#plotHR(fit_pa4_stroke_sa1,
+       #term = 1,
+       #xlab = "PA Duration (minutes/week)",
+       #main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
+       #xlim = c(0, 1500),
+       #ylim = c(0.2,4),
+       #plot.bty = "U",
+       #refline = 1
+#)
 
 
 
@@ -738,22 +646,29 @@ plotHR(fit_pa4_mi_sa1,
 
 ### Stroke
 ```{r}
+
+
+dt <- dt[!is.na(dt$MVPA_min_PA1_truncated), ]
+dt <- dt[!is.na(dt$MVPA_min_PA2_truncated), ]
+dt <- dt[!is.na(dt$MVPA_min_PA3_truncated), ]
+
+
 # PA1
-fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
 
 
 # PA2
-fit_pa2_stroke_nk3_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk3_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
 
-fit_pa2_stroke_nk4_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk4_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
 
 
 #PA3
-fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
 
 
 #PA4 
-fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt2)
+fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt2)
 
 
 
@@ -761,10 +676,10 @@ fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4_truncated, 3) + Se
 
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke_sa1,
+plotHR(fit_pa1_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U",
@@ -776,10 +691,10 @@ plotHR(fit_pa1_stroke_sa1,
 ## Stroke
 
 ### knots = 3
-plotHR(fit_pa2_stroke_nk3_sa1,
+plotHR(fit_pa2_stroke_nk3_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U",
@@ -788,10 +703,10 @@ plotHR(fit_pa2_stroke_nk3_sa1,
 
 
 ### knots = 4
-plotHR(fit_pa2_stroke_nk4_sa1,
+plotHR(fit_pa2_stroke_nk4_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U",
@@ -802,10 +717,10 @@ plotHR(fit_pa2_stroke_nk4_sa1,
 
 # PA3
 ## Stroke
-plotHR(fit_pa3_stroke_sa1,
+plotHR(fit_pa3_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Activity Count",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 4000),
        ylim = c(0.2,4),
        plot.bty = "U",
@@ -816,10 +731,90 @@ plotHR(fit_pa3_stroke_sa1,
 
 # PA4
 ## Stroke
-plotHR(fit_pa4_stroke_sa1,
+plotHR(fit_pa4_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Self-Report",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+```
+### MI
+```{r}
+# PA1
+fit_pa1_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+# PA2
+fit_pa2_MI_nk3_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+
+#PA3
+fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt)
+
+
+#PA4 
+fit_pa4_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt2)
+
+
+
+### Plotting
+
+# PA1
+## MI
+plotHR(fit_pa1_MI_sa2,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 2: Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+# PA2
+## MI
+
+### knots = 3
+plotHR(fit_pa2_MI_nk3_sa2,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA3
+## MI
+plotHR(fit_pa3_stroke_sa2,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Activity Count",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA4
+## MI
+plotHR(fit_pa4_stroke_sa2,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Self-Report",
        xlim = c(0, 1500),
        ylim = c(0.2,4),
        plot.bty = "U",
@@ -830,5 +825,275 @@ plotHR(fit_pa4_stroke_sa1,
 
 ```
 
+## Sensitivity analysis 3 - Male and Female separate 
+See the data source in the regression command
 
+```{r}
+# PA1
+fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) * Sex, data = dt)
+fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) * Sex, data = dt)
+
+# PA2
+fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) * Sex, data = dt)
+fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) * Sex, data = dt)
+
+# PA3
+fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) * Sex, data = dt)
+fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) * Sex, data = dt)
+
+# PA4
+fit_pa4_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) * Sex, data = dt2)
+fit_pa4_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) * Sex, data = dt2)
+
+
+### Plotting
+
+# PA1
+# PA1
+ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa1, y = predict(fit_pa1_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity Vector Magnitude (ENMO) by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+# PA2
+ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity Machine Learning by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa2, y = predict(fit_pa2_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity Machine Learning by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+# PA3
+ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity - Activity Count by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt, aes(x = mvpa3, y = predict(fit_pa3_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity - Activity Count by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+# PA4
+ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_stroke, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of Stroke \nfor Physical Activity - Self-Report by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+ggplot(dt2, aes(x = mvpa4, y = predict(fit_pa4_MI, type = "risk"), color = Sex)) +
+  geom_line() +
+  labs(title = "Hazard of MI  \nfor Physical Activity - Self-Report by Sex",
+       x = "PA Duration (minutes/week)",
+       y = "Hazard Ratio",
+              xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       color = "Sex")
+
+
+
+```
+
+
+
+## Sensitivity analysis 4 - 2 years of survival 
+We perform a sensitivity analysis by first extracting people that have had a stroke
+within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
+
+### Remove people who have had a Stroke within 2 years following date_end_accel:
+```{r}
+
+# we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
+dt_sa4 <- dt %>%
+  filter('Two Years Stroke Survival' != 0)
+
+dt_sa4_2 <- dt2 %>%
+  filter('Two Years Stroke Survival' != 0)
+
+```
+
+### Stroke
+```{r}
+# PA1
+fit_pa1_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+
+# PA2
+fit_pa2_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+
+# PA3
+fit_pa3_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+
+# PA4
+fit_pa4_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4_2 )
+
+
+
+### Plotting
+
+# PA1
+## Stroke
+plotHR(fit_pa1_stroke_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+# PA2
+## Stroke
+
+### knots = 3
+plotHR(fit_pa2_stroke_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA3
+## Stroke
+plotHR(fit_pa3_stroke_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity - Activity Count",
+       xlim = c(0, 4000),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+# PA4
+## Stroke
+plotHR(fit_pa4_stroke_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity - Self-Report",
+       xlim = c(0, 1500),
+       ylim = c(0.2,4),
+       plot.bty = "U",
+       refline = 1
+)
+
+
+
+
+```
+
+
+### MI
+```{r}
+# PA1
+fit_pa1_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+
+# PA2
+fit_pa2_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+
+# PA3
+fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+
+# PA4
+fit_pa4_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4_2)
+
+### Plotting
+
+# PA1
+## MI
+plotHR(fit_pa1_MI_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       refline = 1
+)
+
+# PA2
+## MI
+
+### knots = 3
+plotHR(fit_pa2_MI_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Machine Learning \nknots = 3",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       refline = 1
+)
+
+# PA3
+## MI
+plotHR(fit_pa3_MI_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Activity Count",
+       xlim = c(0, 4000),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       refline = 1
+)
+
+# PA4
+## MI
+plotHR(fit_pa4_MI_sa4,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Self-Report",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       refline = 1
+)
+
+```
 
