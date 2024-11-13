@@ -53,11 +53,14 @@ We create the forest plot function which we will be using to visualize the regre
 
 
 funcPlotForest <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2) {
-  # Ensure 'index' is treated as a factor with levels ordered from lowest to highest
+
   forest_data <- forest_data %>%
     filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
-    mutate(index = factor(index, levels = rev(unique(index))))  # Reversing the order here
-
+    mutate(
+      index = factor(index, levels = rev(unique(index))),
+      foodName = factor(foodName, levels = c( "Vector Magnitude (ENMO)","Random Forest and HMM (ML)", "Activity Count"))
+    ) 
+  
   xname <- "Hazard Ratio and 95% CI"
   
   ggplot(data = forest_data, aes(y = index, x = est, xmin = lwr, xmax = upr, color = foodName)) + 
@@ -95,11 +98,15 @@ axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, v
 Function forest plot 2
 ```{r}
 funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2) {
-  # Ensure 'index' is treated as a factor with levels ordered from lowest to highest
+
   forest_data <- forest_data %>%
     filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
-    mutate(index = factor(index, levels = rev(unique(index))))  # Reversing the order here
-
+    mutate(
+      index = factor(index, levels = rev(unique(index))),
+      foodName = factor(foodName, levels = c("Vector Magnitude (ENMO)", "Random Forest and HMM (ML)", "Activity Count", "Self-Report (IPAQ)"))
+    ) 
+  
+  
   xname <- "Hazard Ratio and 95% CI"
   
   ggplot(data = forest_data, aes(y = index, x = est, xmin = lwr, xmax = upr, color = foodName)) + 
@@ -178,18 +185,13 @@ fitDf3 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov))
 tb3<- tbl_regression(fitDf3, exponentiate = TRUE, 
                      label = list("MVPA_Quant_PA3" = "MVPA Quartile"))
 
-# Model for PA 4
-fitDf4_2 <- coxph(as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
-tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
-                     label = list("MVPA_Quant_PA4" = "MVPA Quartile"))
-
 
 #Merge tables 
 tb_merge <- tbl_merge(
-  tbls = list(tb1, tb2, tb3, tb4),
-  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**", "**Self-Report (IPAQ)**")) %>% 
+  tbls = list(tb1, tb2, tb3),
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")) %>% 
   bold_labels() %>% 
-   modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3, p.value_4))
+   modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
 
 # Landscape (word format)
@@ -211,7 +213,7 @@ sect_properties <- prop_section(
 data_t1 <- as.data.frame(tb1$table_body)
 data_t2 <- as.data.frame(tb2$table_body)
 data_t3 <- as.data.frame(tb3$table_body)
-data_t4 <- as.data.frame(tb4$table_body)
+
 
 data_t1 <- data_t1 %>%
   rename(
@@ -246,20 +248,11 @@ data_t3 <- data_t3 %>%
     foodName = "Activity Count" 
   )
 
-data_t4 <- data_t4 %>%
-  rename(
-    index = term,
-    est = estimate,
-    lwr = conf.low,
-    upr = conf.high
-  ) %>%
-  mutate(
-    foodName = "Self-Report (IPAQ)" 
-  )
 
-forest_data <- bind_rows(data_t1, data_t2, data_t3, data_t4)
+
+forest_data <- bind_rows(data_t1, data_t2, data_t3)
 forest_data <- forest_data %>%
-  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3", "MVPA_Quant_PA4"))
+  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3"))
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
@@ -293,10 +286,6 @@ fitDf3 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA3 + ",  f_cov)), da
 tb3 <- tbl_regression(fitDf3, exponentiate = TRUE, 
                         label = list("MVPA_Quant_PA3" = "MVPA Quartile"))
 
-# Model for PA 4
-fitDf4_2 <- coxph(as.formula(paste(f_MI, " ~" ,  "MVPA_Quant_PA4 + ",  f_cov)), data = dt2)
-tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE, 
-                        label = list("MVPA_Quant_PA4" = "MVPA Quartile"))
 
 
 ```
@@ -307,7 +296,7 @@ tb4 <- tbl_regression(fitDf4_2, exponentiate = TRUE,
 data_t1 <- as.data.frame(tb1$table_body)
 data_t2 <- as.data.frame(tb2$table_body)
 data_t3 <- as.data.frame(tb3$table_body)
-data_t4 <- as.data.frame(tb4$table_body)
+
 
 data_t1 <- data_t1 %>%
   rename(
@@ -342,28 +331,17 @@ data_t3 <- data_t3 %>%
     foodName = "Activity Count" 
   )
 
-data_t4 <- data_t4 %>%
-  rename(
-    index = term,
-    est = estimate,
-    lwr = conf.low,
-    upr = conf.high
-  ) %>%
-  mutate(
-    foodName = "Self-Report (IPAQ)" 
-  )
 
-
-forest_data <- bind_rows(data_t1, data_t2, data_t3, data_t4)
+forest_data <- bind_rows(data_t1, data_t2, data_t3)
 forest_data <- forest_data %>%
-  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3", "MVPA_Quant_PA4"))
+  filter(variable %in% c("MVPA_Quant_PA1", "MVPA_Quant_PA2", "MVPA_Quant_PA3"))
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
 funcPlotForest2(forest_data, 
                title = "Main Analysis - MI", 
                subtitle = "HR for MVPA Quartiles with 95% CI",
-               maxX = 2.5)
+               maxX = 1.5)
 
 
 # Save the plot
