@@ -781,7 +781,31 @@ print(count_avg_hh_income)
 
 ```
 
+12. Depression
+```{r}
 
+full_df <- full_df %>%
+  mutate(
+    depression = case_when(
+      depression == 1 ~ 0,
+      depression > 1 ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+depression_coding <- c(
+  "0" =	"Not Currently Depressed",
+  "1" =	"Currently Depressed"
+)
+
+full_df$depression_raw <- full_df$depression
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(depression = recode(as.character(depression_raw), !!!depression_coding))
+
+
+```
 
 
 
@@ -820,7 +844,7 @@ full_df <- full_df %>%
 
 # we remove the NA amongst the following columns:
 df_before <- full_df
-keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat', 'diabetes', 'avg_hh_income')
+keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat', 'diabetes', 'avg_hh_income', 'depression')
 full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
 
 # we count the exclusions just like we did before
