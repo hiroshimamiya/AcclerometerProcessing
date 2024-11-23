@@ -779,6 +779,8 @@ count_avg_hh_income <- full_df %>%
 
 print(count_avg_hh_income)
 
+table(full_df$avg_hh_income)
+
 ```
 
 12. Depression
@@ -804,7 +806,7 @@ full_df$depression_raw <- full_df$depression
 full_df <- full_df %>%
   mutate(depression = recode(as.character(depression_raw), !!!depression_coding))
 
-
+table(full_df$depression)
 ```
 
 
@@ -819,7 +821,7 @@ full_df <- full_df %>%
 
 df_before <- full_df
 
-keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income')
+keep_cols <- c('smoking_raw', 'alcohol_raw', 'ethnicity_raw', 'tdi_raw', 'education_raw', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI_raw', 'sex', 'month_birth', 'year_birth', 'diabetes', 'avg_hh_income', 'depression')
 
 
 result <- count_exclusions(df_before, full_df)
@@ -844,21 +846,32 @@ full_df <- full_df %>%
 
 # we remove the NA amongst the following columns:
 df_before <- full_df
-keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat', 'diabetes', 'avg_hh_income', 'depression')
+keep_cols <- c('smoking', 'alcohol', 'ethnicity', 'tdi', 'education_level', 'oily_fish', 'fresh_fruit', 'cooked_vg', 'BMI', 'red_meat', 'non_oily_fish', 'processed_meat', 'diabetes', 'avg_hh_income')
 full_df <- full_df[complete.cases(full_df[, keep_cols]), ]
 
-# we count the exclusions just like we did before
+# we count the exclusions total just like we did before
 count_exclusions <- function(df_before, df_after) {
   total_before <- nrow(df_before)
   total_after <- nrow(df_after)
   excluded <- total_before - total_after
   return(list(excluded = excluded))
 }
+# we count how many participants were exlucded for each columns
+column_exclusions <- sapply(keep_cols, function(col) {
+  before <- nrow(df_before)
+  after <- nrow(df_before[complete.cases(df_before[, col]), ])
+  excluded <- before - after
+  return(excluded)
+})
+
+
 
 result <- count_exclusions(df_before, full_df)
 total_excluded_NA <- result$excluded
+names(column_exclusions) <- keep_cols
 
 print(paste("Total participants excluded after removing newly generated NAs:", total_excluded_NA))
+column_exclusions
 ```
 
 ## Final count:
