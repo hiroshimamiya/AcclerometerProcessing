@@ -195,6 +195,24 @@ table(full_df$'2_years_survival_MI')
   3. PA3 - Activity Count count-based measure, based on Freedson cutoff 
   4. PA4 - Self reported PA data
 
+### PA1 Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
+```{r, include=FALSE, message=FALSE}
+enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parallel_TS_ENMO/outputs", full.names = TRUE) %>% 
+  lapply(read_csv) %>% 
+  bind_rows 
+
+enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
+enmoTSParallel_PA1$LPA_min <- enmoTSParallel_PA1$LPA_total* 7*24*60
+enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
+
+colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
+colnames(enmoTSParallel_PA1)[1] <- "eid"
+
+
+
+
+```
+
 
 ### PA2 Load derived accelerometer from UKBB, PA2 data 
 ```{r, include=FALSE}
@@ -258,26 +276,6 @@ colnames(PA3_proportions_data)[1] <- "eid"
 
 PA3_proportions_data <- na.omit(PA3_proportions_data)
 ```
-
-
-### PA1 Files from parallel processing of time-series (FieldID 90004) to generate ENMO summary of 100,000 ppl, PA1 data 
-```{r, include=FALSE, message=FALSE}
-enmoTSParallel_PA1 <- list.files(path="/home/yacine/survival_analysis/PA1_parallel_TS_ENMO/outputs", full.names = TRUE) %>% 
-  lapply(read_csv) %>% 
-  bind_rows 
-
-enmoTSParallel_PA1$MVPA_min <- enmoTSParallel_PA1$MVPA_total* 7*24*60
-enmoTSParallel_PA1$LPA_min <- enmoTSParallel_PA1$LPA_total* 7*24*60
-enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
-
-colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
-colnames(enmoTSParallel_PA1)[1] <- "eid"
-
-
-
-
-```
-
 
 
 ### Merge the full_df and PA1 and PA2 df by eids
@@ -498,10 +496,6 @@ print(slope)
 
 
 ```
-
-
-
-
 
 
 ### Excess duration - Flag people with too high values of MVPA and make new category removing them 
@@ -757,7 +751,8 @@ dt <- full_df_PA %>%  dplyr::select(
   tdi_quarters,
   avg_hh_income,
   BMI,
-  diabetes, 
+  #diabetes,
+  #depression,
   smoking, 
   alcohol, 
   processed_meat, 
@@ -790,7 +785,6 @@ varNameDf <- data.frame(
               "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
               "Race", 
-              "Type II Diabetes", 
               "Deprivation index", 
               "Education", 
               "Household Income",
@@ -818,7 +812,6 @@ varNameDf <- data.frame(
               "MVPA_min_PA2",
               "MVPA_min_PA3",
               "ethnicity", 
-              "diabetes", 
               "tdi_quarters", 
               "education_level", 
               "avg_hh_income",
@@ -894,7 +887,7 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
                pr_section = sect_properties
                )  
 ```
-## Table 1.2 (incudes PA4)
+## Table 2 - subanalaysis (incudes PA4, diabetes and depression)
 ```{r}
 # Variables to add to the table - this variable cannot be used to select columns now, since cooked_veg is not rendered into summary table 
 
@@ -922,7 +915,8 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   tdi_quarters,
   avg_hh_income,
   BMI,
-  diabetes, 
+  diabetes,
+  depression,
   smoking, 
   alcohol, 
   processed_meat, 
@@ -950,11 +944,12 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week",
-              "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
               "MVPA min/week Self-Report (IPAQ)",
+              "MVPA min/week Machine Learning",
               "Race", 
               "Type II Diabetes", 
+              "Depression",
               "Deprivation index", 
               "Education", 
               "Household Income",
@@ -981,6 +976,7 @@ varNameDf <- data.frame(
               "MVPA_min_PA4",
               "ethnicity", 
               "diabetes", 
+              "depression",
               "tdi_quarters", 
               "education_level", 
               "avg_hh_income",
@@ -1008,7 +1004,7 @@ dt2 <- dt2 %>%
 
 
 
-# create table - one singcle column
+# create table - one single column
 tb2 <- dt %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
