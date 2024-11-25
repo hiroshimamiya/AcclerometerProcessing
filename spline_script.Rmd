@@ -221,47 +221,27 @@ dev.off()
 
 ```
 
-
-## Sensitivity analysis:
-
-### We create formulas for covariate
-```{r}
-
-f_cov <- "Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi"
-
-f_cov_noMediator <- "Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish"
-
-#as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
-#as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
-
-```
-
-
 ## Main analysis
 
-### Stroke
+### Stroke 
+Does not include diabetes, bmi and depression and PA4
 ```{r}
 
 # PA1
 ## AIC(nk=3) > AIC(nk=4) 
-fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat + type_2_diab + bmi, data = dt)
+fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat + bmi, data = dt)
 
 
 # PA2
 ## AIC(nk=3) > AIC(nk=4) 
-fit_pa2_stroke_nk3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
-fit_pa2_stroke_nk4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat +type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat, data = dt)
 
 
 #PA3
 ## AIC(nk=3) < AIC(nk=4) 
-fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
-
-
-#PA4 
-## AIC(nk=3) < AIC(nk=4) 
-fit_pa4_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2)
+fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
 
 
@@ -269,7 +249,7 @@ fit_pa4_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race
 
 # PA1
 ## Stroke
-png("PA1_Stroke.png", width = 800, height = 600)
+png("PA1_Stroke_main.png", width = 800, height = 600)
 plotHR(fit_pa1_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -285,7 +265,7 @@ dev.off()
 ## Stroke
 
 ### knots = 3
-png("PA2_Stroke_nk3.png", width = 800, height = 600)
+png("PA2_Stroke_nk3_main.png", width = 800, height = 600)
 plotHR(fit_pa2_stroke_nk3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -298,7 +278,7 @@ plotHR(fit_pa2_stroke_nk3,
 dev.off()
 
 ### knots = 4
-png("PA2_Stroke_nk4.png", width = 800, height = 600)
+png("PA2_Stroke_nk4_main.png", width = 800, height = 600)
 plotHR(fit_pa2_stroke_nk4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -312,7 +292,7 @@ dev.off()
 
 # PA3
 ## Stroke
-png("PA3_Stroke.png", width = 800, height = 600)
+png("PA3_Stroke_main.png", width = 800, height = 600)
 plotHR(fit_pa3_stroke,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -324,22 +304,25 @@ plotHR(fit_pa3_stroke,
 )
 dev.off()
 
-# PA4
-## Stroke
-png("PA4_Stroke.png", width = 800, height = 600)
-plotHR(fit_pa4_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
-       xlim = c(0, 2000),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
 
 
 ```
+
+
+## Sensitivity analysis:
+
+### We create formulas for covariate
+```{r}
+
+f_cov <- "Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi + Depression"
+
+f_cov_noMediator <- "Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish"
+
+#as.formula(paste("Surv(`Follow_up time`,`Myocardial Infarction`) ~ ", "MVPA_Quant_PA2 + ",  f_cov))  
+#as.formula(paste(f_stroke, " ~" ,  "MVPA_Quant_PA2 + ",  f_cov))
+
+```
+
 
 ### MI
 ```{r}
@@ -347,32 +330,25 @@ dev.off()
 # PA1
 #AIC(nk=3) > AIC(nk=4)
 
-fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
 
 
 # PA2
 #AIC(nk=3) < AIC(nk=4)
-fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
 
 
 #PA3
 #AIC(nk=3) < AIC(nk=4)
-fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
-
-
-#PA4 
-#AIC(nk=3) > AIC(nk=4)
-fit_pa4_MI_nk3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt2)
-
-fit_pa4_MI_nk4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2)
-
+fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
 ### Plotting
 
 # PA1
 ## MI
+png("PA1_MI_main.png", width = 800, height = 600)
 plotHR(fit_pa1_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -382,11 +358,12 @@ plotHR(fit_pa1_MI,
        plot.bty = "U",
        refline = 1
 )
-
+dev.off()
 
 
 # PA2
 ## MI
+png("PA2_MI_main.png", width = 800, height = 600)
 plotHR(fit_pa2_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -396,10 +373,12 @@ plotHR(fit_pa2_MI,
        plot.bty = "U",
        refline = 1
 )
+dev.off()
 
 
 # PA3
 ## Stroke
+png("PA3_MI_main.png", width = 800, height = 600)
 plotHR(fit_pa3_MI,
        term = 1,
        xlab = "PA Duration (minutes/week)",
@@ -409,42 +388,7 @@ plotHR(fit_pa3_MI,
        plot.bty = "U",
        refline = 1
 )
-
-
-
-# PA4
-## Stroke
-### 3 knots
-plotHR(fit_pa4_MI_nk3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ)",
-       xlim = c(0, 2000),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
-
-### 4 knots
-plotHR(fit_pa4_MI_nk3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ) \nknots ==3",
-       xlim = c(0, 2000),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
-
-plotHR(fit_pa4_MI_nk4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity - Self-Report (IPAQ) \nknots ==4",
-       xlim = c(0, 2000),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
+dev.off()
 
 
 
@@ -646,21 +590,21 @@ dt <- dt[!is.na(dt$MVPA_min_PA3_truncated), ]
 
 
 # PA1
-fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi + Depression, data = dt)
 
 
 # PA2
-fit_pa2_stroke_nk3_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk3_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi+ Depression, data = dt)
 
-fit_pa2_stroke_nk4_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi, data = dt)
+fit_pa2_stroke_nk4_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + type_2_diab + bmi+ Depression, data = dt)
 
 
 #PA3
-fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt)
 
 
 #PA4 
-fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2)
+fit_pa4_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt2)
 
 
 
@@ -741,20 +685,20 @@ dev.off()
 ### MI
 ```{r}
 # PA1
-fit_pa1_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa1_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA1_truncated, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt)
 
 
 # PA2
-fit_pa2_MI_nk3_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat +type_2_diab + bmi, data = dt)
+fit_pa2_MI_nk3_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA2_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat +type_2_diab + bmi+ Depression, data = dt)
 
 
 
 #PA3
-fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt)
+fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt)
 
 
 #PA4 
-fit_pa4_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2)
+fit_pa4_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA4_truncated, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt2)
 
 
 
@@ -825,24 +769,24 @@ See the data source in the regression command
 
 ```{r}
 # PA1
-fit_pa1_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa1_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
-fit_pa1_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa1_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
 # PA2
-fit_pa2_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa2_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
-fit_pa2_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa2_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
 # PA3
-fit_pa3_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa3_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
-fit_pa3_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt[dt$Sex == "Female", ])
+fit_pa3_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt[dt$Sex == "Female", ])
 
 # PA4
-fit_pa4_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2[dt2$Sex == "Female", ])
+fit_pa4_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt2[dt2$Sex == "Female", ])
 
-fit_pa4_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi, data = dt2[dt2$Sex == "Female", ])
+fit_pa4_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + type_2_diab + bmi+ Depression, data = dt2[dt2$Sex == "Female", ])
 
 ### Plotting
 
@@ -981,16 +925,16 @@ dt_sa4_2 <- dt2 %>%
 ### Stroke
 ```{r}
 # PA1
-fit_pa1_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+fit_pa1_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4 )
 
 # PA2
-fit_pa2_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+fit_pa2_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4 )
 
 # PA3
-fit_pa3_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4 )
+fit_pa3_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4 )
 
 # PA4
-fit_pa4_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4_2 )
+fit_pa4_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4_2 )
 
 
 
@@ -1058,16 +1002,16 @@ dev.off()
 ### MI
 ```{r}
 # PA1
-fit_pa1_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+fit_pa1_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4)
 
 # PA2
-fit_pa2_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+fit_pa2_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4)
 
 # PA3
-fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4)
+fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4)
 
 # PA4
-fit_pa4_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi, data = dt_sa4_2)
+fit_pa4_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi+ Depression, data = dt_sa4_2)
 
 ### Plotting
 
