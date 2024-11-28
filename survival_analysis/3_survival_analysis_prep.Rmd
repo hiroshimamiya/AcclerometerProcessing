@@ -150,9 +150,10 @@ In the data preparation step, we added an event status indicator at exit and a f
 First , create formula 
 ```{r}
 
-f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Body Mass Index`"
+f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Depression` + `Body Mass Index` + 
+`Greenspace 300m from residence` + `Water 300m from residence` +`Natural env. 300m from residence`"
 
-f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish`"
+f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Greenspace 300m from residence` + `Water 300m from residence` +`Natural env. 300m from residence`"
 
 f_stroke <-   "Surv(`Follow_up time`,`Myocardial Infarction`)"
 

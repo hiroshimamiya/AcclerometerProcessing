@@ -53,8 +53,6 @@ full_df$date_end_accel <- as.Date(full_df$date_end_accel)
 ```
 
 
-
-
 First we create the "end_of_fu" variable, which can be classified as date of 
 stroke/MI, date of death or the end of the study (i.e. 2022):
 
@@ -208,9 +206,6 @@ enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
 colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
 colnames(enmoTSParallel_PA1)[1] <- "eid"
 
-
-
-
 ```
 
 
@@ -251,7 +246,12 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 ```
 
-### PA3 - we merge PA3 df to full_df
+
+
+
+
+
+### PA3 - we load PA3
 ```{r}
 PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_data.csv",col_select = -1)
 
@@ -290,7 +290,6 @@ full_df_PA<- inner_join(full_df_PA,
   ML_derived_PA2 %>% 
     dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
   by = "eid")
-
 
 
 ```
@@ -630,6 +629,7 @@ levels(full_df_PA$education_level) <- list( "None of the above" = "None of the a
 
 ```
 
+
 ### Covariates - reorder for full_df_PA_2 df
 ```{r}
 # Re-order categories 
@@ -728,7 +728,6 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
 
-# Note that all vars , except alcohol, do not know and unkjnan shoudl be meet with exclusion 
 dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
   `2_years_survival_stroke`,
@@ -740,7 +739,7 @@ dt <- full_df_PA %>%  dplyr::select(
   MVPA_min_PA1, 
   MVPA_min_PA2,
   MVPA_min_PA3,
-  #MVPA_min_PA4, 
+ # MVPA_min_PA4, 
   MI, 
   stroke,
   age_entry_years, 
@@ -750,7 +749,7 @@ dt <- full_df_PA %>%  dplyr::select(
   avg_hh_income,
   tdi_quarters,
   avg_hh_income,
-  BMI,
+  #BMI,
   #diabetes,
   #depression,
   smoking, 
@@ -770,8 +769,8 @@ dt <- full_df_PA %>%  dplyr::select(
   #MVPA_Quant_PA4_truncated,
   MVPA_min_PA1_truncated, 
   MVPA_min_PA2_truncated,
-  MVPA_min_PA3_truncated
-  #MVPA_min_PA4_truncated
+  MVPA_min_PA3_truncated,
+  #MVPA_min_PA4_truncated,
   )
 
 
@@ -798,7 +797,7 @@ varNameDf <- data.frame(
               "Non-oily fish",
               "Sex", 
               "Follow_up time", 
-              "Body Mass Index",
+              #"Body Mass Index",
               "Two Years Stroke Survival",
               "Two Years MI Survival",
               "Greenspace 300m from residence",
@@ -825,7 +824,7 @@ varNameDf <- data.frame(
               "non_oily_fish",
               "sex", 
               "fu_time", 
-              "BMI",
+              #"BMI",
               "2_years_survival_stroke",
               "2_years_survival_MI",
               "water_300m",
@@ -1051,12 +1050,136 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 ```
 
 
+## Create dt3 - PA1, PA2 & PA3 - with mediator
+```{r}
+# Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
+
+
+dt3 <- full_df_PA %>%  dplyr::select(
+  fu_time, 
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`,
+  MVPA_Quant_PA2,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA3,
+  #MVPA_Quant_PA4,  
+  MVPA_min_PA1, 
+  MVPA_min_PA2,
+  MVPA_min_PA3,
+ # MVPA_min_PA4, 
+  MI, 
+  stroke,
+  age_entry_years, 
+  ethnicity, 
+  sex, 
+  education_level,
+  avg_hh_income,
+  tdi_quarters,
+  avg_hh_income,
+  BMI,
+  diabetes,
+  depression,
+  smoking, 
+  alcohol, 
+  processed_meat, 
+  red_meat,
+  oily_fish,
+  non_oily_fish,
+  fresh_fruit,
+  cooked_vg,
+  water_300m,
+  greenspace_300m,
+  naturalenv_300m,
+  MVPA_Quant_PA1_truncated, 
+  MVPA_Quant_PA2_truncated,
+  MVPA_Quant_PA3_truncated,
+  #MVPA_Quant_PA4_truncated,
+  MVPA_min_PA1_truncated, 
+  MVPA_min_PA2_truncated,
+  MVPA_min_PA3_truncated,
+  #MVPA_min_PA4_truncated,
+  )
+
+
+
+# Convert variable names into desruptive table names 
+varNameDf <- data.frame(
+  varName = c("Myocardial Infarction",
+              "Stroke",
+              "Age",
+              "MVPA min/week",
+              "MVPA min/week Machine Learning",
+              "MVPA min/week Activity Count",
+              "Race", 
+              "Deprivation index", 
+              "Education", 
+              "Household Income",
+              "Smoking", 
+              "Alcohol", 
+              "Processed meat",
+              "Red meat",
+              "Fresh fruit", 
+              "Cooked vegetables", 
+              "Oily fish", 
+              "Non-oily fish",
+              "Sex", 
+              "Follow_up time", 
+              "Body Mass Index",
+              "Type II Diabetes",
+              "Depression",
+              "Two Years Stroke Survival",
+              "Two Years MI Survival",
+              "Greenspace 300m from residence",
+              "Water 300m from residence",
+              "Natural env. 300m from residence"
+  ), 
+  ChartName = c("MI", 
+              "stroke",
+              "age_entry_years",
+              "MVPA_min_PA1", 
+              "MVPA_min_PA2",
+              "MVPA_min_PA3",
+              "ethnicity", 
+              "tdi_quarters", 
+              "education_level", 
+              "avg_hh_income",
+              "smoking", 
+              "alcohol", 
+              "processed_meat", 
+              "red_meat",
+              "fresh_fruit", 
+              "cooked_vg", 
+              "oily_fish", 
+              "non_oily_fish",
+              "sex", 
+              "fu_time", 
+              "BMI",
+              "diabetes",
+              "depression",
+              "2_years_survival_stroke",
+              "2_years_survival_MI",
+              "water_300m",
+              "greenspace_300m",
+              "naturalenv_300m"
+              )
+)
+
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    tibble::deframe()
+
+dt3 <- dt3 %>% 
+    rename(!!!var_names)
+```
+
 
 
 ```{r}
 
 saveRDS(dt, "/home/yacine/AcclerometerProcessing/prepped_dt.rds")
 saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
+saveRDS(dt3, "/home/yacine/AcclerometerProcessing/prepped_dt3.rds")
 
 
 ```
@@ -1068,7 +1191,7 @@ saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
 ```{r}
 png("MVPA_histograms.png", width = 800, height = 800)
 par(mfrow = c(2,2))
-hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min")
+hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ENMO")
 hist(dt$`MVPA min/week Machine Learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Machine Learning")
 hist(dt$`MVPA min/week Activity Count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
 hist(dt2$`MVPA min/week Self-Report (IPAQ)`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report (IPAQ)")
