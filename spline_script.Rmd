@@ -344,7 +344,7 @@ dev.off()
 
 
 
-## Sensitivity analysis:
+* Sensitivity analysis:
 
 We create formulas for covariate (they are currently not working in the rcs function, but ultimately I would like to add them to the functions)
 ```{r}
