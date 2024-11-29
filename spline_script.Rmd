@@ -346,7 +346,7 @@ dev.off()
 
 ## Sensitivity analysis:
 
-#### We create formulas for covariate
+We create formulas for covariate (they are currently not working in the rcs function, but ultimately I would like to add them to the functions)
 ```{r}
 
 f_cov <- "Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + type_2_diab + bmi + Depression"
@@ -1251,7 +1251,7 @@ dev.off()
 We perform a sensitivity analysis by first extracting people that have had a stroke
 within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
 
-### Remove people who have had a Stroke within 2 years following date_end_accel:
+Remove people who have had a Stroke within 2 years following date_end_accel:
 ```{r}
 
 # we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
@@ -1449,6 +1449,8 @@ dev.off()
 
 
 ## Sensitivity analysis 5 - Forrest Plots
+
+In the "3_survival_analysis_prep.Rmd" file
 
 
 
