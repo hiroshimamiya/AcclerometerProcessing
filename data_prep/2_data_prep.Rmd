@@ -727,7 +727,6 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 ```{r}
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
 
-
 dt <- full_df_PA %>%  dplyr::select(
   fu_time, 
   `2_years_survival_stroke`,
@@ -773,6 +772,13 @@ dt <- full_df_PA %>%  dplyr::select(
   #MVPA_min_PA4_truncated,
   )
 
+# Remove unknowns from greenspace and bluespace variables
+dt <- dt %>%
+  mutate(across(
+    c(water_300m, greenspace_300m, naturalenv_300m),
+    ~ ifelse(. == "Unknown" | . %in% c(9999, 9998), NA, .) 
+  )) %>%
+  drop_na(water_300m, greenspace_300m, naturalenv_300m)
 
 
 # Convert variable names into desruptive table names 
@@ -947,6 +953,7 @@ varNameDf <- data.frame(
               "MVPA min/week Self-Report (IPAQ)",
               "MVPA min/week Machine Learning",
               "Race", 
+              "BMI",
               "Type II Diabetes", 
               "Depression",
               "Deprivation index", 
@@ -974,6 +981,7 @@ varNameDf <- data.frame(
               "MVPA_min_PA3",
               "MVPA_min_PA4",
               "ethnicity", 
+              "BMI",
               "diabetes", 
               "depression",
               "tdi_quarters", 
@@ -1025,18 +1033,6 @@ sect_properties <- prop_section(
 
 print(tb2)
 
-
-
-### Table by quantile
-#tb2 <- dt2 %>% 
-  #dplyr::select(-contains("truncated")) %>% 
-  #dplyr::select( -MVPA_Quant_PA1, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>% 
-  #tbl_summary(
-    #by = MVPA_Quant_PA2,  
-    #statistic = all_continuous() ~ "{mean} ({sd})"
-    #digits = all_continuous() ~ 1,
-  #) %>% 
-  #as_flex_table()
 
 
 print(tb2)
@@ -1108,8 +1104,8 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week",
-              "MVPA min/week Machine Learning",
               "MVPA min/week Activity Count",
+              "MVPA min/week Machine Learning",
               "Race", 
               "Deprivation index", 
               "Education", 
@@ -1177,10 +1173,9 @@ dt3 <- dt3 %>%
 
 ```{r}
 
-saveRDS(dt, "/home/yacine/AcclerometerProcessing/prepped_dt.rds")
-saveRDS(dt2, "/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
-saveRDS(dt3, "/home/yacine/AcclerometerProcessing/prepped_dt3.rds")
-
+saveRDS(dt, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
+saveRDS(dt2, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
+saveRDS(dt3, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
 
 ```
 
