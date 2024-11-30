@@ -748,9 +748,9 @@ dt <- full_df_PA %>%  dplyr::select(
   avg_hh_income,
   tdi_quarters,
   avg_hh_income,
-  #BMI,
-  #diabetes,
-  #depression,
+  BMI,
+  diabetes,
+  depression,
   smoking, 
   alcohol, 
   processed_meat, 
@@ -768,18 +768,9 @@ dt <- full_df_PA %>%  dplyr::select(
   #MVPA_Quant_PA4_truncated,
   MVPA_min_PA1_truncated, 
   MVPA_min_PA2_truncated,
-  MVPA_min_PA3_truncated,
-  #MVPA_min_PA4_truncated,
-  )
-
-# Remove unknowns from greenspace and bluespace variables
-dt <- dt %>%
-  mutate(across(
-    c(water_300m, greenspace_300m, naturalenv_300m),
-    ~ ifelse(. == "Unknown" | . %in% c(9999, 9998), NA, .) 
-  )) %>%
-  drop_na(water_300m, greenspace_300m, naturalenv_300m)
-
+  MVPA_min_PA3_truncated
+  #MVPA_min_PA4_truncated
+  ) 
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
@@ -854,7 +845,8 @@ tb <- dt %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median}", 
-    digits = all_continuous() ~ 1
+    digits = all_continuous() ~ 1,
+    missing = "no"  # Keep NA rows as "Unknown"
   ) %>%
   as_flex_table()
 
