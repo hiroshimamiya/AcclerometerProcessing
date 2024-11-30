@@ -39,8 +39,8 @@ theme_gtsummary_journal("jama")
 ## We load the data:
 ```{r}
 #dt <- readRDS("/home/yacine/UKBB_beluga/prepped_dt.rds") # full df with exclusions + recoding and all data prepared for survival analysis
-dt <- readRDS("/home/yacine/AcclerometerProcessing/prepped_dt.rds")
-dt2 <- readRDS("/home/yacine/AcclerometerProcessing/prepped_dt2.rds")
+dt <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
+dt2 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 ```
 
 
@@ -97,28 +97,43 @@ axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, v
 
 Function forest plot 2
 ```{r}
-funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2) {
-
+funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Hazard Ratios and 95% Confidence Intervals", maxX = 2, new_titles = NULL) {
+  
+  # Ensure no NA values and modify 'index' column
   forest_data <- forest_data %>%
-    filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
+    filter(!is.na(est) & !is.na(lwr) & !is.na(upr))
+  
+  # Overwrite 'index' with custom labels if provided
+  if (!is.null(new_titles)) {
+    forest_data$index <- new_titles
+  }
+  
+  # Convert 'index' to factor to ensure ordering
+  forest_data <- forest_data %>%
     mutate(
       index = factor(index, levels = rev(unique(index))),
       foodName = factor(foodName, levels = c("Vector Magnitude (ENMO)", "Random Forest and HMM (ML)", "Activity Count", "Self-Report (IPAQ)"))
-    ) 
+    )
   
-  
+  # Define x-axis label
   xname <- "Hazard Ratio and 95% CI"
   
+  # Plot
   ggplot(data = forest_data, aes(y = index, x = est, xmin = lwr, xmax = upr, color = foodName)) + 
     geom_point(size = 3) + 
     geom_errorbarh(height = 0.4) +
     scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
     scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
     geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
-    scale_color_manual(values = c("Vector Magnitude (ENMO)" = "blue", "Random Forest and HMM (ML)" = "red","Activity Count" = "brown", "Self-Report (IPAQ)" = "black")) +  # Set colors for groups
+    scale_color_manual(values = c(
+      "Vector Magnitude (ENMO)" = "blue",
+      "Random Forest and HMM (ML)" = "red",
+      "Activity Count" = "brown",
+      "Self-Report (IPAQ)" = "black"
+    )) +  # Set colors for groups
     theme_classic() + 
     theme(
-axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
+      axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
       axis.text.y = element_text(color = "black", size = 14, angle = 0, hjust = 1, vjust = 0, face = "plain"),
       axis.title.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0, face = "plain"),
       axis.title.y = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -137,6 +152,17 @@ axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, v
     coord_cartesian(xlim = c(0.1, maxX))  
 }
 
+new_titles <- c(
+  "ENMO Q2",
+  "ENMO Q3",
+  "ENMO Q4",
+  "Machine Learning Q2",
+  "Machine Learning Q3",
+  "Machine Learning Q4",
+  "Activity Count Q2",
+  "Activity Count Q3",
+  "Activity Count Q4"
+)
 
 ```
   
@@ -150,8 +176,7 @@ In the data preparation step, we added an event status indicator at exit and a f
 First , create formula 
 ```{r}
 
-f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Type II Diabetes` + `Depression` + `Body Mass Index` + 
-`Greenspace 300m from residence` + `Water 300m from residence` +`Natural env. 300m from residence`"
+f_cov <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Greenspace 300m from residence` + `Water 300m from residence` +`Natural env. 300m from residence`"
 
 f_cov_noMediator <- "Sex + Age + Race + `Deprivation index` + Education + `Household Income` + Smoking + Alcohol + `Processed meat` + `Fresh fruit` + `Cooked vegetables` + `Oily fish` + `Non-oily fish` + `Greenspace 300m from residence` + `Water 300m from residence` +`Natural env. 300m from residence`"
 
@@ -257,11 +282,11 @@ forest_data <- forest_data %>%
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
-funcPlotForest2(forest_data, 
-               title = "Main Analysis - Stroke", 
-               subtitle = "HR for MVPA Quartiles with 95% CI",
-               maxX = 1.5)
-
+funcPlotForest2(forest_data,
+                title = "Main Analysis - Stroke", 
+                subtitle = "HR for MVPA Quartiles with 95% CI", 
+                maxX = 1.5, 
+                new_titles = new_titles)
 
 # Save the plot
 #ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
@@ -339,11 +364,11 @@ forest_data <- forest_data %>%
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
-funcPlotForest2(forest_data, 
-               title = "Main Analysis - MI", 
-               subtitle = "HR for MVPA Quartiles with 95% CI",
-               maxX = 1.5)
-
+funcPlotForest2(forest_data,
+                title = "Main Analysis - MI", 
+                subtitle = "HR for MVPA Quartiles with 95% CI", 
+                maxX = 1.5, 
+                new_titles = new_titles)
 
 # Save the plot
 #ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
