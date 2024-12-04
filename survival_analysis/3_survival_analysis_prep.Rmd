@@ -153,15 +153,15 @@ funcPlotForest2 <- function(forest_data, title = "Forest Plot", subtitle = "Haza
 }
 
 new_titles <- c(
-  "ENMO Q2",
-  "ENMO Q3",
-  "ENMO Q4",
-  "Machine Learning Q2",
-  "Machine Learning Q3",
-  "Machine Learning Q4",
-  "Activity Count Q2",
-  "Activity Count Q3",
-  "Activity Count Q4"
+  "Vector Magnitude (ENMO) - Q2",
+  "Vector Magnitude (ENMO) - Q3",
+  "Vector Magnitude (ENMO) - Q4",
+  "Machine Learning (ML) - Q2",
+  "Machine Learning (ML) - Q3",
+  "Machine Learning (ML) - Q4",
+  "Activity Count - Q2",
+  "Activity Count - Q3",
+  "Activity Count - Q4"
 )
 
 ```
@@ -282,12 +282,13 @@ forest_data <- forest_data %>%
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
+png("rf_sensa5.png", width = 800, height = 600)
 funcPlotForest2(forest_data,
-                title = "Main Analysis - Stroke", 
+                title = "Sensitivity Analysis 5 - Forest Plot (Main) Stroke", 
                 subtitle = "HR for MVPA Quartiles with 95% CI", 
                 maxX = 1.5, 
                 new_titles = new_titles)
-
+dev.off()
 # Save the plot
 #ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
 
@@ -364,11 +365,13 @@ forest_data <- forest_data %>%
 
 
 # we can now create the plot using the funcPlotForest function created earlier:
+png("rf_sensa5_MI.png", width = 800, height = 600)
 funcPlotForest2(forest_data,
-                title = "Main Analysis - MI", 
+                title = "Sensitivity Analysis 5 - Forest Plot (Main) MI", 
                 subtitle = "HR for MVPA Quartiles with 95% CI", 
                 maxX = 1.5, 
                 new_titles = new_titles)
+dev.off()
 
 # Save the plot
 #ggsave("/home/yacine/AcclerometerProcessing/survival_analysis/plots/sensa_1_stroke.png", plot, width = 10, height = 6, dpi = 300)
