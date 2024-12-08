@@ -152,19 +152,23 @@ initial_n <- nrow(full_df) # number of participants at the beginning
 print(initial_n)
 ```
 
-## Exclusion 1: Low quality accelerometer data
-
+## Starting point: We remove participants for which there are no raw accelerometer data
 ```{r}
+
 # we want to count how many people were excluded in this section
 total_excluded_lq <- 0
 
-# Added by Hiroshi
 df_before <- full_df
+
+# remove participants for which accel_raw == NA
+full_df <- full_df %>% filter(!is.na(accel_raw))
 full_df <- full_df[full_df$accel_raw != "", ]
 
 result <- count_exclusions(df_before, full_df)
 total_excluded_lq <- total_excluded_lq + result$excluded
 ```
+
+## Exclusion 1: Low quality accelerometer data
 
 ### 1.1. Devices poorly calibrated
 ```{r}
