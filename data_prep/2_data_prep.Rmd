@@ -846,7 +846,7 @@ tb <- dt %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median}", 
     digits = all_continuous() ~ 1,
-    missing = "no"  # Keep NA rows as "Unknown"
+    missing = "no"  # remove unknowns from table
   ) %>%
   as_flex_table()
 
@@ -963,7 +963,10 @@ varNameDf <- data.frame(
               "Follow_up time", 
               "Body Mass Index",
               "Two Years Stroke Survival",
-              "Two Years MI Survival"
+              "Two Years MI Survival",              
+              "Greenspace 300m from residence",
+              "Water 300m from residence",
+              "Natural env. 300m from residence"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -991,7 +994,10 @@ varNameDf <- data.frame(
               "fu_time", 
               "BMI",
               "2_years_survival_stroke",
-              "2_years_survival_MI")
+              "2_years_survival_MI",
+              "water_300m",
+              "greenspace_300m",
+              "naturalenv_300m")
 )
 
 var_names <- varNameDf %>% 
@@ -1004,12 +1010,13 @@ dt2 <- dt2 %>%
 
 
 # create table - one single column
-tb2 <- dt %>%
+tb2 <- dt2 %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}",  
-    digits = all_continuous() ~ 1
+    statistic = all_continuous() ~ "{median}", 
+    digits = all_continuous() ~ 1,
+    missing = "no" 
   ) %>%
   as_flex_table()
 
@@ -1159,6 +1166,17 @@ var_names <- varNameDf %>%
 
 dt3 <- dt3 %>% 
     rename(!!!var_names)
+
+
+tb3 <- dt3 %>%
+  dplyr::select(-contains("truncated")) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
+  tbl_summary(
+    statistic = all_continuous() ~ "{median}", 
+    digits = all_continuous() ~ 1,
+    missing = "no"  
+  ) %>%
+  as_flex_table()
 ```
 
 
