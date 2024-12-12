@@ -1203,3 +1203,89 @@ hist(dt2$`MVPA min/week Self-Report (IPAQ)`, xlab = "minutes", main = "Histogram
 dev.off()
 
 ```
+Function to label the plots: 
+```{r}
+
+# source: https://logfc.wordpress.com/2017/03/15/adding-figure-labels-a-b-c-in-the-top-left-corner-of-the-plotting-region/
+
+fig_label <- function(text, region = "plot", pos = "topleft", cex = 1.2, x_adj = -0.1, y_adj = -0.03, ...) {
+  region <- match.arg(region, c("figure", "plot", "device"))
+  pos <- match.arg(pos, c("topleft", "top", "topright",
+                          "left", "center", "right",
+                          "bottomleft", "bottom", "bottomright"))
+  
+  if (region == "plot") {
+    u <- par("usr")  
+    x <- u[1:2]
+    y <- u[3:4]
+  } else {
+    stop("This function is configured for 'plot' region only.")
+  }
+  
+
+  x1 <- switch(pos,
+               topleft = x[1] + (x[2] - x[1]) * x_adj,
+               left = x[1] + (x[2] - x[1]) * x_adj,
+               bottomleft = x[1] + (x[2] - x[1]) * x_adj,
+               top = (x[1] + x[2]) / 2,
+               center = (x[1] + x[2]) / 2,
+               bottom = (x[1] + x[2]) / 2,
+               topright = x[2] - (x[2] - x[1]) * x_adj,
+               right = x[2] - (x[2] - x[1]) * x_adj,
+               bottomright = x[2] - (x[2] - x[1]) * x_adj)
+  
+  y1 <- switch(pos,
+               topleft = y[2] + (y[1] - y[2]) * y_adj,
+               top = y[2] + (y[1] - y[2]) * y_adj,
+               topright = y[2] + (y[1] - y[2]) * y_adj,
+               left = (y[1] + y[2]) / 2,
+               center = (y[1] + y[2]) / 2,
+               right = (y[1] + y[2]) / 2,
+               bottomleft = y[1] - (y[1] - y[2]) * y_adj,
+               bottom = y[1] - (y[1] - y[2]) * y_adj,
+               bottomright = y[1] - (y[1] - y[2]) * y_adj)
+  
+  old.par <- par(xpd = NA)
+  on.exit(par(old.par))
+  
+  text(x1, y1, text, cex = cex, font = 2, ...)
+  return(invisible(c(x, y)))
+}
+
+```
+
+```{r}
+
+png("MVPA_histograms.png", width = 2250, height = 2250, res = 300) 
+par(mfrow = c(2, 2), family = "Arial", ps = 12, oma = c(0, 0, 0, 0), mar = c(4, 4, 2, 1)) 
+
+# Histogram 1
+hist(dt$`MVPA min/week`,
+     xlab = "Minutes",
+      main = "", 
+     cex.axis = 1, cex.lab = 1.2, cex.main = 1.4) 
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
+
+# Histogram 2
+hist(dt$`MVPA min/week Machine Learning`,
+     xlab = "Minutes",
+      main = "",
+     cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
+
+# Histogram 3
+hist(dt$`MVPA min/week Activity Count`,
+     xlab = "Minutes",
+      main = "", 
+     cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
+
+# Histogram 4
+#hist(dt2$`MVPA min/week Self-Report (IPAQ)`,
+     #xlab = "Minutes",
+     #cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
+
+dev.off()
+
+
+```

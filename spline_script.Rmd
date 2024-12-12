@@ -146,67 +146,6 @@ fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race
 fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt)
 
 
-### Plotting
-
-# PA1
-## Stroke
-png("PA1_Stroke_main.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       ref = 1
-)
-dev.off()
-
-# PA2
-## Stroke
-
-### knots = 3
-png("PA2_Stroke_nk3_main.png", width = 800, height = 600)
-plotHR(fit_pa2_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-### knots = 4
-#png("PA2_Stroke_nk4_main.png", width = 800, height = 600)
-#plotHR(fit_pa2_stroke_nk4,
-      # term = 1,
-      # xlab = "PA Duration (minutes/week)",
-      # main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
-     #  xlim = c(0, 1500),
-      # ylim = c(0.2, 4),
-      # plot.bty = "U",
-      # refline = 1
-#)
-#dev.off()
-
-# PA3
-## Stroke
-png("PA3_Stroke_main.png", width = 800, height = 600)
-plotHR(fit_pa3_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
 ```
 
 
@@ -230,123 +169,140 @@ fit_pa2_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  depr
 #AIC(nk=3) < AIC(nk=4)
 fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt)
 
-### Plotting
-
-# PA1
-## MI
-png("PA1_MI_main.png", width = 800, height = 600)
-plotHR(fit_pa1_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-# PA2
-## MI
-png("PA2_MI_main.png", width = 800, height = 600)
-plotHR(fit_pa2_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-# PA3
-## Stroke
-png("PA3_MI_main.png", width = 800, height = 600)
-plotHR(fit_pa3_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of MI \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2,4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
 
 ```
 
-#### Combined Plots
+Function to label the plots: 
 ```{r}
-png("combined_main.png", width = 1200, height = 1600)
-par(mfrow = c(3, 2), oma = c(0, 0, 2, 0)) 
+
+# source: https://logfc.wordpress.com/2017/03/15/adding-figure-labels-a-b-c-in-the-top-left-corner-of-the-plotting-region/
+
+fig_label <- function(text, region = "plot", pos = "topleft", cex = 1.2, x_adj = -0.1, y_adj = -0.03, ...) {
+  region <- match.arg(region, c("figure", "plot", "device"))
+  pos <- match.arg(pos, c("topleft", "top", "topright",
+                          "left", "center", "right",
+                          "bottomleft", "bottom", "bottomright"))
+  
+  if (region == "plot") {
+    u <- par("usr")  
+    x <- u[1:2]
+    y <- u[3:4]
+  } else {
+    stop("This function is configured for 'plot' region only.")
+  }
+  
+
+  x1 <- switch(pos,
+               topleft = x[1] + (x[2] - x[1]) * x_adj,
+               left = x[1] + (x[2] - x[1]) * x_adj,
+               bottomleft = x[1] + (x[2] - x[1]) * x_adj,
+               top = (x[1] + x[2]) / 2,
+               center = (x[1] + x[2]) / 2,
+               bottom = (x[1] + x[2]) / 2,
+               topright = x[2] - (x[2] - x[1]) * x_adj,
+               right = x[2] - (x[2] - x[1]) * x_adj,
+               bottomright = x[2] - (x[2] - x[1]) * x_adj)
+  
+  y1 <- switch(pos,
+               topleft = y[2] + (y[1] - y[2]) * y_adj,
+               top = y[2] + (y[1] - y[2]) * y_adj,
+               topright = y[2] + (y[1] - y[2]) * y_adj,
+               left = (y[1] + y[2]) / 2,
+               center = (y[1] + y[2]) / 2,
+               right = (y[1] + y[2]) / 2,
+               bottomleft = y[1] - (y[1] - y[2]) * y_adj,
+               bottom = y[1] - (y[1] - y[2]) * y_adj,
+               bottomright = y[1] - (y[1] - y[2]) * y_adj)
+  
+  old.par <- par(xpd = NA)
+  on.exit(par(old.par))
+  
+  text(x1, y1, text, cex = cex, font = 2, ...)
+  return(invisible(c(x, y)))
+}
+
+```
+
+
+
+
+#### Combined Plots - Main Analysis
+```{r}
+png("combined_main.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+plotHR(fit_pa1_stroke, 
+       term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       adj = 0, 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 ## MI
 plotHR(fit_pa1_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
-plotHR(fit_pa2_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
-## MI
-plotHR(fit_pa2_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
-
-# PA3
 ## Stroke
-plotHR(fit_pa3_stroke,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+plotHR(fit_pa2_stroke, 
+       term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa3_MI,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-mtext("Main Analysis", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+plotHR(fit_pa2_MI, 
+       term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+# PA3 
+## Stroke
+plotHR(fit_pa3_stroke, 
+       term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+## MI
+plotHR(fit_pa3_MI, term = 1, 
+       xlab = "PA Duration (minutes/week)", 
+       xlim = c(0, 1500), 
+       ylim = c(0.2, 4), 
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 dev.off()
 
 ```
@@ -375,8 +331,9 @@ f_cov_noMediator <- "Sex + Age + Race + deprivation_index + Education + hh_incom
 ```{r}
 
 # PA1
-fit_pa1_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
+fit_pa1_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
 
+#fit_pa1_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
 
 # PA2
 fit_pa2_stroke_sa1<- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env , data = dt2)
@@ -393,66 +350,6 @@ fit_pa4_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + 
 
 
 
-### Plotting
-
-# PA1
-## MI
-png("fit_pa1_stroke_sa1.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA2
-## MI
-png("fit_pa2_stroke_nk3_sa1.png", width = 800, height = 600)
-plotHR(fit_pa2_stroke_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA3
-## MI
-png("fit_pa3_stroke_sa1.png", width = 800, height = 600)
-plotHR(fit_pa3_stroke_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA4
-## MI
-### 3 knots
-png("fit_pa4_stroke_sa1.png", width = 800, height = 600)
-plotHR(fit_pa4_stroke_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
-       xlim = c(0, 2000),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
 ```
 
 
@@ -460,8 +357,9 @@ dev.off()
 
 ```{r}
 # PA1
-fit_pa1_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
+fit_pa1_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
 
+#fit_pa1_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env , data = dt2)
 
 # PA2
 fit_pa2_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env , data = dt2)
@@ -477,179 +375,204 @@ fit_pa3_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  
 fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env , data = dt2)
 
 
-
-### Plotting
-
-# PA1
-## MI
-png("fit_pa1_mi_sa1.png", width = 800, height = 600)
-plotHR(fit_pa1_mi_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA2
-## MI
-### knots = 3
-png("fit_pa2_mi_nk3_sa1.png", width = 800, height = 600)
-plotHR(fit_pa2_mi_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-### knots = 4
-#png("fit_pa2_mi_nk4_sa1.png", width = 800, height = 600)
-#plotHR(fit_pa2_mi_nk4_sa1,
-       #term = 1,
-       #xlab = "PA Duration (minutes/week)",
-       #main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Machine Learning \nknots = 4",
-      # xlim = c(0, 1500),
-      # ylim = c(0.2, 4),
-       #plot.bty = "U",
-      # refline = 1
-#)
-#dev.off()
-
-# PA3
-## MI
-png("fit_pa3_mi_sa1.png", width = 800, height = 600)
-plotHR(fit_pa3_mi_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 1: Hazard of Myocardial Infarction \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA4
-## MI
-png("fit_pa4_mi_sa1.png", width = 800, height = 600)
-plotHR(fit_pa4_mi_sa1,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Myocardial Infarction \nby Physical Activity - Self-Report (IPAQ)",
-       xlim = c(0, 2000),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
 ```
+
 #### Combined Plots
+
+8 plots in one figure
 ```{r}
-png("combined_sa1_1.png", width = 1600, height = 1200)
-par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+png("combined_sa1.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(4, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
 # PA1
-## Stroke
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
-## MI
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 MI
 plotHR(fit_pa1_mi_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
-
-
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA2
 plotHR(fit_pa2_stroke_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
-## MI
+# PA2 MI
 plotHR(fit_pa2_mi_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-mtext("Sensitivity Analysis 1", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
-dev.off()
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
-
-png("combined_sa1_2.png", width = 1600, height = 1200)
-par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
 # PA3
 ## Stroke
 plotHR(fit_pa3_stroke_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa3_mi_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
 )
-
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 
 # PA4
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
 )
+fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa4_mi_sa1,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Self-Report (IPAQ)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
 )
+fig_label("H", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+
 dev.off()
 
 
 ```
 
+2 figures of four plots
+```{r}
+png("combined_sa1_1.png", width = 2200, height = 2250,res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
+# PA1
+plotHR(fit_pa1_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 MI
+plotHR(fit_pa1_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA2
+plotHR(fit_pa2_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA2 MI
+plotHR(fit_pa2_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+dev.off()
+
+
+png("combined_sa1_2.png", width = 2200, height = 2250, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
+# PA3
+## Stroke
+plotHR(fit_pa3_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+
+## MI
+plotHR(fit_pa3_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 1500),
+       ylim = c(0.2, 4),
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
+)
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+
+# PA4
+## Stroke
+plotHR(fit_pa4_stroke_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 2000),
+       ylim = c(0.2, 4),
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
+)
+fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+
+## MI
+plotHR(fit_pa4_mi_sa1,
+       term = 1,
+       xlab = "PA Duration (minutes/week)",
+       xlim = c(0, 2000),
+       ylim = c(0.2, 4),
+       plot.bty = "U", 
+       cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
+)
+fig_label("H", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+
+dev.off()
+
+```
 
 
 ## Sensitivity analysis 2 - Removed people with huge duration (>1200min) of MVPA Stroke 
@@ -683,66 +606,6 @@ fit_pa2_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA2_truncated_1
 fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA3_truncated_1200, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt_trunc_1200)
 
 
-
-### Plotting
-
-# PA1
-## Stroke
-png("fit_pa1_stroke_sa2.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA2
-## Stroke
-### knots = 3
-png("fit_pa2_stroke_nk3_sa2.png", width = 800, height = 600)
-plotHR(fit_pa2_stroke_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-### knots = 4
-#png("fit_pa2_stroke_nk4_sa2.png", width = 800, height = 600)
-#plotHR(fit_pa2_stroke_nk4_sa2,
-       #term = 1,
-       #xlab = "PA Duration (minutes/week)",
-       #main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 4",
-       #xlim = c(0, 1500),
-       #ylim = c(0.2, 4),
-      # plot.bty = "U",
-       #refline = 1
-#)
-#dev.off()
-
-# PA3
-## Stroke
-png("fit_pa3_stroke_sa2.png", width = 800, height = 600)
-plotHR(fit_pa3_stroke_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
 ```
 ### MI
 ```{r}
@@ -758,121 +621,74 @@ fit_pa2_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA2_truncated_1200, 3) 
 #PA3
 fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated_1200, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt_trunc_1200)
 
-
-### Plotting
-
-# PA1
-## MI
-png("fit_pa1_MI_sa2.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA2
-## MI
-### knots = 3
-png("fit_pa2_MI_nk3_sa2.png", width = 800, height = 600)
-plotHR(fit_pa2_MI_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of MI \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# PA3
-## MI
-png("fit_pa3_MI_sa2.png", width = 800, height = 600)
-plotHR(fit_pa3_stroke_sa2,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 2: Hazard of MI \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
 ```
 #### Combined Plots
 ```{r}
-png("combined_sa2.png", width = 1200, height = 1600)
-par(mfrow = c(3, 2), oma = c(0, 0, 2, 0)) 
+png("combined_sa2.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
 # PA1
 ## Stroke
 plotHR(fit_pa1_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+      cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 ## MI
 plotHR(fit_pa1_MI_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA2
 plotHR(fit_pa2_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+      cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa2_MI_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA3
 ## Stroke
 plotHR(fit_pa3_stroke_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa3_MI_sa2,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-mtext("Sensitivity Analaysis 2", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 dev.off()
 
 
@@ -902,101 +718,17 @@ fit_pa3_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Age + Race +
 fit_pa3_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Female", ])
 
 
-### Plotting
-
-# PA1
-# Stroke
-png("fit_pa1_stroke_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3: Hazard of Stroke \nby Physical Activity - Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa1_MI_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3: Hazard of MI \nby Physical Activity - Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
-# PA2
-# Stroke
-png("fit_pa2_stroke_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3: Hazard of Stroke \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa2_MI_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3: Hazard of MI \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-# PA3
-# Stroke
-png("fit_pa3_stroke_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3: Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa3_MI_sa3.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
 ```
 ### Male
 ```{r}
 # PA1
-fit_pa1_stroke_sa3_m <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
+fit_pa1_stroke_sa3_m <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
 
-fit_pa1_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
+#fit_pa1_stroke_sa3_m <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
+
+fit_pa1_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
+
+#fit_pa1_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
 
 # PA2
 fit_pa2_stroke_sa3_m <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
@@ -1009,162 +741,75 @@ fit_pa3_stroke_sa3_m <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Age + Race
 fit_pa3_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt[dt$Sex == "Male", ])
 
 
-### Plotting
-
-# PA1
-# Stroke
-png("fit_pa1_stroke_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3 - Male: Hazard of Stroke \nby Physical Activity - Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa1_MI_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3 - Male: Hazard of MI \nby Physical Activity - Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
-# PA2
-# Stroke
-png("fit_pa2_stroke_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3 - Male: Hazard of Stroke \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa2_MI_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3 - Male: Hazard of MI \nby Physical Activity - Machine Learning",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-# PA3
-# Stroke
-png("fit_pa3_stroke_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 3 - Male: Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-# MI
-png("fit_pa3_MI_sa3_m.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa3_m,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4 - Male: Hazard of MI \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1
-)
-dev.off()
-
-
-
 ```
 
 #### Combined Plots
 
-Female
 ```{r}
-png("combined_sa3.png", width = 1600, height = 1200)
-par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+
 # PA1
+png("combined_sa3_pa1.png", width = 2200, height = 2250, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa1_stroke_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) - \nFemale",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI - Female
 plotHR(fit_pa1_MI_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) - \n Female",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 
 ## Stroke - Male
 plotHR(fit_pa1_stroke_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) - \nMale",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 
 
 ## MI - Male
 plotHR(fit_pa1_MI_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) -\n Male",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
-mtext("Sensitivty Analysis 3: Vector Magnitude (ENMO)", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 dev.off()
 
 
 
-png("combined_sa3_2.png", width = 1600, height = 1200)
-par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+#######################################
 # PA2
+png("combined_sa3_pa2.png", width = 2200, height = 2250,res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa2_stroke_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) - \nFemale",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 
@@ -1172,84 +817,82 @@ plotHR(fit_pa2_stroke_sa3,
 plotHR(fit_pa2_MI_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) - \nFemale",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U" ,
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## Stroke - Male
 plotHR(fit_pa2_stroke_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) - \nMale",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 
 ## MI
 plotHR(fit_pa2_MI_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) - \n Male",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
-mtext("Sensitivty Analysis 3: Machine Learning", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
 dev.off()
 
 
 
-
-png("combined_sa3_3.png", width = 1600, height = 1200)
-par(mfrow = c(2, 2), oma = c(0, 0, 2, 0)) 
+#######################################
 # PA3
+png("combined_sa3_pa3.png", width = 2200, height = 2250, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa3_stroke_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) -\n Female",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI - Female
 plotHR(fit_pa3_MI_sa3,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) -\n Female",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U",,
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## Stroke - Male
 plotHR(fit_pa3_stroke_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO) -\n Male",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI - Male
 plotHR(fit_pa3_MI_sa3_m,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO) -\ Male",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-
-mtext("Sensitivty Analysis 3: Activity Count", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+       plot.bty = "U",
+       cex.axis = 1, cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 dev.off()
 
 
@@ -1282,49 +925,6 @@ fit_pa3_stroke_sa4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + 
 
 
 
-### Plotting
-
-# PA1
-## Stroke
-png("fit_pa1_stroke_sa4.png", width = 800, height = 600)
-plotHR(fit_pa1_stroke_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-# PA2
-## Stroke
-### knots = 3
-png("fit_pa2_stroke_sa4.png", width = 800, height = 600)
-plotHR(fit_pa2_stroke_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-# PA3
-## Stroke
-png("fit_pa3_stroke_sa4.png", width = 800, height = 600)
-plotHR(fit_pa3_stroke_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of Stroke \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-
 ```
 
 
@@ -1340,94 +940,57 @@ fit_pa2_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race + d
 fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + deprivation_index + Education + hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + greenspace + water_res + natural_env , data = dt_sa4)
 
 
-### Plotting
-
-# PA1
-## MI
-png("fit_pa1_MI_sa4.png", width = 800, height = 600)
-plotHR(fit_pa1_MI_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity Vector Magnitude (ENMO)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-# PA2
-## MI
-### knots = 3
-png("fit_pa2_MI_sa4.png", width = 800, height = 600)
-plotHR(fit_pa2_MI_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Machine Learning \nknots = 3",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-# PA3
-## MI
-png("fit_pa3_MI_sa4.png", width = 800, height = 600)
-plotHR(fit_pa3_MI_sa4,
-       term = 1,
-       xlab = "PA Duration (minutes/week)",
-       main = "Sensitivity analysis 4: Hazard of MI \nby Physical Activity - Activity Count",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       refline = 1)
-dev.off()
-
-
 ```
 #### Combined Plots
 ```{r}
-png("combined_sa4.png", width = 1200, height = 1600)
-par(mfrow = c(3, 2), oma = c(0, 0, 2, 0)) 
+png("combined_sa4.png",width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
 # PA1
 ## Stroke
 plotHR(fit_pa1_stroke_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 ## MI
 plotHR(fit_pa1_MI_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
 plotHR(fit_pa2_stroke_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa2_MI_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3
@@ -1435,22 +998,24 @@ plotHR(fit_pa2_MI_sa4,
 plotHR(fit_pa3_stroke_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa3_MI_sa4,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-mtext("Sensitivity Analaysis 4", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 dev.off()
 
 
@@ -1499,48 +1064,55 @@ fit_pa3_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  
 
 #### Combined Plots
 ```{r}
-png("combined_sa6.png", width = 1200, height = 1600)
-par(mfrow = c(3, 2), oma = c(0, 0, 2, 0)) 
+png("combined_sa6.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
 # PA1
 ## Stroke
 plotHR(fit_pa1_stroke_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U"
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
 ## MI
 plotHR(fit_pa1_MI_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity Vector Magnitude (ENMO)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
 plotHR(fit_pa2_stroke_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa2_MI_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Machine Learning",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3
@@ -1548,22 +1120,24 @@ plotHR(fit_pa2_MI_sa6,
 plotHR(fit_pa3_stroke_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Stroke \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa3_MI_sa6,
        term = 1,
        xlab = "PA Duration (minutes/week)",
-       main = "Cox PH Model for Hazard of Mycordial Infarction Risk \nby Physical Activity - Activity Count",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
-       plot.bty = "U" 
-)
-mtext("Sensitivity Analaysis 6", side = 3, outer = TRUE, line = 0, cex = 1.5, font = 2)
+       plot.bty = "U", 
+       cex.axis = 1, 
+       cex.lab = 1.2)
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
 dev.off()
 
 
