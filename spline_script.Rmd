@@ -58,13 +58,14 @@ dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds"
 ```{r}
 
 # Renaming the variables for MVPA and Follow-up time (crucial for coxph function to work)
-dt <- dt %>% rename(fu_time = `Follow_up time`,
-                    MI = `Myocardial Infarction`,
-                    mvpa1 = `MVPA min/week`,
-                    mvpa2 = `MVPA min/week Machine Learning`,
-                    mvpa3 = `MVPA min/week Activity Count`,
+dt <- dt %>% rename(fu_time = `Follow up time in months`,
+                    MI = `Myocardial infarction`,
+                    mvpa1 = `MVPA min/week - ENMO`,
+                    mvpa2 = `MVPA min/week - Machine learning`,
+                    mvpa3 = `MVPA min/week - Activity count`,
                     deprivation_index = `Deprivation index`,
-                    hh_income = `Household Income`,
+                    hh_income = `Household income GBP`,
+                    Alcohol = `Alcohol consumption`,
                     pro_meat = `Processed meat`,
                     red_meat = `Red meat`,
                     fresh_fruit = `Fresh fruit`,
@@ -78,42 +79,43 @@ dt <- dt %>% rename(fu_time = `Follow_up time`,
                     #bmi = `Body Mass Index`
                     )
 
-dt2 <- dt2 %>% rename(fu_time = `Follow_up time`,
-                    MI = `Myocardial Infarction`,
-                    mvpa1 = `MVPA min/week`,
-                    mvpa2 = `MVPA min/week Machine Learning`,
-                    mvpa3 = `MVPA min/week Activity Count`,
-                    mvpa4 = `MVPA min/week Self-Report (IPAQ)`,
+dt2 <- dt2 %>% rename(fu_time = `Follow up time in months`,
+                    MI = `Myocardial infarction`,
+                    mvpa1 = `MVPA min/week - ENMO`,
+                    mvpa2 = `MVPA min/week - Machine learning`,
+                    mvpa3 = `MVPA min/week - Activity count`,
+                    mvpa4 = `MVPA min/week - Self-report (IPAQ)`,
                     deprivation_index = `Deprivation index`,
-                    hh_income = `Household Income`,
+                    hh_income = `Household income GBP`,
+                    Alcohol = `Alcohol consumption`,
                     pro_meat = `Processed meat`,
                     red_meat = `Red meat`,
                     fresh_fruit = `Fresh fruit`,
                     cooked_vg = `Cooked vegetables`,
                     oily_fish = `Oily fish`,
                     non_oily_fish = `Non-oily fish`,
-                    type_2_diab = `Type II Diabetes`,
-                    bmi = `Body Mass Index`,
+                    #type_2_diab = `Type II diabetes`,
+                    #bmi = `Body mass index`,
                     greenspace = `Greenspace 300m from residence`,
                     water_res = `Water 300m from residence`,
                     natural_env = `Natural env. 300m from residence`
 )
 
-dt3 <- dt3 %>% rename(fu_time = `Follow_up time`,
-                    MI = `Myocardial Infarction`,
-                    mvpa1 = `MVPA min/week`,
-                    mvpa2 = `MVPA min/week Machine Learning`,
-                    mvpa3 = `MVPA min/week Activity Count`,
+dt3 <- dt3 %>% rename(fu_time = `Follow up time in months`,
+                    MI = `Myocardial infarction`,
+                    mvpa1 = `MVPA min/week - ENMO`,
+                    mvpa2 = `MVPA min/week - Machine learning`,
+                    mvpa3 = `MVPA min/week - Activity count`,
                     deprivation_index = `Deprivation index`,
-                    hh_income = `Household Income`,
-                    pro_meat = `Processed meat`,
-                    red_meat = `Red meat`,
-                    fresh_fruit = `Fresh fruit`,
-                    cooked_vg = `Cooked vegetables`,
-                    oily_fish = `Oily fish`,
-                    non_oily_fish = `Non-oily fish`,
-                    type_2_diab = `Type II Diabetes`,
-                    bmi = `Body Mass Index`,
+                    #hh_income = `Household income GBP`,
+                    #pro_meat = `Processed meat`,
+                    #red_meat = `Red meat`,
+                    #fresh_fruit = `Fresh fruit`,
+                    #cooked_vg = `Cooked vegetables`,
+                    #oily_fish = `Oily fish`,
+                    #non_oily_fish = `Non-oily fish`,
+                    type_2_diab = `Type II diabetes`,
+                    bmi = `Body mass index`,
                     greenspace = `Greenspace 300m from residence`,
                     water_res = `Water 300m from residence`,
                     natural_env = `Natural env. 300m from residence`
@@ -235,7 +237,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke, 
        term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVMVPA duration (minutes/week)", 
        adj = 0, 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
@@ -247,7 +249,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI,
        term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVMVPA duration (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
        plot.bty = "U", 
@@ -260,7 +262,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa2_stroke, 
        term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVPA puration (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
        plot.bty = "U", 
@@ -271,7 +273,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI, 
        term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVMVPA duration (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
        plot.bty = "U", 
@@ -284,7 +286,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke, 
        term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVMVPA duration (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
        plot.bty = "U", 
@@ -295,7 +297,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR(fit_pa3_MI, term = 1, 
-       xlab = "PA Duration (minutes/week)", 
+       xlab = "MVMVPA duration (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.2, 4), 
        plot.bty = "U", 
@@ -387,7 +389,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(4, 2), oma = c(0, 0, 2, 0), ma
 # PA1
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVMVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -397,7 +399,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA1 MI
 plotHR(fit_pa1_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -407,7 +409,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -417,7 +419,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2 MI
 plotHR(fit_pa2_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -428,7 +430,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -438,7 +440,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -450,7 +452,7 @@ fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -461,7 +463,7 @@ fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa4_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -482,7 +484,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 # PA1
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -492,7 +494,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA1 MI
 plotHR(fit_pa1_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -502,7 +504,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -512,7 +514,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2 MI
 plotHR(fit_pa2_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -529,7 +531,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa3_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -539,7 +541,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -551,7 +553,7 @@ fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -562,7 +564,7 @@ fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa4_mi_sa1,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -631,7 +633,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -641,7 +643,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -651,7 +653,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -661,7 +663,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -672,7 +674,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -682,7 +684,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa2,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -753,7 +755,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa1_stroke_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -764,7 +766,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa1_MI_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -775,7 +777,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa1_stroke_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -787,7 +789,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR(fit_pa1_MI_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -804,7 +806,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa2_stroke_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -816,7 +818,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa2_MI_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U" ,
@@ -827,7 +829,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa2_stroke_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -838,7 +840,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -856,7 +858,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa3_stroke_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -867,7 +869,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa3_MI_sa3,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",,
@@ -877,7 +879,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa3_stroke_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -887,7 +889,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR(fit_pa3_MI_sa3_m,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -900,15 +902,19 @@ dev.off()
 
 
 ## Sensitivity analysis 4 - 2 years of survival 
-We perform a sensitivity analysis by first extracting people that have had a stroke
-within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0)
+We perform a sensitivity analysis by first extracting people that have had a stroke or MI
+within the 2 following years of the end of the accelerometer tracking ('2_years_survival_stroke' == 0;
+or, 2_years_survival_MI' == 0)
 
-Remove people who have had a Stroke within 2 years following date_end_accel:
+Remove people who have had a Stroke or MI within 2 years following date_end_accel:
 ```{r}
 
 # we create a new df where we extracted the participants for whom '2_years_survival_stroke' == 0
 dt_sa4 <- dt %>%
-  filter(`Two Years Stroke Survival` != 0)
+  filter(`2_years_survival_stroke` != 0)
+
+dt_sa4 <- dt_sa4  %>%
+  filter(`2_years_survival_MI` != 0)
 
 ```
 
@@ -950,7 +956,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -961,7 +967,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -973,7 +979,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -984,7 +990,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -997,7 +1003,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1008,7 +1014,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa4,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1033,32 +1039,32 @@ In the "3_survival_analysis_prep.Rmd" file
 ### Stroke
 ```{r}
 # PA1
-fit_pa1_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
+fit_pa1_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
 
 
 # PA2
-fit_pa2_stroke_sa6<- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
+fit_pa2_stroke_sa6<- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
 
-#fit_pa2_stroke_nk4_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish, data = dt)
+#fit_pa2_stroke_nk4_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4) + Sex + Age + ethnicity +  deprivation_index + Education +  hh_income + Smoking + Alcohol +processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish, data = dt)
 
 
 #PA3
-fit_pa3_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
+fit_pa3_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
 
 ```
 
 ### MI
 ```{r}
 # PA1
-fit_pa1_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
+fit_pa1_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
 
 
 # PA2
-fit_pa2_MI_sa6<- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
+fit_pa2_MI_sa6<- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish + greenspace + water_res + natural_env  + bmi + type_2_diab + Depression, data = dt3)
 
 
 #PA3
-fit_pa3_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + greenspace + water_res + natural_env  + red_meat +non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
+fit_pa3_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + greenspace + water_res + natural_env  + red_meat +non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
 
 ```
 
@@ -1071,7 +1077,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1083,7 +1089,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1095,7 +1101,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1106,7 +1112,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1119,7 +1125,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1130,7 +1136,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa6,
        term = 1,
-       xlab = "PA Duration (minutes/week)",
+       xlab = "MVPA duration (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
