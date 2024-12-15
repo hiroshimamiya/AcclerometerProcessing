@@ -35,11 +35,9 @@ instance 0
 
 full_df <- full_df %>%
   mutate(
-    duration_moderate_activity_0 = na_if(as.numeric(as.character(duration_moderate_activity_0)), -1),
-    duration_moderate_activity_0 = na_if(duration_moderate_activity_0, -3),
+    duration_moderate_activity_0 = if_else(as.numeric(as.character(duration_moderate_activity_0)) %in% c(-1, -3), 0, as.numeric(as.character(duration_moderate_activity_0))),
     
-    duration_vigorous_activity_0 = na_if(as.numeric(as.character(duration_vigorous_activity_0)), -1),
-    duration_vigorous_activity_0 = na_if(duration_vigorous_activity_0, -3),
+    duration_vigorous_activity_0 = if_else(as.numeric(as.character(duration_vigorous_activity_0)) %in% c(-1, -3), 0, as.numeric(as.character(duration_vigorous_activity_0)))
     
     #duration_heavy_DIY_0 = na_if(as.numeric(as.character(duration_heavy_DIY_0)), -1),
     #duration_heavy_DIY_0 = na_if(duration_heavy_DIY_0, -3),
@@ -99,7 +97,8 @@ we create the "MVPA_min_PA4" by doing the sum of both columns
 
 full_df <- full_df %>%
   mutate(
-    MVPA_min_PA4 = coalesce(duration_vigorous_activity_0) + coalesce(duration_moderate_activity_0)
+    MVPA_min_PA4 = coalesce(duration_vigorous_activity_0, 0) + coalesce(duration_moderate_activity_0, 0),
+    MVPA_min_PA4 = if_else(is.na(MVPA_min_PA4), 0, MVPA_min_PA4)
   )
 
 ```

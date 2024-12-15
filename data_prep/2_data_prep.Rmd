@@ -622,7 +622,7 @@ levels(full_df_PA$red_meat) <- list( "Less than 2 times a week" = "Less than 2 t
 full_df_PA$education_level %>% table 
 full_df_PA$education_level <- factor(full_df_PA$education_level)
 levels(full_df_PA$education_level)
-levels(full_df_PA$education_level) <- list( "None of the above" = "None of the above", 
+levels(full_df_PA$education_level) <- list( "None of the below" = "None of the above", 
                                     "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
                                     "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS, NVQ/HND/HNC or equivalent",
                                     "College or University degree" = "College or University degree") 
@@ -746,11 +746,11 @@ dt <- full_df_PA %>%  dplyr::select(
   sex, 
   education_level,
   avg_hh_income,
-  tdi_quarters,
+  tdi,
   avg_hh_income,
-  BMI,
-  diabetes,
-  depression,
+  #BMI,
+  #diabetes,
+  #depression,
   smoking, 
   alcohol, 
   processed_meat, 
@@ -774,18 +774,18 @@ dt <- full_df_PA %>%  dplyr::select(
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
-  varName = c("Myocardial Infarction",
+  varName = c("Myocardial infarction",
               "Stroke",
               "Age",
-              "MVPA min/week",
-              "MVPA min/week Machine Learning",
-              "MVPA min/week Activity Count",
+              "MVPA min/week - ENMO",
+              "MVPA min/week - Machine learning",
+              "MVPA min/week - Activity count",
               "Race", 
               "Deprivation index", 
               "Education", 
-              "Household Income",
+              "Household income GBP",
               "Smoking", 
-              "Alcohol", 
+              "Alcohol consumption", 
               "Processed meat",
               "Red meat",
               "Fresh fruit", 
@@ -793,10 +793,10 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow_up time", 
+              "Follow up time in months", 
               #"Body Mass Index",
-              "Two Years Stroke Survival",
-              "Two Years MI Survival",
+              #"Two Years Stroke Survival",
+              #"Two Years MI Survival",
               "Greenspace 300m from residence",
               "Water 300m from residence",
               "Natural env. 300m from residence"
@@ -808,7 +808,7 @@ varNameDf <- data.frame(
               "MVPA_min_PA2",
               "MVPA_min_PA3",
               "ethnicity", 
-              "tdi_quarters", 
+              "tdi", 
               "education_level", 
               "avg_hh_income",
               "smoking", 
@@ -822,8 +822,8 @@ varNameDf <- data.frame(
               "sex", 
               "fu_time", 
               #"BMI",
-              "2_years_survival_stroke",
-              "2_years_survival_MI",
+              #"2_years_survival_stroke",
+              #"2_years_survival_MI",
               "water_300m",
               "greenspace_300m",
               "naturalenv_300m"
@@ -842,9 +842,9 @@ dt <- dt %>%
 # create table - one single column
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}", 
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})",
     digits = all_continuous() ~ 1,
     missing = "no"  # remove unknowns from table
   ) %>%
@@ -879,10 +879,11 @@ print(tb)
 #print(tb)
 
 # Save 
-flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate_Vigorous Physical Activity" = tb,  
+flextable::save_as_docx("Distribution of participant characteristics by MVPA" = tb,  
                path = "testTable1.docx", 
                pr_section = sect_properties
-               )  
+               ) 
+
 ```
 ## Table 2 - subanalaysis (incudes PA4, diabetes and depression)
 ```{r}
@@ -892,8 +893,8 @@ flextable::save_as_docx("Distribution of participant characteristics by Quartile
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
-  `2_years_survival_stroke`,
-  `2_years_survival_MI`,
+ # `2_years_survival_stroke`,
+ # `2_years_survival_MI`,
   MVPA_Quant_PA1,
   MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
@@ -909,11 +910,11 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   sex, 
   education_level,
   avg_hh_income,
-  tdi_quarters,
+  tdi,
   avg_hh_income,
-  BMI,
-  diabetes,
-  depression,
+  #BMI,
+  #diabetes,
+ # depression,
   smoking, 
   alcohol, 
   processed_meat, 
@@ -937,22 +938,22 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
 
 # Convert variable names into descriptive table names 
 varNameDf <- data.frame(
-  varName = c("Myocardial Infarction",
+  varName = c("Myocardial infarction",
               "Stroke",
               "Age",
-              "MVPA min/week",
-              "MVPA min/week Activity Count",
-              "MVPA min/week Self-Report (IPAQ)",
-              "MVPA min/week Machine Learning",
+              "MVPA min/week - ENMO",
+              "MVPA min/week - Activity count",
+              "MVPA min/week - Self-report (IPAQ)",
+              "MVPA min/week - Machine learning",
               "Race", 
-              "BMI",
-              "Type II Diabetes", 
-              "Depression",
+              #"BMI",
+              #"Type II diabetes", 
+              #"Depression",
               "Deprivation index", 
               "Education", 
-              "Household Income",
+              "Household income GBP",
               "Smoking", 
-              "Alcohol", 
+              "Alcohol consumption", 
               "Processed meat",
               "Red meat",
               "Fresh fruit", 
@@ -960,10 +961,9 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow_up time", 
-              "Body Mass Index",
-              "Two Years Stroke Survival",
-              "Two Years MI Survival",              
+              "Follow up time in months", 
+             # "Two years stroke survival",
+             # "Two years MI survival",              
               "Greenspace 300m from residence",
               "Water 300m from residence",
               "Natural env. 300m from residence"
@@ -976,10 +976,10 @@ varNameDf <- data.frame(
               "MVPA_min_PA3",
               "MVPA_min_PA4",
               "ethnicity", 
-              "BMI",
-              "diabetes", 
-              "depression",
-              "tdi_quarters", 
+              #"BMI",
+              #"diabetes", 
+              #"depression",
+              "tdi", 
               "education_level", 
               "avg_hh_income",
               "smoking", 
@@ -992,9 +992,8 @@ varNameDf <- data.frame(
               "non_oily_fish",
               "sex", 
               "fu_time", 
-              "BMI",
-              "2_years_survival_stroke",
-              "2_years_survival_MI",
+              #"2_years_survival_stroke",
+              #"2_years_survival_MI",
               "water_300m",
               "greenspace_300m",
               "naturalenv_300m")
@@ -1012,9 +1011,9 @@ dt2 <- dt2 %>%
 # create table - one single column
 tb2 <- dt2 %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}", 
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no" 
   ) %>%
@@ -1068,8 +1067,7 @@ dt3 <- full_df_PA %>%  dplyr::select(
   ethnicity, 
   sex, 
   education_level,
-  avg_hh_income,
-  tdi_quarters,
+  tdi,
   avg_hh_income,
   BMI,
   diabetes,
@@ -1099,31 +1097,31 @@ dt3 <- full_df_PA %>%  dplyr::select(
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
-  varName = c("Myocardial Infarction",
+  varName = c("Myocardial infarction",
               "Stroke",
               "Age",
-              "MVPA min/week",
-              "MVPA min/week Activity Count",
-              "MVPA min/week Machine Learning",
-              "Race", 
+              "MVPA min/week - ENMO",
+              "MVPA min/week - Activity count",
+              "MVPA min/week - Machine learning",
+              #"Race", 
               "Deprivation index", 
-              "Education", 
-              "Household Income",
-              "Smoking", 
-              "Alcohol", 
-              "Processed meat",
-              "Red meat",
-              "Fresh fruit", 
-              "Cooked vegetables", 
-              "Oily fish", 
-              "Non-oily fish",
+              #"Education", 
+              #"Household income GBP",
+              #"Smoking", 
+              #"Alcohol consumption", 
+              #"Processed meat",
+              #"Red meat",
+              #"Fresh fruit", 
+              #"Cooked vegetables", 
+              #"Oily fish", 
+              #"Non-oily fish",
               "Sex", 
-              "Follow_up time", 
-              "Body Mass Index",
-              "Type II Diabetes",
+              "Follow up time in months", 
+              "Body mass index",
+              "Type II diabetes",
               "Depression",
-              "Two Years Stroke Survival",
-              "Two Years MI Survival",
+              "Two years stroke survival",
+              "Two years MI survival",
               "Greenspace 300m from residence",
               "Water 300m from residence",
               "Natural env. 300m from residence"
@@ -1134,18 +1132,18 @@ varNameDf <- data.frame(
               "MVPA_min_PA1", 
               "MVPA_min_PA2",
               "MVPA_min_PA3",
-              "ethnicity", 
-              "tdi_quarters", 
-              "education_level", 
-              "avg_hh_income",
-              "smoking", 
-              "alcohol", 
-              "processed_meat", 
-              "red_meat",
-              "fresh_fruit", 
-              "cooked_vg", 
-              "oily_fish", 
-              "non_oily_fish",
+              #"ethnicity", 
+              "tdi", 
+              #"education_level", 
+              #"avg_hh_income",
+              #"smoking", 
+             #"alcohol", 
+              #"processed_meat", 
+              #"red_meat",
+              #"fresh_fruit", 
+              #"cooked_vg", 
+              #"oily_fish", 
+              #"non_oily_fish",
               "sex", 
               "fu_time", 
               "BMI",
@@ -1172,7 +1170,7 @@ tb3 <- dt3 %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
-    statistic = all_continuous() ~ "{median}", 
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no"  
   ) %>%
@@ -1196,10 +1194,10 @@ saveRDS(dt3, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
 ```{r}
 png("MVPA_histograms.png", width = 800, height = 800)
 par(mfrow = c(2,2))
-hist(dt$`MVPA min/week`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ENMO")
-hist(dt$`MVPA min/week Machine Learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Machine Learning")
-hist(dt$`MVPA min/week Activity Count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
-hist(dt2$`MVPA min/week Self-Report (IPAQ)`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report (IPAQ)")
+hist(dt$`MVPA min/week - ENMO`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ENMO")
+hist(dt$`MVPA min/week - Machine learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Machine Learning")
+hist(dt$`MVPA min/week - Activity count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
+hist(dt2$`MVPA min/week - Self-report (IPAQ)`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report (IPAQ)")
 dev.off()
 
 ```
@@ -1260,30 +1258,30 @@ png("MVPA_histograms.png", width = 2250, height = 2250, res = 300)
 par(mfrow = c(2, 2), family = "Arial", ps = 12, oma = c(0, 0, 0, 0), mar = c(4, 4, 2, 1)) 
 
 # Histogram 1
-hist(dt$`MVPA min/week`,
+hist(dt$`MVPA min/week - ENMO`,
      xlab = "Minutes",
       main = "", 
      cex.axis = 1, cex.lab = 1.2, cex.main = 1.4) 
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
 
 # Histogram 2
-hist(dt$`MVPA min/week Machine Learning`,
+hist(dt$`MVPA min/week - Machine learning`,
      xlab = "Minutes",
       main = "",
      cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
 
 # Histogram 3
-hist(dt$`MVPA min/week Activity Count`,
+hist(dt$`MVPA min/week - Activity count`,
      xlab = "Minutes",
       main = "", 
      cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
 fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.2, y_adj = -0.05)
 
 # Histogram 4
-#hist(dt2$`MVPA min/week Self-Report (IPAQ)`,
-     #xlab = "Minutes",
-     #cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
+hist(dt2$`MVPA min/week - Self-report (IPAQ)`,
+     xlab = "Minutes",
+     cex.axis = 1, cex.lab = 1.2, cex.main = 1.4)
 
 dev.off()
 
