@@ -233,7 +233,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke, 
+plotHR(fit_pa1_stroke,  
        term = 1, 
        xlab = "PA Duration (minutes/week)", 
        adj = 0, 
