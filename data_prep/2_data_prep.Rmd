@@ -624,7 +624,7 @@ full_df_PA$education_level <- factor(full_df_PA$education_level)
 levels(full_df_PA$education_level)
 levels(full_df_PA$education_level) <- list( "None of the below" = "None of the above", 
                                     "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
-                                    "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS, NVQ/HND/HNC or equivalent",
+                                    "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
                                     "College or University degree" = "College or University degree") 
 
 ```
