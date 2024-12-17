@@ -759,9 +759,9 @@ dt <- full_df_PA %>%  dplyr::select(
   non_oily_fish,
   fresh_fruit,
   cooked_vg,
-  water_300m,
-  greenspace_300m,
-  naturalenv_300m,
+  #water_300m,
+  #greenspace_300m,
+  #naturalenv_300m,
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
   MVPA_Quant_PA3_truncated,
@@ -793,13 +793,13 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow up time in months", 
+              "Follow up time in months"
               #"Body Mass Index",
               #"Two Years Stroke Survival",
               #"Two Years MI Survival",
-              "Greenspace 300m from residence",
-              "Water 300m from residence",
-              "Natural env. 300m from residence"
+              #"Greenspace 300m from residence",
+              #"Water 300m from residence",
+              #"Natural env. 300m from residence"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -820,13 +820,13 @@ varNameDf <- data.frame(
               "oily_fish", 
               "non_oily_fish",
               "sex", 
-              "fu_time", 
+              "fu_time"
               #"BMI",
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
-              "water_300m",
-              "greenspace_300m",
-              "naturalenv_300m"
+              #"water_300m",
+              #"greenspace_300m",
+              #"naturalenv_300m"
               )
 )
 
@@ -879,7 +879,7 @@ print(tb)
 #print(tb)
 
 # Save 
-flextable::save_as_docx("Distribution of participant characteristics by MVPA" = tb,  
+flextable::save_as_docx("Table 1. Distribution of participant characteristics by MVPA - Main Analysis" = tb,  
                path = "testTable1.docx", 
                pr_section = sect_properties
                ) 
@@ -923,9 +923,9 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   non_oily_fish,
   fresh_fruit,
   cooked_vg, 
-  water_300m,
-  greenspace_300m,
-  naturalenv_300m,
+  #water_300m,
+  #greenspace_300m,
+  #naturalenv_300m,
   MVPA_Quant_PA1_truncated, 
   MVPA_Quant_PA2_truncated,
   MVPA_Quant_PA3_truncated, 
@@ -961,12 +961,12 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow up time in months", 
+              "Follow up time in months"
              # "Two years stroke survival",
              # "Two years MI survival",              
-              "Greenspace 300m from residence",
-              "Water 300m from residence",
-              "Natural env. 300m from residence"
+              #"Greenspace 300m from residence",
+              #"Water 300m from residence",
+              #"Natural env. 300m from residence"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -991,12 +991,13 @@ varNameDf <- data.frame(
               "oily_fish", 
               "non_oily_fish",
               "sex", 
-              "fu_time", 
+              "fu_time"
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
-              "water_300m",
-              "greenspace_300m",
-              "naturalenv_300m")
+              #"water_300m",
+              #"greenspace_300m",
+              #"naturalenv_300m"
+  )
 )
 
 var_names <- varNameDf %>% 
@@ -1036,8 +1037,8 @@ print(tb2)
 print(tb2)
 
 # Save 
-flextable::save_as_docx("Distribution of participant characteristics by Quartile of Moderate Vigorous Physical Activity" = tb2,  
-               path = "testTable.docx", 
+flextable::save_as_docx("Table 2.1. Distribution of participant characteristics by MVPA - Including PA4" = tb2,  
+               path = "testTable2_pa4.docx", 
                pr_section = sect_properties
 )
 
@@ -1175,7 +1176,111 @@ tb3 <- dt3 %>%
     missing = "no"  
   ) %>%
   as_flex_table()
+
+
+
+# Save 
+flextable::save_as_docx("Table 2.2. Distribution of participant characteristics by MVPA - Mediators " = tb3,  
+               path = "testTable2_mediator.docx", 
+               pr_section = sect_properties)
 ```
+
+
+## Create dt4 - Greeness
+```{r}
+
+dt4 <- full_df_PA %>%  dplyr::select(
+  fu_time, 
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`,
+  MVPA_Quant_PA2,  
+  MVPA_Quant_PA1,
+  MVPA_Quant_PA3,
+  #MVPA_Quant_PA4,  
+  MVPA_min_PA1, 
+  MVPA_min_PA2,
+  MVPA_min_PA3,
+ # MVPA_min_PA4, 
+  MI, 
+  stroke,
+  age_entry_years, 
+  #ethnicity, 
+  sex, 
+  education_level,
+  #tdi,
+  water_300m,
+  greenspace_300m,
+  naturalenv_300m
+  )
+
+
+
+# Convert variable names into desruptive table names 
+varNameDf <- data.frame(
+  varName = c("Myocardial infarction",
+              "Stroke",
+              "Age",
+              "MVPA min/week - ENMO",
+              "MVPA min/week - Activity count",
+              "MVPA min/week - Machine learning",
+              #"Race", 
+              "Sex", 
+              "Follow up time in months", 
+              "Greenspace 300m from residence",
+              "Water 300m from residence",
+              "Natural env. 300m from residence"
+  ), 
+  ChartName = c("MI", 
+              "stroke",
+              "age_entry_years",
+              "MVPA_min_PA1", 
+              "MVPA_min_PA2",
+              "MVPA_min_PA3",
+              #"ethnicity", 
+              #"tdi", 
+              #"education_level", 
+              #"avg_hh_income",
+              #"smoking", 
+             #"alcohol", 
+              #"processed_meat", 
+              #"red_meat",
+              #"fresh_fruit", 
+              #"cooked_vg", 
+              #"oily_fish", 
+              #"non_oily_fish",
+              "sex", 
+              "fu_time", 
+              "water_300m",
+              "greenspace_300m",
+              "naturalenv_300m"
+              )
+)
+
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    tibble::deframe()
+
+dt4 <- dt4 %>% 
+    rename(!!!var_names)
+
+
+tb4 <- dt4 %>%
+  tbl_summary(
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
+    digits = all_continuous() ~ 1,
+    missing = "no"  
+  ) %>%
+  as_flex_table()
+
+
+
+# Save 
+flextable::save_as_docx("Table 2.3. Distribution of participant characteristics by MVPA - Greenspace and Bluespace " = tb4,  
+               path = "testTable2_greenspace_bluespace.docx", 
+               pr_section = sect_properties)
+```
+
 
 
 
@@ -1184,6 +1289,7 @@ tb3 <- dt3 %>%
 saveRDS(dt, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 saveRDS(dt2, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 saveRDS(dt3, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
+#saveRDS(dt4"/home/yacine/dataframes_AccelerometerProcessing/prepped_dt4.rds")
 
 ```
 
