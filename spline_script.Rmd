@@ -264,80 +264,114 @@ fig_label <- function(text, region = "plot", pos = "topleft", cex = 1.2, x_adj =
 #### Combined Plots - Main Analysis
 ```{r}
 png("combined_main_scaled.png", width = 2250, height = 2625, res = 300)
-par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 1, 1))
 
-#source("plotHR_hiroshiFunction.R")
+source("plotHR_hiroshiFunction.R")
 
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke,  
+plotHR2(fit_pa1_stroke,  
+      rescaleHR = T, 
        term = 1, 
-       xlab = "MVMVPA duration (minutes/week)", 
+       #xlab = "MVPA (minutes/week)", 
        adj = 0, 
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
+       ylim = c(0.1, 1.3), 
        plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2, 
+        lwd.term = 2,
+        lty.term = 3,
+      col.se = "lightgrey", 
+      col.dens = "grey"
+      )
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa1_MI,
+plotHR2(fit_pa1_MI,
+        rescaleHR = T, 
        term = 1, 
-       xlab = "MVMVPA duration (minutes/week)", 
+       #xlab = "MVPA (minutes/week)", 
+       yaxt = "n",
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
+       ylim = c(0.1, 1.3), 
        plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2, 
+               lwd.term = 1.5,
+        lty.term = 1, 
+             col.se = "lightgrey", 
+      col.dens = "grey"
+       )
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
 ## Stroke
-plotHR(fit_pa2_stroke, 
+plotHR2(fit_pa2_stroke, 
+        rescaleHR = T, 
        term = 1, 
-       xlab = "MVPA puration (minutes/week)", 
+       #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
+       ylim = c(0.1, 1.3), 
        plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2, 
+               lwd.term = 2,
+        lty.term = 3, 
+             col.se = "lightgrey", 
+      col.dens = "grey")
 fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa2_MI, 
+plotHR2(fit_pa2_MI, 
+        rescaleHR = T, 
        term = 1, 
-       xlab = "MVMVPA duration (minutes/week)", 
+       #xlab = "MVPA (minutes/week)", 
+       ylab = "", 
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
-       plot.bty = "U", 
+ylim = c(0.1, 1.3),        plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2, 
+        lwd.term = 1.5,
+        lty.term = 1,
+      col.se = "lightgrey", 
+      col.dens = "grey")
 fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3 
 ## Stroke
-plotHR(fit_pa3_stroke, 
+plotHR2(fit_pa3_stroke, 
+        rescaleHR = T, 
        term = 1, 
-       xlab = "MVMVPA duration (minutes/week)", 
+       xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
-       plot.bty = "U", 
+       ylim = c(0.1, 1.3), 
+      plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2,
+      lwd.term = 2,
+        lty.term = 3, 
+            col.se = "lightgrey", 
+      col.dens = "grey")
 fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI
-plotHR(fit_pa3_MI, term = 1, 
-       xlab = "MVMVPA duration (minutes/week)", 
+plotHR2(fit_pa3_MI, term = 1, 
+        rescaleHR = T, 
+       xlab = "MVPA (minutes/week)", 
+       ylab = "", 
        xlim = c(0, 1500), 
-       ylim = c(0.2, 4), 
+      ylim = c(0.1, 1.3), 
        plot.bty = "U", 
        cex.axis = 1, 
-       cex.lab = 1.2)
+       cex.lab = 1.2, 
+              lwd.term = 1,
+        lty.term = 1, 
+            col.se = "lightgrey", 
+      col.dens = "grey")
 fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 dev.off()
@@ -428,7 +462,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(4, 2), oma = c(0, 0, 2, 0), ma
 # PA1
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
-       xlab = "MVMVPA duration (minutes/week)",
+       xlab = "MVMVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -438,7 +472,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA1 MI
 plotHR(fit_pa1_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -448,7 +482,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -458,7 +492,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2 MI
 plotHR(fit_pa2_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -469,7 +503,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -479,7 +513,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -491,7 +525,7 @@ fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -502,7 +536,7 @@ fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa4_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -523,7 +557,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 # PA1
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -533,7 +567,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA1 MI
 plotHR(fit_pa1_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -543,7 +577,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -553,7 +587,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2 MI
 plotHR(fit_pa2_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -570,7 +604,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa3_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -580,7 +614,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -592,7 +626,7 @@ fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -603,7 +637,7 @@ fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 ## MI
 plotHR(fit_pa4_mi_sa1,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 2000),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -672,7 +706,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -682,7 +716,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -692,7 +726,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -702,7 +736,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -713,7 +747,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -723,7 +757,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa2,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -794,7 +828,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa1_stroke_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -805,7 +839,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa1_MI_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -816,7 +850,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa1_stroke_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -828,7 +862,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR(fit_pa1_MI_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -845,7 +879,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa2_stroke_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -857,7 +891,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa2_MI_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U" ,
@@ -868,7 +902,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa2_stroke_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -879,7 +913,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -897,7 +931,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke - Female
 plotHR(fit_pa3_stroke_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -908,7 +942,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Female
 plotHR(fit_pa3_MI_sa3,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",,
@@ -918,7 +952,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR(fit_pa3_stroke_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -928,7 +962,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR(fit_pa3_MI_sa3_m,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
@@ -995,7 +1029,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1006,7 +1040,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1018,7 +1052,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1029,7 +1063,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1042,7 +1076,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1053,7 +1087,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa4,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1116,7 +1150,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), ma
 ## Stroke
 plotHR(fit_pa1_stroke_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1128,7 +1162,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa1_MI_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1140,7 +1174,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 # PA2
 plotHR(fit_pa2_stroke_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1151,7 +1185,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa2_MI_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1164,7 +1198,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke
 plotHR(fit_pa3_stroke_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
@@ -1175,7 +1209,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI
 plotHR(fit_pa3_MI_sa6,
        term = 1,
-       xlab = "MVPA duration (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
