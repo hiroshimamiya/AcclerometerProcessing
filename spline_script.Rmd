@@ -51,6 +51,16 @@ splines2::bSpline
 dt <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 dt2 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
+
+
+
+par(mfrow=c(4,2))
+  hist(dt$`MVPA min/week - ENMO`, main = "Dt, MVPA1"); hist(dt2$`MVPA min/week - ENMO`, main = "Dt2, MVPA1"); 
+  hist(dt$`MVPA min/week - Machine learning`, main = "Dt, MVPA2"); hist(dt2$`MVPA min/week - Machine learning`, main = "Dt2, MVPA2"); 
+  hist(dt$`MVPA min/week - Activity count`, main = "Dt, MVPA3"); hist(dt2$`MVPA min/week - Activity count`, main = "Dt2, MVPA3"); 
+  hist(dt2$`MVPA min/week - Self-report (IPAQ)`, main = "Dt2, MVPA4")
+dev.off()
+
 ```
 
 
@@ -192,15 +202,26 @@ fit_pa3_MI)
 # Number of observations 
 lapply(l, function(x) x$n) %>% unlist
 
-# Number of covariates 
-coefs <- lapply(l, function(x) x$coefficients) 
-lapply(l, function(x) length(x)) %>% unlist
-coefDf <- data.frame(do.call(cbind, coefs)) %>% purrr::set_names(paste(c(1:6), "Model"))
 
-par(mar = c(5, 11, 4, 2))  # Bottom, Left, Top, Right margins
+# Number of covariates and knots 
+lapply(l, function(x) length(x$coefficients))
+
+# Number of covariates 
+coefs <- lapply(l, function(x){
+  coefDf <- x$coefficients  
+  coefDf[substr(names(coefDf), 1,3) != "rcs"]
+}
+) 
+
+
+coefDf <- data.frame(do.call(cbind, coefs)) %>% purrr::set_names(paste(c(1:6), "Model")) # Covariates are misalighed due to different number of spline knots 
+
+par(mar = c(5, 11, 4, 2), mfrow = c(2,3))  # Bottom, Left, Top, Right margins
 for(i in 1:ncol(coefDf)){
   coefDf[, i] %>% barplot(names.arg = substr(rownames(coefDf), 1,20), las = 2, horiz = T, main = paste("Model ", i))
 }
+
+
 
 
 ```
@@ -424,6 +445,13 @@ fit_pa3_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + 
 fit_pa4_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish , data = dt2)
 
 
+par(mfrow=c(4,2))
+hist(dt$mvpa1, main = "Dt, MVPA1"); hist(dt2$mvpa1, main = "Dt2, MVPA1"); 
+hist(dt$mvpa2, main = "Dt, MVPA2"); hist(dt2$mvpa2, main = "Dt2, MVPA2"); 
+hist(dt$mvpa3, main = "Dt, MVPA3"); hist(dt2$mvpa3, main = "Dt2, MVPA3"); 
+hist(dt2$mvpa4, main = "Dt2, MVPA4")
+dev.off()
+
 
 ```
 
@@ -450,6 +478,9 @@ fit_pa3_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  
 fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish , data = dt2)
 
 
+
+
+
 ```
 
 #### Combined Plots
@@ -462,7 +493,7 @@ par(family = "Arial", ps = 12, cex = 1, mfrow = c(4, 2), oma = c(0, 0, 2, 0), ma
 # PA1
 plotHR(fit_pa1_stroke_sa1,
        term = 1,
-       xlab = "MVMVPA (minutes/week)",
+       xlab = "MVPA (minutes/week)",
        xlim = c(0, 1500),
        ylim = c(0.2, 4),
        plot.bty = "U",
