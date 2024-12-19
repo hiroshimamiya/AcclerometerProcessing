@@ -190,6 +190,9 @@ fit_pa3_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  depr
 ```
 
 
+
+
+
 ### Model check, number of observations and covaraites
 ```{r}
 l <- list(fit_pa1_stroke,
@@ -285,7 +288,7 @@ fig_label <- function(text, region = "plot", pos = "topleft", cex = 1.2, x_adj =
 
 #### Combined Plots - Main Analysis
 ```{r}
-png("combined_main_scaled.png", width = 2250, height = 2625, res = 300)
+png("images/combined_main_scaled.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 1, 1))
 
 source("plotHR_hiroshiFunction.R")
@@ -424,7 +427,7 @@ f_cov_noMediator <- "Sex + Age + Race + deprivation_index + Education + hh_incom
 
 
 
-## Sensitivity analysis 1 - No Mediator, without BMI and Diabetes and Depression
+## Sensitivity analysis 1 - Addition of PA 4
 
 ### Stroke
 ```{r}
@@ -446,14 +449,6 @@ fit_pa3_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + 
 
 #PA4 
 fit_pa4_stroke_sa1 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish , data = dt2)
-
-
-par(mfrow=c(4,2))
-hist(dt$mvpa1, main = "Dt, MVPA1"); hist(dt2$mvpa1, main = "Dt2, MVPA1"); 
-hist(dt$mvpa2, main = "Dt, MVPA2"); hist(dt2$mvpa2, main = "Dt2, MVPA2"); 
-hist(dt$mvpa3, main = "Dt, MVPA3"); hist(dt2$mvpa3, main = "Dt2, MVPA3"); 
-hist(dt2$mvpa4, main = "Dt2, MVPA4")
-dev.off()
 
 
 ```
@@ -490,8 +485,8 @@ fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  
 
 8 plots in one figure
 ```{r}
-png("combined_sa1.png", width = 2250, height = 2625, res = 300)
-par(family = "Arial", ps = 12, cex = 1, mfrow = c(4, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+png("images/combined_sa1_scaled.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
 plotHR(fit_pa1_stroke_sa1,
@@ -554,13 +549,17 @@ plotHR(fit_pa3_mi_sa1,
        cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
 )
 fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
+dev.off()
+
+png("images/combined_sa1_PA4_scaled.png", width = 2250, height = 1200, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(1, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA4
 ## Stroke
 plotHR(fit_pa4_stroke_sa1,
        term = 1,
        xlab = "MVPA (minutes/week)",
-       xlim = c(0, 2000),
+       xlim = c(0, 500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
        cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
@@ -571,7 +570,7 @@ fig_label("G", pos = "topleft", cex = 1.5, x_adj = -0.05, y_adj = -0.03)
 plotHR(fit_pa4_mi_sa1,
        term = 1,
        xlab = "MVPA (minutes/week)",
-       xlim = c(0, 2000),
+       xlim = c(0, 500),
        ylim = c(0.2, 4),
        plot.bty = "U", 
        cex.axis = 1, cex.lab = 1, cex.main = 1, family = "Arial"  # Added font control
@@ -585,7 +584,7 @@ dev.off()
 
 2 figures of four plots
 ```{r}
-png("combined_sa1_1.png", width = 2200, height = 2250,res = 300)
+png("images/combined_sa1_1.png", width = 2200, height = 2250,res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
@@ -631,7 +630,7 @@ fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 dev.off()
 
 
-png("combined_sa1_2.png", width = 2200, height = 2250, res = 300)
+png("images/combined_sa1_2.png", width = 2200, height = 2250, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA3
@@ -733,7 +732,7 @@ fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated_1200, 3) 
 ```
 #### Combined Plots
 ```{r}
-png("combined_sa2.png", width = 2250, height = 2625, res = 300)
+png("images/combined_sa2.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
@@ -857,7 +856,7 @@ fit_pa3_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  depr
 ```{r}
 
 # PA1
-png("combined_sa3_pa1.png", width = 2200, height = 2250, res = 300)
+png("images/combined_sa3_pa1.png", width = 2200, height = 2250, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa1_stroke_sa3,
@@ -908,7 +907,7 @@ dev.off()
 
 #######################################
 # PA2
-png("combined_sa3_pa2.png", width = 2200, height = 2250,res = 300)
+png("images/combined_sa3_pa2.png", width = 2200, height = 2250,res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa2_stroke_sa3,
@@ -960,7 +959,7 @@ dev.off()
 
 #######################################
 # PA3
-png("combined_sa3_pa3.png", width = 2200, height = 2250, res = 300)
+png("images/combined_sa3_pa3.png", width = 2200, height = 2250, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(2, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 ## Stroke - Female
 plotHR(fit_pa3_stroke_sa3,
@@ -1056,7 +1055,7 @@ fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + d
 ```
 #### Combined Plots
 ```{r}
-png("combined_sa4.png",width = 2250, height = 2625, res = 300)
+png("images/combined_sa4.png",width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
@@ -1177,7 +1176,7 @@ fit_pa3_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + ethnicit
 
 #### Combined Plots
 ```{r}
-png("combined_sa6.png", width = 2250, height = 2625, res = 300)
+png("images/combined_sa6.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
