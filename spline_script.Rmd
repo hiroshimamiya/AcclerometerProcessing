@@ -214,7 +214,8 @@ coefs <- lapply(l, function(x){
 ) 
 
 
-coefDf <- data.frame(do.call(cbind, coefs)) %>% purrr::set_names(paste(c(1:6), "Model")) # Covariates are misalighed due to different number of spline knots 
+coefDf <- data.frame(do.call(cbind, coefs)) %>% purrr::set_names(paste(c(1:6), "Model")) 
+# Covariates are misalighed due to different number of spline knots 
 
 par(mar = c(5, 11, 4, 2), mfrow = c(2,3))  # Bottom, Left, Top, Right margins
 for(i in 1:ncol(coefDf)){
@@ -227,7 +228,7 @@ for(i in 1:ncol(coefDf)){
 ```
 
 
-
+## Plotting the dose-response associations from the main analysis 
 Function to label the plots: 
 ```{r}
 
