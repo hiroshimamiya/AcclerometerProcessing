@@ -1078,7 +1078,6 @@ fit_pa3_MI_sa3_m <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Age + Race +  depr
 
 
 #### Combined Plots
-
 ```{r}
 
 # PA1
@@ -1204,6 +1203,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR2(fit_pa2_stroke_sa3_m,
       rescaleHR = T, 
+             term = 1,
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard Ratio (Stroke)", 
      xlim = c(0, 1500), 
@@ -1222,6 +1222,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR2(fit_pa2_MI_sa3_m,
       rescaleHR = T, 
+             term = 1,
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard Ratio (MI)", 
      xlim = c(0, 1500), 
@@ -1285,6 +1286,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## Stroke - Male
 plotHR2(fit_pa3_stroke_sa3_m,
       rescaleHR = T, 
+             term = 1,
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard Ratio (Stroke)", 
      xlim = c(0, 1500), 
@@ -1303,6 +1305,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 ## MI - Male
 plotHR2(fit_pa3_MI_sa3_m,
       rescaleHR = T, 
+             term = 1,
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard Ratio (MI)", 
      xlim = c(0, 1500), 
@@ -1371,77 +1374,113 @@ fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + d
 
 #### Combined Plots
 ```{r}
-png("images/combined_sa4.png",width = 2250, height = 2625, res = 300)
+png("images/combined_sa4_scaled.png",width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa1_stroke_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa1_MI_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa1_MI_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
-plotHR(fit_pa2_stroke_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa2_stroke_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa2_MI_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa2_MI_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3
 ## Stroke
-plotHR(fit_pa3_stroke_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa3_stroke_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa3_MI_sa4,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa3_MI_sa4,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 dev.off()
@@ -1492,78 +1531,114 @@ fit_pa3_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + ethnicit
 
 #### Combined Plots
 ```{r}
-png("images/combined_sa6.png", width = 2250, height = 2625, res = 300)
+png("images/combined_sa6_scaled.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
 ## Stroke
-plotHR(fit_pa1_stroke_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa1_stroke_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI
-plotHR(fit_pa1_MI_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa1_MI_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2
-plotHR(fit_pa2_stroke_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa2_stroke_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa2_MI_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa2_MI_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3
 ## Stroke
-plotHR(fit_pa3_stroke_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa3_stroke_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa3_MI_sa6,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1500),
-       ylim = c(0.2, 4),
-       plot.bty = "U", 
-       cex.axis = 1, 
-       cex.lab = 1.2)
+plotHR2(fit_pa3_MI_sa6,
+      rescaleHR = T, 
+             term = 1,
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard Ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
 fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 dev.off()
