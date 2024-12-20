@@ -236,6 +236,10 @@ plotHR2 <- function(models,
     ))
   }
   
+
+  
+  
+  
   xvalues <- NULL
   multi_data <- list()
   for (m in models) {
@@ -256,10 +260,11 @@ plotHR2 <- function(models,
     line_data <- do.call(prPhEstimate, est_list)
     
     
-    #Added by Hiroshi 
+    #Added by Hiroshi edits ###################################################
     if(rescaleHR){
-      maxHR <- max(line_data$estimate)
-      line_data$estimate <- line_data$estimate - max(line_data$estimate)
+      #maxHR <- max(line_data$estimate)
+      maxHR <- max(line_data[line_data$xvalues < 100, "estimate"])
+      line_data$estimate <- line_data$estimate - maxHR
       line_data$lower <-    line_data$lower - maxHR
       line_data$upper <-    line_data$upper - maxHR
       #plot(x = line_data$xvalues, y = line_data$estimate)
@@ -267,16 +272,7 @@ plotHR2 <- function(models,
       #  plot(x = line_data$xvalues, y = line_data$estimate)
       # prPhConfIntPlot(line_data, polygon = T, col = "blue")
     }
-    #End by Hiroshi 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    #End by Hiroshi ##########################################################
     
     
     
@@ -301,6 +297,9 @@ plotHR2 <- function(models,
     }
   }
   
+  
+  
+  
   # plot empty plot with coordinate system and labels
   boundaries$x <- range(xvalues[])
   if (!tolower(rug) %in% c("density", "ticks") &&
@@ -324,6 +323,10 @@ plotHR2 <- function(models,
       xvalues_4_density[xvalues_4_density >= min(xlim) &
                           xvalues_4_density <= max(xlim)]
   }
+  
+  
+  
+  
   
   structure(list(
     models = models,
@@ -351,11 +354,13 @@ plotHR2 <- function(models,
   ),
   class = "plotHR"
   )
+  
+  
 }
 
 
-
-
+# End of custom function 
+###################################################################################################################
 
 
 
