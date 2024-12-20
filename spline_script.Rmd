@@ -1367,6 +1367,8 @@ fit_pa3_MI_sa4 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race + d
 
 
 ```
+
+
 #### Combined Plots
 ```{r}
 png("images/combined_sa4.png",width = 2250, height = 2625, res = 300)
