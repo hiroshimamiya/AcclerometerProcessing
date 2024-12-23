@@ -54,10 +54,22 @@ dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds"
 
 
 
-par(mfrow=c(4,2))
-  hist(dt$`MVPA min/week - ENMO`, main = "Dt, MVPA1"); hist(dt2$`MVPA min/week - ENMO`, main = "Dt2, MVPA1"); 
-  hist(dt$`MVPA min/week - Machine learning`, main = "Dt, MVPA2"); hist(dt2$`MVPA min/week - Machine learning`, main = "Dt2, MVPA2"); 
-  hist(dt$`MVPA min/week - Activity count`, main = "Dt, MVPA3"); hist(dt2$`MVPA min/week - Activity count`, main = "Dt2, MVPA3"); 
+par(mfrow=c(4,3))
+  hist(dt$`MVPA min/week - ENMO`, main = "Dt, MVPA1"); 
+  hist(dt2$`MVPA min/week - ENMO`, main = "Dt2, MVPA1"); 
+  hist(dt3$`MVPA min/week - ENMO`, main = "Dt3, MVPA1"); 
+
+  
+  hist(dt$`MVPA min/week - Machine learning`, main = "Dt, MVPA2"); 
+  hist(dt2$`MVPA min/week - Machine learning`, main = "Dt2, MVPA2"); 
+  hist(dt3$`MVPA min/week - Machine learning`, main = "Dt3, MVPA2"); 
+  
+  
+  hist(dt$`MVPA min/week - Activity count`, main = "Dt, MVPA3"); 
+  hist(dt2$`MVPA min/week - Activity count`, main = "Dt2, MVPA3"); 
+  hist(dt3$`MVPA min/week - Activity count`, main = "Dt3, MVPA3"); 
+  
+  
   hist(dt2$`MVPA min/week - Self-report (IPAQ)`, main = "Dt2, MVPA4")
 dev.off()
 
@@ -134,9 +146,20 @@ dt3 <- dt3 %>% rename(fu_time = `Follow up time in months`,
 
 #### Check number of records with missingness for each dataframe
 ```{r}
-dim(dt); names(dt); sum(complete.cases(dt %>% select(!contains("truncated"))))
-dim(dt2); names(dt2) ; sum(complete.cases(dt2)); sum(complete.cases(dt2 %>% select(!contains("truncated"))))
-dim(dt3); names (dt3); sum(complete.cases(dt3)); sum(complete.cases(dt3 %>% select(!contains("truncated"))))
+cat(" ---- Main data ---- \n")
+dim(dt); #names(dt); 
+sum(complete.cases(dt %>% select(!contains("truncated"))))
+
+cat(" ---- PA4 data ---- \n")
+dim(dt2); 
+#names(dt2) ; 
+sum(complete.cases(dt2)); sum(complete.cases(dt2 %>% select(!contains("truncated"))))
+
+
+cat(" ---- Mediator data ---- \n")
+dim(dt3); 
+#names (dt3); 
+sum(complete.cases(dt3)); sum(complete.cases(dt3 %>% select(!contains("truncated"))))
 ```
 
 
@@ -522,7 +545,7 @@ plotHR2(fit_pa1_stroke_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA1 MI
 plotHR2(fit_pa1_mi_sa1,
@@ -539,7 +562,7 @@ plotHR2(fit_pa1_mi_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA2
 plotHR2(fit_pa2_stroke_sa1,
@@ -556,7 +579,7 @@ plotHR2(fit_pa2_stroke_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA2 MI
@@ -574,7 +597,7 @@ plotHR2(fit_pa2_mi_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 # PA3
@@ -593,7 +616,7 @@ plotHR2(fit_pa3_stroke_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI
@@ -618,6 +641,12 @@ dev.off()
 
 
 
+
+
+
+
+
+
 source("plotHR_hiroshiFunction.R")
 
 png("images/combined_sa1_PA4_scaled.png", width = 2250, height = 1600, res = 300)
@@ -638,7 +667,7 @@ plotHR2(fit_pa4_stroke_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
 plotHR2(fit_pa4_mi_sa1,
@@ -655,7 +684,7 @@ plotHR2(fit_pa4_mi_sa1,
      lty.term = 1,
      col.se = "lightgrey", 
      col.dens = "grey")
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 dev.off()
@@ -1492,6 +1521,30 @@ dev.off()
 ## Sensitivity analysis 5 - Forrest Plots
 
 In the "3_survival_analysis_prep.Rmd" file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
