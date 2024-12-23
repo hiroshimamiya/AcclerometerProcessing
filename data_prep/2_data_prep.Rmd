@@ -723,6 +723,7 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 ```
 
 
+# Tables 
 ## Table 1.1 - PA1, PA2 & PA3
 ```{r}
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
@@ -1221,8 +1222,8 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week - ENMO",
-              "MVPA min/week - Activity count",
               "MVPA min/week - Machine learning",
+              "MVPA min/week - Activity count",
               #"Race", 
               "Sex", 
               "Follow up time in months", 
