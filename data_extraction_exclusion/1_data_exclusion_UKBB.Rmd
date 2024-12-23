@@ -27,7 +27,8 @@ full_df <- read.csv("/home/yacine/UKBB_beluga/final_df_full.csv") # copy in /hom
 ############ Data prep intro ############
 
 
-Participants removal because they requested that their data no longer be used
+Removal of participants who requested their data to no longer be used (UKBB reques
+from December 2024)
 ```{r}
 
 remove_participants <- c(
@@ -85,9 +86,9 @@ full_df <- full_df %>%
 
 ```
 
-
+#########
 We convert "-1" and "-3" values to NAs for the self-reported PA values for 
-instance 0
+instance 0 (PA4)
 ```{r}
 
 full_df <- full_df %>%
