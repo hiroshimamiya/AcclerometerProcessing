@@ -29,17 +29,18 @@ library(survminer)
 
 
 # Test data image with "dt" data frame 
-load("survival_analysis/2_test.RData")
+#load("survival_analysis/2_test.RData")
 
-source("survival_analysis/plotHR_hiroshiFunction.R")
+source("plotHR_hiroshiFunction.R")
 
 
 
-dt <- dt[complete.cases(dt), ]
-dim(dt)
-f <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt)
+#dt <- dt[complete.cases(dt), ]
+#dim(dt)
+#f <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat + greenspace + water_res + natural_env , data = dt)
+f <- fit_pa4_stroke_sa1
 
-plotHR(f,  
+plotHR(fit_pa4_stroke_sa1,  
        term = 1, 
        xlab = "MVMVPA duration (minutes/week)", 
        adj = 0, 
@@ -53,11 +54,6 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ### RUN -------------------------
-plotHR2(f, term = 1, xlim = c(0, 1500), ylim = c(0.1,4), rescaleHR = T, 
-        adj = 0, plot.bty = "U", 
-        cex.axis = 1, 
-        cex.lab = 1.2)
-
 plotHR2(f,  
        term = 1, 
        rescaleHR = T, 
