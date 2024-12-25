@@ -1126,7 +1126,7 @@ plotHR2(fit_pa1_stroke_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
@@ -1146,7 +1146,7 @@ plotHR2(fit_pa1_MI_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
@@ -1205,7 +1205,7 @@ plotHR2(fit_pa2_stroke_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
@@ -1225,7 +1225,7 @@ plotHR2(fit_pa2_MI_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
@@ -1288,7 +1288,7 @@ plotHR2(fit_pa3_stroke_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
@@ -1308,7 +1308,7 @@ plotHR2(fit_pa3_MI_sa3,
      lwd.term = 1.5,
      lty.term = 1,
      col.se = "lightgreen", 
-     col.dens = "green")
+     col.dens = "grey")
 fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
