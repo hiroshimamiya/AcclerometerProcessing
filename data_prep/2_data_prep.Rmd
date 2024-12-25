@@ -723,6 +723,8 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 ```
 
 
+# Tables 
+
 ## Table 1.1 - PA1, PA2 & PA3
 ```{r}
 # Variables to add to the table - this variable cannot be used to select colum,ns now, since cooked_veg is not rendred into summary table 
@@ -848,7 +850,8 @@ tb <- dt %>%
     digits = all_continuous() ~ 1,
     missing = "no"  # remove unknowns from table
   ) %>%
-  as_flex_table()
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
 
 
 sect_properties <- prop_section(
@@ -1018,7 +1021,8 @@ tb2 <- dt2 %>%
     digits = all_continuous() ~ 1,
     missing = "no" 
   ) %>%
-  as_flex_table()
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
 
 
 sect_properties <- prop_section(
@@ -1122,10 +1126,10 @@ varNameDf <- data.frame(
               "Type II diabetes",
               "Depression",
               "Two years stroke survival",
-              "Two years MI survival",
-              "Greenspace 300m from residence",
-              "Water 300m from residence",
-              "Natural env. 300m from residence"
+              "Two years MI survival"
+              #"Greenspace 300m from residence",
+              #"Water 300m from residence",
+              #"Natural env. 300m from residence"
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -1151,10 +1155,10 @@ varNameDf <- data.frame(
               "diabetes",
               "depression",
               "2_years_survival_stroke",
-              "2_years_survival_MI",
-              "water_300m",
-              "greenspace_300m",
-              "naturalenv_300m"
+              "2_years_survival_MI"
+             # "water_300m",
+              #"greenspace_300m",
+              #"naturalenv_300m"
               )
 )
 
@@ -1175,7 +1179,8 @@ tb3 <- dt3 %>%
     digits = all_continuous() ~ 1,
     missing = "no"  
   ) %>%
-  as_flex_table()
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
 
 
 
@@ -1221,8 +1226,8 @@ varNameDf <- data.frame(
               "Stroke",
               "Age",
               "MVPA min/week - ENMO",
-              "MVPA min/week - Activity count",
               "MVPA min/week - Machine learning",
+              "MVPA min/week - Activity count",
               #"Race", 
               "Sex", 
               "Follow up time in months", 
@@ -1250,8 +1255,8 @@ varNameDf <- data.frame(
               #"non_oily_fish",
               "sex", 
               "fu_time", 
-              "water_300m",
               "greenspace_300m",
+              "water_300m",
               "naturalenv_300m"
               )
 )
@@ -1271,7 +1276,8 @@ tb4 <- dt4 %>%
     digits = all_continuous() ~ 1,
     missing = "no"  
   ) %>%
-  as_flex_table()
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
 
 
 
