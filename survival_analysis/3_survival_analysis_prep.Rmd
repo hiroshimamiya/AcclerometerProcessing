@@ -58,7 +58,7 @@ funcPlotForest <- function(forest_data, title = "Forest Plot", subtitle = "Hazar
     filter(!is.na(est) & !is.na(lwr) & !is.na(upr)) %>%
     mutate(
       index = factor(index, levels = rev(unique(index))),
-      foodName = factor(foodName, levels = c( "Vector Magnitude (ENMO)","Random Forest and HMM (ML)", "Activity Count"))
+      foodName = factor(foodName, levels = c( "Vector Magnitude (ENMO)","Random Forest and HMM (ML)", "Activity count"))
     ) 
   
   xname <- "Hazard Ratio and 95% CI"
@@ -69,7 +69,7 @@ funcPlotForest <- function(forest_data, title = "Forest Plot", subtitle = "Hazar
     scale_x_continuous(limits = c(0.1, maxX), breaks = seq(0.1, maxX, by = 0.2), name = xname) +
     scale_y_discrete(name = NULL) +  # Ensure no title on y-axis
     geom_vline(xintercept = 1, color = "black", linetype = "dashed", alpha = 0.5) +
-    scale_color_manual(values = c("Vector Magnitude (ENMO)" = "blue", "Random Forest and HMM (ML)" = "red", "Activity Count" = "brown")) +  # Set colors for groups
+    scale_color_manual(values = c("Vector Magnitude (ENMO)" = "blue", "Random Forest and HMM (ML)" = "red", "Activity count" = "brown")) +  # Set colors for groups
     theme_classic() + 
     theme(
 axis.text.x = element_text(color = "black", size = 14, angle = 0, hjust = 0.5, vjust = 0.5, face = "plain"),
@@ -112,7 +112,7 @@ funcPlotForest2 <- function(forest_data, maxX = 2, new_titles = NULL, tag_label 
   forest_data <- forest_data %>%
     mutate(
       index = factor(index, levels = rev(unique(index))),
-      foodName = factor(foodName, levels = c("ENMO", "Machine learning", "Activity Count", "Self-Report (IPAQ)"))
+      foodName = factor(foodName, levels = c("ENMO", "Machine learning", "Activity count", "Self-Report (IPAQ)"))
     )
   
 
@@ -128,7 +128,7 @@ funcPlotForest2 <- function(forest_data, maxX = 2, new_titles = NULL, tag_label 
     scale_color_manual(values = c(
       "ENMO" = "blue",
       "Machine learning" = "red",
-      "Activity Count" = "brown",
+      "Activity count" = "brown",
       "Self-Report (IPAQ)" = "black"
     )) +  
     theme_classic() + 
@@ -154,9 +154,9 @@ new_titles <- c(
   "Machine learning - Q2",
   "Machine learning - Q3",
   "Machine learning - Q4",
-  "Activity Count - Q2",
-  "Activity Count - Q3",
-  "Activity Count - Q4"
+  "Activity count - Q2",
+  "Activity count - Q3",
+  "Activity count - Q4"
 )
 
 ```
@@ -210,7 +210,7 @@ tb3<- tbl_regression(fitDf3, exponentiate = TRUE,
 #Merge tables 
 tb_merge <- tbl_merge(
   tbls = list(tb1, tb2, tb3),
-  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity Count**")) %>% 
+  tab_spanner = c("**Vector Magnitude (ENMO)**", "**Random Forest and HMM**", "**Activity count**")) %>% 
   bold_labels() %>% 
    modify_column_hide(columns = c(p.value_1, p.value_2, p.value_3))
 
@@ -266,7 +266,7 @@ data_t3 <- data_t3 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "Activity Count" 
+    foodName = "Activity count" 
   )
 
 
@@ -355,7 +355,7 @@ data_t3 <- data_t3 %>%
     upr = conf.high
   ) %>%
   mutate(
-    foodName = "Activity Count" 
+    foodName = "Activity count" 
   )
 
 
