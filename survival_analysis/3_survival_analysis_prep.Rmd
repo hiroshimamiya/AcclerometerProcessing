@@ -282,7 +282,7 @@ par(family = "Arial", ps = 12)
 
 funcPlotForest2(
   forest_data = forest_data,
-  maxX = 1.5, 
+  maxX = 1.3, 
   new_titles = new_titles,
   tag_label = "A" # specify label of figure
 )
@@ -316,7 +316,7 @@ tb3 <- tbl_regression(fitDf3, exponentiate = TRUE,
 
 
 ```
- Forest Plot 
+#### Forest Plot 
 ```{r}
 # we first need to convert data from tbl_resgression to data.frame to be able 
 # to use the generated "funcPlotForest" function and we combine the two
@@ -370,7 +370,7 @@ par(family = "Arial", ps = 12)
 
 funcPlotForest2(
   forest_data = forest_data,
-  maxX = 1.5, 
+  maxX = 1.3, 
   new_titles = new_titles,
   tag_label = "B" # specify label of figure
 )
