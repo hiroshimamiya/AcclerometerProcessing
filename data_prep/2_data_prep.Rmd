@@ -331,7 +331,7 @@ dim(full_df_PA)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
 #full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
-full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 1000)
+#full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 2500)
 dim(full_df_PA_2)
 
 
@@ -558,8 +558,8 @@ full_df_PA$smoking %>% table
 full_df_PA$smoking<- factor(full_df_PA$smoking)
 levels(full_df_PA$smoking)
 levels(full_df_PA$smoking) <- list( 'Never' = "Never", 
-                                    'Previous' = "Previous", 
-                                    'Current' =  "Current") 
+                                    'Previously' = "Previous", 
+                                    'Currently' =  "Current") 
 
 
 full_df_PA$BMI %>% table 
@@ -651,8 +651,8 @@ full_df_PA_2$smoking %>% table
 full_df_PA_2$smoking<- factor(full_df_PA_2$smoking)
 levels(full_df_PA_2$smoking)
 levels(full_df_PA_2$smoking) <- list( 'Never' = "Never", 
-                                    'Previous' = "Previous", 
-                                    'Current' =  "Current") 
+                                    'Previously' = "Previous", 
+                                    'Currently' =  "Current") 
 
 
 full_df_PA_2$BMI %>% table 
@@ -888,7 +888,7 @@ flextable::save_as_docx("Table 1. Distribution of participant characteristics by
                ) 
 
 ```
-## Table 2 - subanalaysis (incudes PA4, diabetes and depression)
+## Table 2 - subanalaysis (incudes PA4)
 ```{r}
 # Variables to add to the table - this variable cannot be used to select columns now, since cooked_veg is not rendered into summary table 
 
