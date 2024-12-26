@@ -1218,7 +1218,7 @@ dt4 <- full_df_PA %>%  dplyr::select(
   naturalenv_300m
   )
 
-
+dt4 <- na.omit(dt4) # remove rows for which there are NAs for greeness and blueness
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
