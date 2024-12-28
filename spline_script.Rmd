@@ -171,7 +171,7 @@ Does not include diabetes, bmi and depression and PA4
 
 # PA1
 ## AIC(nk=3) > AIC(nk=4) 
-fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat , data = dt)
+fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat , data = dt)
 
 
 # PA2
@@ -195,7 +195,7 @@ fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race
 # PA1
 #AIC(nk=3) > AIC(nk=4)
 
-fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt)
+fit_pa1_MI <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt)
 
 
 
@@ -338,7 +338,7 @@ plotHR2(fit_pa1_stroke,
       rescaleHR = T, 
        term = 1, 
        #xlab = "MVPA (minutes/week)", 
-      ylab = "Hazard Ratio (stroke)", 
+      ylab = "Hazard ratio (stroke)", 
        adj = 0, 
        xlim = c(0, 1500), 
        ylim = c(0.1, 1.3), 
@@ -356,7 +356,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa1_MI,
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (MI)", 
+       ylab = "Hazard ratio (MI)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.1, 1.3), 
@@ -376,7 +376,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa2_stroke, 
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (stroke)", 
+       ylab = "Hazard ratio (stroke)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1500), 
        ylim = c(0.1, 1.3), 
@@ -393,7 +393,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa2_MI, 
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (MI)", 
+       ylab = "Hazard ratio (MI)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1500), 
 ylim = c(0.1, 1.3),        plot.bty = "U", 
@@ -411,7 +411,7 @@ plotHR2(fit_pa3_stroke,
       rescaleHR = T, 
       term = 1, 
       xlab = "MVPA (minutes/week)", 
-      ylab = "Hazard Ratio (stroke)", 
+      ylab = "Hazard ratio (stroke)", 
       xlim = c(0, 1500), 
       ylim = c(0.1, 1.3), 
       plot.bty = "U", 
@@ -428,7 +428,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa3_MI, term = 1, 
      rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -527,7 +527,7 @@ fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  
 
 8 plots in one figure
 ```{r}
-png("images/combined_sa1_scaled.png", width = 2250, height = 2625, res = 300)
+png("images/combined_sa1_PA13_scaled.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 # PA1
@@ -535,7 +535,7 @@ plotHR2(fit_pa1_stroke_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -552,7 +552,7 @@ plotHR2(fit_pa1_mi_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -569,7 +569,7 @@ plotHR2(fit_pa2_stroke_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -587,7 +587,7 @@ plotHR2(fit_pa2_mi_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -606,7 +606,7 @@ plotHR2(fit_pa3_stroke_sa1,
        term = 1,
        rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -624,7 +624,7 @@ plotHR2(fit_pa3_mi_sa1,
        term = 1,
        rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -657,7 +657,7 @@ plotHR2(fit_pa4_stroke_sa1,
        term = 1,
         rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 800), 
      ylim = c(0.1, 2), 
      plot.bty = "U", 
@@ -674,7 +674,7 @@ plotHR2(fit_pa4_mi_sa1,
        term = 1,
        rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 800), 
      ylim = c(0.1, 2), 
      plot.bty = "U", 
@@ -824,7 +824,7 @@ dt_trunc_1200 <- dt_trunc_1200[!is.na(dt_trunc_1200$MVPA_min_PA3_truncated_1200)
 
 
 # PA1
-fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA1_truncated_1200, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish  , data = dt_trunc_1200)
+fit_pa1_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA1_truncated_1200, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish  , data = dt_trunc_1200)
 
 
 # PA2
@@ -841,7 +841,7 @@ fit_pa3_stroke_sa2 <- coxph(Surv(fu_time, Stroke) ~ rcs(MVPA_min_PA3_truncated_1
 ### MI
 ```{r}
 # PA1
-fit_pa1_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA1_truncated_1200, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt_trunc_1200)
+fit_pa1_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA1_truncated_1200, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt_trunc_1200)
 
 
 # PA2
@@ -858,70 +858,72 @@ fit_pa3_MI_sa2 <- coxph(Surv(fu_time, MI) ~ rcs(MVPA_min_PA3_truncated_1200, 3) 
 png("images/combined_sa2.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
-# PA1
-## Stroke
-plotHR(fit_pa1_stroke_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-      cex.axis = 1, cex.lab = 1.2)
-fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-## MI
-plotHR(fit_pa1_MI_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       cex.axis = 1, cex.lab = 1.2)
-fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-# PA2
-plotHR(fit_pa2_stroke_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-      cex.axis = 1, cex.lab = 1.2)
-fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-## MI
-plotHR(fit_pa2_MI_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       cex.axis = 1, cex.lab = 1.2)
-fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-# PA3
-## Stroke
-plotHR(fit_pa3_stroke_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       cex.axis = 1, cex.lab = 1.2)
-fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-## MI
-plotHR(fit_pa3_MI_sa2,
-       term = 1,
-       xlab = "MVPA (minutes/week)",
-       xlim = c(0, 1200),
-       ylim = c(0.2, 4),
-       plot.bty = "U",
-       cex.axis = 1, cex.lab = 1.2)
-fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
-
-dev.off()
-
+#Unscaled - NOT RUN 
+if(exists("varE")){
+  # PA1
+  ## Stroke
+  plotHR(fit_pa1_stroke_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+        cex.axis = 1, cex.lab = 1.2)
+  fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  ## MI
+  plotHR(fit_pa1_MI_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+         cex.axis = 1, cex.lab = 1.2)
+  fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  # PA2
+  plotHR(fit_pa2_stroke_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+        cex.axis = 1, cex.lab = 1.2)
+  fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  ## MI
+  plotHR(fit_pa2_MI_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+         cex.axis = 1, cex.lab = 1.2)
+  fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  # PA3
+  ## Stroke
+  plotHR(fit_pa3_stroke_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+         cex.axis = 1, cex.lab = 1.2)
+  fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  ## MI
+  plotHR(fit_pa3_MI_sa2,
+         term = 1,
+         xlab = "MVPA (minutes/week)",
+         xlim = c(0, 1200),
+         ylim = c(0.2, 4),
+         plot.bty = "U",
+         cex.axis = 1, cex.lab = 1.2)
+  fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+  
+  dev.off()
+}
 
 
 
@@ -939,7 +941,7 @@ plotHR2(fit_pa1_stroke_sa2,
       rescaleHR = T, 
        term = 1, 
        #xlab = "MVPA (minutes/week)", 
-      ylab = "Hazard Ratio (stroke)", 
+      ylab = "Hazard ratio (stroke)", 
        adj = 0, 
        xlim = c(0, 1200), 
        ylim = c(0.1, 1.3), 
@@ -957,7 +959,7 @@ fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa1_MI_sa2,
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (MI)", 
+       ylab = "Hazard ratio (MI)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1200), 
        ylim = c(0.1, 1.3), 
@@ -977,7 +979,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa2_stroke_sa2, 
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (stroke)", 
+       ylab = "Hazard ratio (stroke)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1200), 
        ylim = c(0.1, 1.3), 
@@ -994,7 +996,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa2_MI_sa2, 
         rescaleHR = T, 
        term = 1, 
-       ylab = "Hazard Ratio (MI)", 
+       ylab = "Hazard ratio (MI)", 
        #xlab = "MVPA (minutes/week)", 
        xlim = c(0, 1200), 
 ylim = c(0.1, 1.3),        plot.bty = "U", 
@@ -1012,7 +1014,7 @@ plotHR2(fit_pa3_stroke_sa2,
       rescaleHR = T, 
       term = 1, 
       xlab = "MVPA (minutes/week)", 
-      ylab = "Hazard Ratio (stroke)", 
+      ylab = "Hazard ratio (stroke)", 
       xlim = c(0, 1200), 
       ylim = c(0.1, 1.3), 
       plot.bty = "U", 
@@ -1029,7 +1031,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa3_MI_sa2, term = 1, 
      rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1200), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1062,9 +1064,9 @@ See the data source in the regression command
 ### Female
 ```{r}
 # PA1
-fit_pa1_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt[dt$Sex == "Female", ])
+fit_pa1_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt[dt$Sex == "Female", ])
 
-fit_pa1_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt[dt$Sex == "Female", ])
+fit_pa1_MI_sa3 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt[dt$Sex == "Female", ])
 
 # PA2
 fit_pa2_stroke_sa3 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat  , data = dt[dt$Sex == "Female", ])
@@ -1117,7 +1119,7 @@ plotHR2(fit_pa1_stroke_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1137,7 +1139,7 @@ plotHR2(fit_pa1_MI_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1154,7 +1156,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa1_stroke_sa3_m,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1172,7 +1174,7 @@ fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 plotHR2(fit_pa1_MI_sa3_m,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1196,7 +1198,7 @@ plotHR2(fit_pa2_stroke_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1216,7 +1218,7 @@ plotHR2(fit_pa2_MI_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1234,7 +1236,7 @@ plotHR2(fit_pa2_stroke_sa3_m,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1253,7 +1255,7 @@ plotHR2(fit_pa2_MI_sa3_m,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1279,7 +1281,7 @@ plotHR2(fit_pa3_stroke_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1299,7 +1301,7 @@ plotHR2(fit_pa3_MI_sa3,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1317,7 +1319,7 @@ plotHR2(fit_pa3_stroke_sa3_m,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (Stroke)", 
+     ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1336,7 +1338,7 @@ plotHR2(fit_pa3_MI_sa3_m,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1351,6 +1353,20 @@ dev.off()
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Sensitivity analysis 4 - 2 years of survival 
@@ -1412,7 +1428,7 @@ plotHR2(fit_pa1_stroke_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1429,7 +1445,7 @@ plotHR2(fit_pa1_MI_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1447,7 +1463,7 @@ plotHR2(fit_pa2_stroke_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1464,7 +1480,7 @@ plotHR2(fit_pa2_MI_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1483,7 +1499,7 @@ plotHR2(fit_pa3_stroke_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1500,7 +1516,7 @@ plotHR2(fit_pa3_MI_sa4,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1553,7 +1569,7 @@ In the "3_survival_analysis_prep.Rmd" file
 ### Stroke
 ```{r}
 # PA1
-fit_pa1_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 4) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
+fit_pa1_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
 
 
 # PA2
@@ -1570,7 +1586,7 @@ fit_pa3_stroke_sa6 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + 
 ### MI
 ```{r}
 # PA1
-fit_pa1_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 4) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
+fit_pa1_MI_sa6 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + ethnicity +  deprivation_index + education_level +  avg_hh_income + smoking + alcohol + processed_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + bmi + type_2_diab + Depression, data = dt3)
 
 
 # PA2
@@ -1593,7 +1609,7 @@ plotHR2(fit_pa1_stroke_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1611,7 +1627,7 @@ plotHR2(fit_pa1_MI_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1629,7 +1645,7 @@ plotHR2(fit_pa2_stroke_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1646,7 +1662,7 @@ plotHR2(fit_pa2_MI_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1665,7 +1681,7 @@ plotHR2(fit_pa3_stroke_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (stroke)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -1682,7 +1698,7 @@ plotHR2(fit_pa3_MI_sa6,
       rescaleHR = T, 
              term = 1,
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard Ratio (MI)", 
+     ylab = "Hazard ratio (MI)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
