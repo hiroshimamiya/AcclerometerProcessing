@@ -330,8 +330,8 @@ dim(full_df_PA)
 # full_df_PA_2
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
-#full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
-#full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 2500)
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
+full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 2500)
 dim(full_df_PA_2)
 
 
@@ -1295,7 +1295,7 @@ flextable::save_as_docx("Table 2.3. Distribution of participant characteristics 
 saveRDS(dt, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 saveRDS(dt2, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 saveRDS(dt3, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
-#saveRDS(dt4"/home/yacine/dataframes_AccelerometerProcessing/prepped_dt4.rds")
+saveRDS(dt4, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt4.rds")
 
 ```
 
