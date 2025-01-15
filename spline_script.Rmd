@@ -52,7 +52,8 @@ dt <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 dt2 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
 
-
+summary(dt2$`MVPA min/week - Self-report (IPAQ)`)
+hist(dt2$`MVPA min/week - Self-report (IPAQ)`)
 
 par(mfrow=c(4,3))
   hist(dt$`MVPA min/week - ENMO`, main = "Dt, MVPA1"); 
@@ -525,7 +526,7 @@ fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  
 
 #### Combined Plots
 
-8 plots in one figure
+6 plots PA1-3, sameas main, except using dt2, in one figure
 ```{r}
 png("images/combined_sa1_PA13_scaled.png", width = 2250, height = 2625, res = 300)
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
@@ -535,7 +536,7 @@ plotHR2(fit_pa1_stroke_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard ratio (MI)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -552,7 +553,7 @@ plotHR2(fit_pa1_mi_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard ratio (MI)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -569,7 +570,7 @@ plotHR2(fit_pa2_stroke_sa1,
        term = 1,
       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
-     ylab = "Hazard ratio (MI)", 
+     ylab = "Hazard ratio (stroke)", 
      xlim = c(0, 1500), 
      ylim = c(0.1, 1.3), 
      plot.bty = "U", 
@@ -637,15 +638,14 @@ plotHR2(fit_pa3_mi_sa1,
 fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 dev.off()
+```
 
 
 
+#### Combined Plots, PA4 
 
-
-
-
-
-
+2 plots PA4, sameas main, except using dt2, in one figure
+```{r}
 
 source("plotHR_hiroshiFunction.R")
 
@@ -653,12 +653,12 @@ png("images/combined_sa1_PA4_scaled.png", width = 2250, height = 1600, res = 300
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(1, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 # PA4
 ## Stroke
-plotHR2(fit_pa4_stroke_sa1,
+plotHR(fit_pa4_stroke_sa1,
        term = 1,
-        rescaleHR = T, 
+     #   rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard ratio (Stroke)", 
-     xlim = c(0, 800), 
+     xlim = c(0, 2000), 
      ylim = c(0.1, 2), 
      plot.bty = "U", 
      cex.axis = 1, 
@@ -670,12 +670,12 @@ plotHR2(fit_pa4_stroke_sa1,
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR2(fit_pa4_mi_sa1,
+plotHR(fit_pa4_mi_sa1,
        term = 1,
-       rescaleHR = T, 
+   #    rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard ratio (MI)", 
-     xlim = c(0, 800), 
+     xlim = c(0, 2000), 
      ylim = c(0.1, 2), 
      plot.bty = "U", 
      cex.axis = 1, 
