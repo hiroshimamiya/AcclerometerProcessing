@@ -20,7 +20,7 @@ We import all data for participants with accelerometer data:
 ```{r}
 # Change the locations to your user folder data files
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
-full_df <- read.csv("/home/yacine/UKBB_beluga/final_df_full.csv") # copy in /home/yacine/survival_analysis
+full_df <- read.csv("/home/yacine/UKBB_beluga/final_df_full_cvd.csv") # copy in /home/yacine/survival_analysis
 
 ```
 
