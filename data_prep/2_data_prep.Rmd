@@ -185,6 +185,26 @@ table(full_df$'2_years_survival_MI')
 
 ```
 
+######################### Hiroshi comment - January 2025 ##################
+Original:
+SB: less than or equal to 50
+LPA: [50,100]
+MVPA: >=125
+MVPA2:  >=100
+MVPA3: >=150
+VPA: >=400
+ 
+ 
+New thresholds only for MVPA in the data shared with Yacine for PA1 (yesterday):
+SB: less than or equal to 50
+LPA: [50,100]
+MVPA: >=100
+MVPA2: >=150
+MVPA3: >=200
+VPA: >=400
+
+##########################
+
 ## PA 
 ### Now link data with acclerometer weekly minutes, for LPA, MVPA, and sedendary behavior.   
 - There are 4 different accelerometric measures   
@@ -204,6 +224,13 @@ enmoTSParallel_PA1$LPA_min <- enmoTSParallel_PA1$LPA_total* 7*24*60
 enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
 
 colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
+
+
+### Added PA1 - January 2025
+enmoTSParallel_PA1$MVPA_100 <- enmoTSParallel_PA1$MVPA2_total* 7*24*60
+enmoTSParallel_PA1$MVPA_150 <- enmoTSParallel_PA1$MVPA3_total* 7*24*60
+
+
 colnames(enmoTSParallel_PA1)[1] <- "eid"
 
 ```
