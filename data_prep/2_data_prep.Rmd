@@ -227,8 +227,8 @@ colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep 
 
 
 ### Added PA1 - January 2025
-enmoTSParallel_PA1$MVPA_100 <- enmoTSParallel_PA1$MVPA2_total* 7*24*60
-enmoTSParallel_PA1$MVPA_150 <- enmoTSParallel_PA1$MVPA3_total* 7*24*60
+enmoTSParallel_PA1$MVPA_100 <- enmoTSParallel_PA1$MVPA2_total_PA1* 7*24*60
+enmoTSParallel_PA1$MVPA_150 <- enmoTSParallel_PA1$MVPA3_total_PA1* 7*24*60
 
 
 colnames(enmoTSParallel_PA1)[1] <- "eid"
@@ -310,7 +310,7 @@ PA3_proportions_data <- na.omit(PA3_proportions_data)
 full_df_PA <- inner_join(
   full_df, 
   enmoTSParallel_PA1 %>% 
-    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1),
+    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1, MVPA_100, MVPA_150),
   by = "eid")
 
 full_df_PA<- inner_join(full_df_PA, 
@@ -764,7 +764,9 @@ dt <- full_df_PA %>%  dplyr::select(
   MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
-  MVPA_min_PA1, 
+  MVPA_min_PA1,
+  MVPA_100,
+  MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
@@ -929,7 +931,9 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
   MVPA_Quant_PA4,  
-  MVPA_min_PA1, 
+  MVPA_min_PA1,
+   MVPA_100,
+  MVPA_150,
   MVPA_min_PA2, 
   MVPA_min_PA3,
   MVPA_min_PA4, 
@@ -1089,7 +1093,9 @@ dt3 <- full_df_PA %>%  dplyr::select(
    MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
-  MVPA_min_PA1, 
+  MVPA_min_PA1,
+  MVPA_100,
+  MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
@@ -1229,7 +1235,9 @@ dt4 <- full_df_PA %>%  dplyr::select(
   MVPA_Quant_PA2,  
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
-  MVPA_min_PA1, 
+  MVPA_min_PA1,
+  MVPA_100,
+  MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
