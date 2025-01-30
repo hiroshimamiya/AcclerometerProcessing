@@ -20,7 +20,8 @@ We import all data for participants with accelerometer data:
 ```{r}
 # Change the locations to your user folder data files
 #full_df <- read.csv("/home/hiroshi/projects/UKBB/Yacine_extract/final_df_full.csv")
-full_df <- read.csv("/home/yacine/UKBB_beluga/final_df_full_cvd.csv") # copy in /home/yacine/survival_analysis
+#full_df <- read.csv("/home/yacine/UKBB_beluga/final_df_full_cvd.csv") # copy in /home/yacine/survival_analysis
+full_df <- read.csv("/home/yacine/UKBB_beluga/data_prep/final_df/final_df_full.csv")
 
 ```
 
@@ -828,7 +829,7 @@ income_coding <- c(
   "-3" = "Do not know/Prefer not to answer"
 )
 
-full_df$avg_hh_income_raw <- full_df$avg_hh_income # to keep an exemple of coding
+full_df$avg_hh_income_raw <- full_df$avg_hh_income # to keep an example of coding
 
 ## we replace the codes by their meaning:
 full_df <- full_df %>%
@@ -872,6 +873,28 @@ table(full_df$depression)
 ```
 
 
+13. Overall health rating
+```{r}
+overall_health_rating_coding <- c(
+  "1" =	"Excellent",
+  "2" =	"Good",
+  "3" =	"Fair",
+  "4" =	"Poor",
+  "-1" = "Do not know/Prefer not to answer",
+  "-3" = "Do not know/Prefer not to answer"
+)
+
+full_df$overall_health_rating_raw <- full_df$overall_health_rating # to keep an example of coding
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(overall_health_rating = recode(as.character(overall_health_rating_raw), !!!overall_health_rating_coding))
+
+
+table(full_df$overall_health_rating)
+
+
+```
 
 ############ Final exclusion ############
 
