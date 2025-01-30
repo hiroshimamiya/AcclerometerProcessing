@@ -873,7 +873,7 @@ dt <- dt %>%
 # create table - one single column
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`,-MVPA_100,-MVPA_150) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})",
     digits = all_continuous() ~ 1,
@@ -1046,7 +1046,7 @@ dt2 <- dt2 %>%
 # create table - one single column
 tb2 <- dt2 %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4,-MVPA_100,-MVPA_150) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
@@ -1206,7 +1206,7 @@ dt3 <- dt3 %>%
 
 tb3 <- dt3 %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3,-MVPA_100,-MVPA_150) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
