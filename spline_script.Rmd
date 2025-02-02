@@ -51,8 +51,13 @@ splines2::bSpline
 dt <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 dt2 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
+dt8 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt8.rds")
 dt_original <- dt
 
+
+```
+Histograms
+```{r}
 summary(dt2$`MVPA min/week - Self-report (IPAQ)`)
 hist(dt2$`MVPA min/week - Self-report (IPAQ)`)
 
@@ -75,7 +80,10 @@ par(mfrow=c(4,3))
   hist(dt2$`MVPA min/week - Self-report (IPAQ)`, main = "Dt2, MVPA4")
 dev.off()
 
+
 ```
+
+
 
 
 ## Spline Cox PH fit Using the rms Package:
@@ -141,8 +149,6 @@ dt3 <- dt3 %>% rename(fu_time = `Follow up time in months`,
 
 # *** Note: We determined the optimal number of knots (nk) for each PA measure using AIC testing.The function only allows nk >= 3. Therefore, the number of knots used corresponds to the lowest AIC value for each.
 # As a result, we determined the optimal nk was 4 for PA1 and PA2, and 3 for PA3 and PA4.
-
-
 
 
 ```
@@ -1694,9 +1700,6 @@ fit_pa3_mi_sa7 <- coxph(Surv(fu_time, MI) ~ mvpa3 + Sex + Age + Race +  deprivat
 ```
 
 
-
-
-
 #### Combined Plots
 
 6 plots PA1-3, sameas main, except using dt2, in one figure
@@ -1813,4 +1816,191 @@ fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 dev.off()
 ```
+
+
+
+# Sensitivity analysis 8
+## Stroke
+```{r}
+
+
+dt8 <- dt8 %>% rename(fu_time = `Follow up time in months`,
+                    MI = `Myocardial infarction`,
+                    mvpa1_100 = `MVPA min/week - ENMO (100g)`,
+                    mvpa1_150 = `MVPA min/week - ENMO (150g)`,
+                    mvpa2 = `MVPA min/week - Machine learning`,
+                    mvpa3_v2 = `MVPA min/week - Activity count`,
+                    deprivation_index = `Deprivation index`,
+                    hh_income = `Household income GBP`,
+                    Alcohol = `Alcohol consumption`,
+                    pro_meat = `Processed meat`,
+                    red_meat = `Red meat`,
+                    fresh_fruit = `Fresh fruit`,
+                    cooked_vg = `Cooked vegetables`,
+                    oily_fish = `Oily fish`,
+                    non_oily_fish = `Non-oily fish`,
+                    SBP = `Systolic blood pressure`,
+                    DBP = `Diastolic blood pressure`,
+                    HDC = `HDL cholesterol`,
+                    BLG = `Blood glucose (biochemistry)`,
+                    TG = `Triglycerides (baseline)`,
+                    CRP = `C-reactive protein (baseline)`
+                    )
+
+```
+
+```{r}
+par(mfrow = c(2,2))  # Set up a 2x2 plotting grid
+hist(dt8$mvpa1_100, main = "Dt8, MVPA_100") 
+hist(dt8$mvpa1_150, main = "Dt8, MVPA_150") 
+hist(dt8$mvpa3_v2, main = "Dt8, MVPA3_v2") 
+
+
+# PA1 100g
+fit_pa100_stroke_sa8 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1_100, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + SBP + DBP + HDC + BLG + TG + CRP, data = dt8)
+
+# PA1 150g
+fit_pa150_stroke_sa8<- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1_150, 3)  + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP, data = dt8)
+
+# PA3 v2
+fit_pa3_v2_stroke_sa8 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3_v2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP , data = dt8)
+
+
+```
+
+## MI
+```{r}
+# PA1 100g
+fit_pa100_MI_sa8 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1_100, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + SBP + DBP + HDC + BLG + TG + CRP, data = dt8)
+
+# PA1 150g
+fit_pa150_MI_sa8<- coxph(Surv(fu_time, MI) ~ rcs(mvpa1_150, 3)  + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP, data = dt8)
+
+# PA3 v2
+fit_pa3_v2_MI_sa8 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3_v2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP , data = dt8)
+
+
+```
+
+
+
+### Combined plots for sensitivity analysis 8
+```{r}
+
+
+png("/home/yacine/AcclerometerProcessing/combined_sa8_PA13_scaled.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
+source("plotHR_hiroshiFunction.R")
+# PA1 - 100g Stroke
+plotHR2(fit_pa100_stroke_sa8,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 - 100g MI
+plotHR2(fit_pa100_MI_sa8,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 - 150g Stroke
+plotHR2(fit_pa150_stroke_sa8,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+# PA1 - 150g MI
+plotHR2(fit_pa150_stroke_sa8,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+# PA3 - v2
+## Stroke
+plotHR2(fit_pa3_v2_stroke_sa8,
+       term = 1,
+       rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+## MI
+plotHR2(fit_pa3_v2_MI_sa8,
+       term = 1,
+       rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+dev.off()
+```
+
+
+
 
