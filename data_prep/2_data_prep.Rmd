@@ -422,7 +422,9 @@ full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3 < 2500)
 # new PA1 and PA3 data loaded in January 2025
-
+full_df_PA <- full_df_PA %>%  filter(MVPA_100 < 2500)
+full_df_PA <- full_df_PA %>%  filter(MVPA_150 < 2500)
+full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3_v2 < 2500)
 dim(full_df_PA)
 
 # full_df_PA_2
@@ -1018,7 +1020,7 @@ flextable::save_as_docx("Table 1. Distribution of participant characteristics by
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
-  #fu_time_pa4,
+  fu_time_pa4,
  # `2_years_survival_stroke`,
  # `2_years_survival_MI`,
   MVPA_Quant_PA1,
@@ -1089,8 +1091,8 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-              "Follow up time in months"
-              #"Follow up time in for self-reported PA"
+              "Follow up time in months",
+              "Follow up time in for self-reported PA"
              # "Two years stroke survival",
              # "Two years MI survival",              
               #"Greenspace 300m from residence",
@@ -1120,8 +1122,8 @@ varNameDf <- data.frame(
               "oily_fish", 
               "non_oily_fish",
               "sex", 
-              "fu_time"
-              #"fu_time_pa4"
+              "fu_time",
+              "fu_time_pa4"
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
               #"water_300m",
@@ -1424,8 +1426,8 @@ Create dt8 - new PA1 and PA3 data
 ```{r}
 
 dt8 <- full_df_PA %>%  dplyr::select(
-  `2_years_survival_stroke`,
-  `2_years_survival_MI`,
+  MI, 
+  stroke,
   fu_time, 
   MVPA_100,
   MVPA_150,
@@ -1450,6 +1452,7 @@ varNameDf <- data.frame(
               "MVPA_100", 
               "MVPA_150",
               "MVPA_min_PA2",
+              "MVPA_min_PA3_v2",
               "fu_time"
               )
 )
