@@ -51,6 +51,7 @@ splines2::bSpline
 dt <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 dt2 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
+dt_original <- dt
 
 summary(dt2$`MVPA min/week - Self-report (IPAQ)`)
 hist(dt2$`MVPA min/week - Self-report (IPAQ)`)
@@ -174,6 +175,7 @@ Does not include diabetes, bmi and depression and PA4
 ## AIC(nk=3) > AIC(nk=4) 
 fit_pa1_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat , data = dt)
 
+#fit_pa1_stroke_nk0 <- coxph(Surv(fu_time, Stroke) ~ mvpa1 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat , data = dt)
 
 # PA2
 ## AIC(nk=3) > AIC(nk=4) 
@@ -181,11 +183,14 @@ fit_pa2_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3) + Sex + Age + Race
 
 #fit_pa2_stroke_nk4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish + red_meat, data = dt)
 
+fit_pa2_stroke_0nk <- coxph(Surv(fu_time, Stroke) ~ mvpa2 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat , data = dt)
 
 #PA3
 ## AIC(nk=3) < AIC(nk=4) 
 fit_pa3_stroke <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
+
+#fit_pa3_stroke_nk4 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 4) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + non_oily_fish +red_meat, data = dt)
 
 ```
 
@@ -354,7 +359,7 @@ plotHR2(fit_pa1_stroke,
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR2(fit_pa1_MI,
+plotHR2(fit_pa1_MI_nk4,
         rescaleHR = T, 
        term = 1, 
        ylab = "Hazard ratio (MI)", 
@@ -374,7 +379,7 @@ fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 # PA2
 ## Stroke
-plotHR2(fit_pa2_stroke, 
+plotHR2(fit_pa2_stroke_0nk, 
         rescaleHR = T, 
        term = 1, 
        ylab = "Hazard ratio (stroke)", 
@@ -426,7 +431,7 @@ fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 
 ## MI
-plotHR2(fit_pa3_MI, term = 1, 
+plotHR2(fit_pa3_MI_nk0, term = 1, 
      rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard ratio (MI)", 
@@ -513,7 +518,7 @@ fit_pa3_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3) + Sex + Age + Race +  
 
 
 #PA4 
-fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish , data = dt2)
+fit_pa4_mi_sa1 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa4, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish , data = dt2[])
 
 
 
@@ -653,9 +658,9 @@ png("images/combined_sa1_PA4_scaled.png", width = 2250, height = 1600, res = 300
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(1, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 # PA4
 ## Stroke
-plotHR(fit_pa4_stroke_sa1,
+plotHR2(fit_pa4_stroke_sa1,
        term = 1,
-     #   rescaleHR = T, 
+        rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard ratio (Stroke)", 
      xlim = c(0, 2000), 
@@ -670,9 +675,9 @@ plotHR(fit_pa4_stroke_sa1,
 fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
 
 ## MI
-plotHR(fit_pa4_mi_sa1,
+plotHR2(fit_pa4_mi_sa1,
        term = 1,
-   #    rescaleHR = T, 
+       rescaleHR = T, 
      xlab = "MVPA (minutes/week)", 
      ylab = "Hazard ratio (MI)", 
      xlim = c(0, 2000), 
