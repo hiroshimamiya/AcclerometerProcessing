@@ -421,6 +421,8 @@ dim(full_df_PA)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA1 < 2500)
 full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3 < 2500)
+# new PA1 and PA3 data loaded in January 2025
+
 dim(full_df_PA)
 
 # full_df_PA_2
@@ -1420,6 +1422,63 @@ flextable::save_as_docx("Table 2.3. Distribution of participant characteristics 
 
 Create dt8 - new PA1 and PA3 data
 ```{r}
+
+dt8 <- full_df_PA %>%  dplyr::select(
+  `2_years_survival_stroke`,
+  `2_years_survival_MI`,
+  fu_time, 
+  MVPA_100,
+  MVPA_150,
+  MVPA_min_PA2,
+  MVPA_min_PA3_v2
+  )
+
+dt8 <- na.omit(dt8) # remove rows for which there are NAs for greeness and blueness
+
+# Convert variable names into desruptive table names 
+varNameDf <- data.frame(
+  varName = c("Myocardial infarction",
+              "Stroke",
+              "MVPA min/week - ENMO (100g)",
+              "MVPA min/week - ENMO (150g)",
+              "MVPA min/week - Machine learning",
+              "MVPA min/week - Activity count",
+              "Follow up time in months"
+  ), 
+  ChartName = c("MI", 
+              "stroke",
+              "MVPA_100", 
+              "MVPA_150",
+              "MVPA_min_PA2",
+              "fu_time"
+              )
+)
+
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    tibble::deframe()
+
+dt8 <- dt8 %>% 
+    rename(!!!var_names)
+
+
+tb8 <- dt8 %>%
+  tbl_summary(
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
+    digits = all_continuous() ~ 1,
+    missing = "no"  
+  ) %>%
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
+
+
+
+# Save 
+#flextable::save_as_docx("" = tb8,  
+               #path = "testTable2_greenspace_bluespace.docx", 
+               #pr_section = sect_properties)
+
 
 ```
 
