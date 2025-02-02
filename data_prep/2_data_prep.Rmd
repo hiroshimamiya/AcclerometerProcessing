@@ -969,7 +969,7 @@ flextable::save_as_docx("Table 1. Distribution of participant characteristics by
 # Note that all vars, except alcohol, do not know and unknown should be met with exclusion 
 dt2 <- full_df_PA_2 %>%  dplyr::select(
   fu_time, 
-  #fu_time_pa4,
+  fu_time_pa4,
  # `2_years_survival_stroke`,
  # `2_years_survival_MI`,
   MVPA_Quant_PA1,
