@@ -324,6 +324,35 @@ colnames(PA3_proportions_data) <- paste(colnames(PA3_proportions_data), "_PA3", 
 colnames(PA3_proportions_data)[1] <- "eid"
 
 PA3_proportions_data <- na.omit(PA3_proportions_data)
+
+
+
+# PA3 added January 2025
+PA3_proportions_data_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/outputs/PA3_L2_one_minute_without_duplicates.csv",col_select = -1)
+
+PA3_proportions_data_v2 <- PA3_proportions_data_v2 %>%
+  rename(
+    eid = participant_id,
+    PA3_light = light,
+    PA3_MVPA = `moderate-vigorous`,
+    PA3_sedentary = sedentary 
+  )
+
+PA3_proportions_data_v2$MVPA_min <- PA3_proportions_data_v2$PA3_MVPA * 7 * 24 * 60 
+
+
+
+PA3_proportions_data_v2$MVPA_min <- PA3_proportions_data_v2$PA3_MVPA* 7*24*60
+PA3_proportions_data_v2$LPA_min <- PA3_proportions_data_v2$PA3_light* 7*24*60
+PA3_proportions_data_v2$SB_min <- PA3_proportions_data_v2$PA3_sedentary* 7*24*60
+
+colnames(PA3_proportions_data_v2) <- paste(colnames(PA3_proportions_data_v2), "_PA3_v2", sep = "")
+colnames(PA3_proportions_data_v2)[1] <- "eid"
+
+PA3_proportions_data_v2 <- na.omit(PA3_proportions_data_v2)
+
+
+
 ```
 
 
@@ -1370,6 +1399,11 @@ flextable::save_as_docx("Table 2.3. Distribution of participant characteristics 
 ```
 
 
+
+Create dt8 - new PA1 and PA3 data
+```{r}
+
+```
 
 
 ```{r}
