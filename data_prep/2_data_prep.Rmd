@@ -247,13 +247,15 @@ enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
 
 colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
 
+colnames(enmoTSParallel_PA1)[1] <- "eid"
 
 ### Added PA1 - January 2025
-enmoTSParallel_PA1$MVPA_100 <- enmoTSParallel_PA1$MVPA2_total_PA1* 7*24*60
-enmoTSParallel_PA1$MVPA_150 <- enmoTSParallel_PA1$MVPA3_total_PA1* 7*24*60
+enmoTSParallel_PA1_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/outputs/PA1_combined_df.csv", col_select = -1)
+enmoTSParallel_PA1_v2$MVPA_100 <- enmoTSParallel_PA1_v2$MVPA2_total* 7*24*60
+enmoTSParallel_PA1_v2$MVPA_150 <- enmoTSParallel_PA1_v2$MVPA3_total* 7*24*60
 
 
-colnames(enmoTSParallel_PA1)[1] <- "eid"
+colnames(enmoTSParallel_PA1_v2)[1] <- "eid"
 
 ```
 
@@ -361,8 +363,17 @@ PA3_proportions_data_v2 <- na.omit(PA3_proportions_data_v2)
 full_df_PA <- inner_join(
   full_df, 
   enmoTSParallel_PA1 %>% 
-    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1, MVPA_100, MVPA_150),
+    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1),
   by = "eid")
+
+# PA1 data added in January 2025
+full_df_PA <- inner_join(
+  full_df_PA, 
+  enmoTSParallel_PA1_v2 %>% 
+    dplyr::select(eid, MVPA_100, MVPA_150),
+  by = "eid"
+)
+
 
 full_df_PA<- inner_join(full_df_PA, 
   ML_derived_PA2 %>% 
@@ -378,6 +389,13 @@ full_df_PA<- inner_join(full_df_PA,
 full_df_PA<- inner_join(full_df_PA, 
   PA3_proportions_data %>% 
     dplyr::select(eid, MVPA_min_PA3, LPA_min_PA3, SB_min_PA3),
+  by = "eid")
+
+
+# PA3 data added January 2025
+full_df_PA<- inner_join(full_df_PA, 
+  PA3_proportions_data_v2 %>% 
+    dplyr::select(eid, MVPA_min_PA3_v2, LPA_min_PA3_v2, SB_min_PA3_v2),
   by = "eid")
 
 ```
