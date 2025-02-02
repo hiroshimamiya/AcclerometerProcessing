@@ -1388,10 +1388,10 @@ saveRDS(dt4, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt4.rds")
 ```{r}
 png("MVPA_histograms.png", width = 800, height = 800)
 par(mfrow = c(2,2))
-hist(dt$`MVPA min/week - ENMO`, xlab = "minutes", main = "Histogram \n Duration MVPA min - ENMO")
-hist(dt$`MVPA min/week - Machine learning`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Machine Learning")
-hist(dt$`MVPA min/week - Activity count`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Activity Count")
-hist(dt2$`MVPA min/week - Self-report (IPAQ)`, xlab = "minutes", main = "Histogram \n Duration MVPA min - Self-Report (IPAQ)")
+hist(dt$`MVPA min/week - ENMO`, xlab = "minutes", main = "Duration MVPA min - ENMO")
+hist(dt$`MVPA min/week - Machine learning`, xlab = "minutes", main = "Duration MVPA min - Machine Learning")
+hist(dt$`MVPA min/week - Activity count`, xlab = "minutes", main = "Duration MVPA min - Activity Count")
+hist(dt2$`MVPA min/week - Self-report (IPAQ)`, xlab = "minutes", main = "Duration MVPA min - Self-Report (IPAQ)")
 dev.off()
 
 ```
