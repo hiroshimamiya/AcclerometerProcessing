@@ -910,6 +910,28 @@ table(full_df$overall_health_rating)
 
 ```
 
+14. Cancer
+```{r}
+cancer_coding <- c(
+  "1" =	"Yes",
+  "0" =	"No",
+  "-1" = "Do not know",
+  "-3" = "Prefer not to answer"
+)
+
+full_df$cancer_raw <- full_df$cancer # to keep an example of coding
+
+## we replace the codes by their meaning:
+full_df <- full_df %>%
+  mutate(cancer = recode(as.character(cancer_raw), !!!cancer_coding))
+
+
+table(full_df$cancer)
+
+
+```
+
+
 ############ Final exclusion ############
 
 ## Exclusion 4: Missing covariate data
