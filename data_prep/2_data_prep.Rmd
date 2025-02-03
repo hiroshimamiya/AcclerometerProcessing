@@ -985,6 +985,10 @@ dt <- full_df_PA %>%  dplyr::select(
  c_reactive_protein_0
   ) 
 
+# Create variable that indicate if the participant has had CVD or not
+dt <- dt %>%
+  mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
+
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
   varName = c("Myocardial infarction",
@@ -1068,14 +1072,15 @@ dt <- dt %>%
     rename(!!!var_names)
 
 
-# create table - one single column
+# Create table - 2 columns separating people who have had a CVD or not
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`) %>%
   tbl_summary(
+    by = CVD, 
     statistic = all_continuous() ~ "{median} ({p25}, {p75})",
     digits = all_continuous() ~ 1,
-    missing = "no"  # remove unknowns from table
+    missing = "no"
   ) %>%
   as_flex_table() %>%
   set_header_labels(label = "Baseline Characteristics")
@@ -1167,6 +1172,10 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_min_PA4_truncated
 )
 
+# Create variable that indicate if the participant has had CVD or not
+dt2 <- dt2 %>%
+  mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
+
 # Convert variable names into descriptive table names 
 varNameDf <- data.frame(
   varName = c("Myocardial infarction",
@@ -1247,6 +1256,7 @@ tb2 <- dt2 %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>%
   tbl_summary(
+    by = CVD, 
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no" 
@@ -1328,7 +1338,9 @@ dt3 <- full_df_PA %>%  dplyr::select(
   #MVPA_min_PA4_truncated,
   )
 
-
+# Create variable that indicate if the participant has had CVD or not
+dt3 <- dt3 %>%
+  mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
@@ -1405,6 +1417,7 @@ tb3 <- dt3 %>%
   dplyr::select(-contains("truncated")) %>%
   dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
+    by = CVD,
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no"  
@@ -1447,6 +1460,10 @@ dt4 <- full_df_PA %>%  dplyr::select(
   greenspace_300m,
   naturalenv_300m
   )
+
+# Create variable that indicate if the participant has had CVD or not
+dt4 <- dt4 %>%
+  mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
 
 dt4 <- na.omit(dt4) # remove rows for which there are NAs for greeness and blueness
 
@@ -1502,6 +1519,7 @@ dt4 <- dt4 %>%
 
 tb4 <- dt4 %>%
   tbl_summary(
+    by = CVD,
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no"  
@@ -1554,7 +1572,9 @@ dt8 <- full_df_PA_v2 %>%  dplyr::select(
  c_reactive_protein_0
   )
 
-dt8 <- na.omit(dt8) # remove rows for which there are NAs for greeness and blueness
+# Create variable that indicate if the participant has had CVD or not
+dt8 <- dt8 %>%
+  mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
@@ -1633,6 +1653,7 @@ dt8 <- dt8 %>%
 
 tb8 <- dt8 %>%
   tbl_summary(
+    by = CVD,
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
     missing = "no"  
