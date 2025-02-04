@@ -1040,13 +1040,8 @@ varNameDf <- data.frame(
               "Oily fish", 
               "Non-oily fish",
               "Sex", 
-<<<<<<< HEAD
-              "Follow up time in months"
-              #"Follow up time in for self-reported PA"
-=======
               "Follow up time in months",
               "Follow up time in months for self-reported PA"
->>>>>>> b13bce47dd4c4883500947b3c2784dca3bf592c8
              # "Two years stroke survival",
              # "Two years MI survival",              
               #"Greenspace 300m from residence",
