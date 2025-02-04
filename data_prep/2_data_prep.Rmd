@@ -247,13 +247,15 @@ enmoTSParallel_PA1$SB_min <- enmoTSParallel_PA1$SB_total* 7*24*60
 
 colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep = "")
 
+colnames(enmoTSParallel_PA1)[1] <- "eid"
 
 ### Added PA1 - January 2025
-enmoTSParallel_PA1$MVPA_100 <- enmoTSParallel_PA1$MVPA2_total_PA1* 7*24*60
-enmoTSParallel_PA1$MVPA_150 <- enmoTSParallel_PA1$MVPA3_total_PA1* 7*24*60
+enmoTSParallel_PA1_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/outputs/PA1_combined_df.csv", col_select = -1)
+enmoTSParallel_PA1_v2$MVPA_100 <- enmoTSParallel_PA1_v2$MVPA2_total* 7*24*60
+enmoTSParallel_PA1_v2$MVPA_150 <- enmoTSParallel_PA1_v2$MVPA3_total* 7*24*60
 
 
-colnames(enmoTSParallel_PA1)[1] <- "eid"
+colnames(enmoTSParallel_PA1_v2)[1] <- "eid"
 
 ```
 
@@ -357,13 +359,25 @@ PA3_proportions_data_v2 <- na.omit(PA3_proportions_data_v2)
 
 ### Merge the full_df and PA1 and PA2 df by eids
 ```{r}
+
+full_df_v2 <- full_df
+
 full_df_PA <- inner_join(
   full_df, 
   enmoTSParallel_PA1 %>% 
-    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1, MVPA_100, MVPA_150),
+    dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1),
   by = "eid")
 
-full_df_PA<- inner_join(full_df_PA, 
+# PA1 data added in January 2025
+full_df_PA_v2 <- inner_join(
+  full_df_v2, 
+  enmoTSParallel_PA1_v2 %>% 
+    dplyr::select(eid, MVPA_100, MVPA_150),
+  by = "eid"
+)
+
+
+full_df_PA_v2<- inner_join(full_df_PA_v2, 
   ML_derived_PA2 %>% 
     dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
   by = "eid")
@@ -379,6 +393,11 @@ full_df_PA<- inner_join(full_df_PA,
     dplyr::select(eid, MVPA_min_PA3, LPA_min_PA3, SB_min_PA3),
   by = "eid")
 
+# PA3 data added January 2025
+full_df_PA_v2<- inner_join(full_df_PA_v2, 
+  PA3_proportions_data_v2 %>% 
+    dplyr::select(eid, MVPA_min_PA3_v2, LPA_min_PA3_v2, SB_min_PA3_v2),
+  by = "eid")
 ```
 
 ### Create quantile pA group and remove outliers
@@ -409,6 +428,9 @@ full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA2 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA1 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA3 < 2500)
 full_df_PA_2 <- full_df_PA_2 %>%  filter(MVPA_min_PA4 < 2100)
+#full_df_PA <- full_df_PA %>%  filter(MVPA_100 < 2500)
+#full_df_PA <- full_df_PA %>%  filter(MVPA_150 < 2500)
+#full_df_PA <- full_df_PA %>%  filter(MVPA_min_PA3_v2 < 2500)
 dim(full_df_PA_2)
 
 
@@ -799,6 +821,98 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
 
 ```
 
+### Covariates - reorder for full_df_PA_v2 df
+```{r}
+# Re-order categories 
+full_df_PA_v2$cooked_vg %>% table
+full_df_PA_v2$cooked_vg <- factor(full_df_PA_v2$cooked_vg)
+levels(full_df_PA_v2$cooked_vg)
+levels(full_df_PA_v2$cooked_vg) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA_v2$cooked_vg %>% table
+
+
+full_df_PA_v2$fresh_fruit %>% table
+full_df_PA_v2$fresh_fruit <- factor(full_df_PA_v2$fresh_fruit)
+levels(full_df_PA_v2$fresh_fruit)
+levels(full_df_PA_v2$fresh_fruit) <- list( 'Less than 2 servings a day' ="< 2 servings/day", 'Between 2 and 4 servings a day' = "2 to 4 servings/day", 'More than 4 servings a day' =  "More than 4 servings/day") 
+full_df_PA_v2$fresh_fruit %>% table
+
+
+full_df_PA_v2$smoking %>% table 
+full_df_PA_v2$smoking<- factor(full_df_PA_v2$smoking)
+levels(full_df_PA_v2$smoking)
+levels(full_df_PA_v2$smoking) <- list( 'Never' = "Never", 
+                                    'Previously' = "Previous", 
+                                    'Currently' =  "Current") 
+
+
+full_df_PA_v2$BMI %>% table 
+full_df_PA_v2$BMI <- factor(full_df_PA_v2$BMI)
+levels(full_df_PA_v2$BMI)
+levels(full_df_PA_v2$BMI) <- list( "Underweight (< 18.5 kg/m2)" = "Underweight (< 18.5 kg/m2)",
+                                "Normal (18.5 kg/m2 to < 25 kg/m2)" = "Normal (18.5 kg/m2 to < 25 kg/m2)" ,
+                                "Overweight (25 kg/m2 to < 30 kg/m2)" = "Overweight (25 kg/m2 to < 30 kg/m2)",
+                                "Obesity Class I, II or III (> 30 kg/m2)" = "Obesity Class I, II or III (> 30 kg/m2)") 
+
+full_df_PA_v2$alcohol %>% table 
+full_df_PA_v2$alcohol <- factor(full_df_PA_v2$alcohol)
+levels(full_df_PA_v2$alcohol)
+levels(full_df_PA_v2$alcohol) <- list( "Never" = "Never", 
+                                    "Less than once a week" = "Less than once a week", 
+                                    "Once or twice a week" =  "Once or twice a week",
+                                    "Three or four times a week" = "Three or four times a week",
+                                    "Daily or almost daily" = "Daily or almost daily") 
+
+
+full_df_PA_v2$avg_hh_income %>% table 
+full_df_PA_v2$avg_hh_income <- factor(full_df_PA_v2$avg_hh_income)
+levels(full_df_PA_v2$avg_hh_income)
+levels(full_df_PA_v2$avg_hh_income) <- list( "Less than 18,000" = "Less than 18,000",
+                                          "18,000 to 30,999" = "18,000 to 30,999",
+                                          "31,000 to 51,999" = "31,000 to 51,999",
+                                          "52,000 to 100,000" = "52,000 to 100,000",
+                                          "Greater than 100,000" = "Greater than 100,000",
+                                          "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer") 
+
+
+full_df_PA_v2$processed_meat %>% table 
+full_df_PA_v2$processed_meat <- factor(full_df_PA_v2$processed_meat)
+levels(full_df_PA_v2$processed_meat)
+levels(full_df_PA_v2$processed_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_v2$oily_fish %>% table 
+full_df_PA_v2$oily_fish <- factor(full_df_PA_v2$oily_fish)
+levels(full_df_PA_v2$oily_fish)
+levels(full_df_PA_v2$oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_v2$non_oily_fish %>% table 
+full_df_PA_v2$non_oily_fish <- factor(full_df_PA_v2$non_oily_fish)
+levels(full_df_PA_v2$non_oily_fish)
+levels(full_df_PA_v2$non_oily_fish) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_v2$red_meat %>% table 
+full_df_PA_v2$red_meat <- factor(full_df_PA_v2$red_meat)
+levels(full_df_PA_v2$red_meat)
+levels(full_df_PA_v2$red_meat) <- list( "Less than 2 times a week" = "Less than 2 times a week", 
+                                    "2-4 times a week" = "2-4 times a week", 
+                                    "More than 4 times a week" =  "More than 4 times a week") 
+
+full_df_PA_v2$education_level %>% table 
+full_df_PA_v2$education_level <- factor(full_df_PA_v2$education_level)
+levels(full_df_PA_v2$education_level)
+levels(full_df_PA_v2$education_level) <- list( "None of the above" = "None of the above", 
+                                    "O levels/GCSEs or equivalent, CSEs or equivalent" =  "O levels/GCSEs or equivalent, CSEs or equivalent",
+                                    "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
+                                    "College or University degree" = "College or University degree") 
+
+```
+
 
 # Tables 
 
@@ -815,8 +929,8 @@ dt <- full_df_PA %>%  dplyr::select(
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1,
-  MVPA_100,
-  MVPA_150,
+  #MVPA_100,
+  #MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
@@ -854,8 +968,10 @@ dt <- full_df_PA %>%  dplyr::select(
  cancer, 
  syst_bp,
  diast_bp,
- hdl_chol, glucose_blood_biochem, 
- overall_health_rating, triglycerides_0,
+ #hdl_chol, 
+ glucose_blood_biochem, 
+ overall_health_rating, 
+ triglycerides_0,
  c_reactive_protein_0
   ) 
 
@@ -884,7 +1000,7 @@ varNameDf <- data.frame(
               "Cancer",
               "Systolic blood pressure",
               "Diastolic blood pressure",
-              "HDL cholesterol",
+              #"HDL cholesterol",
               "Blood glucose (biochemistry)",
               "Overall health rating",
               "Triglycerides (baseline)",
@@ -945,7 +1061,7 @@ dt <- dt %>%
 # create table - one single column
 tb <- dt %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`,-MVPA_100,-MVPA_150) %>%
+dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -`2_years_survival_stroke`, -`2_years_survival_MI`) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})",
     digits = all_continuous() ~ 1,
@@ -1099,8 +1215,8 @@ varNameDf <- data.frame(
               "oily_fish", 
               "non_oily_fish",
               "sex", 
-              "fu_time"
-              #"fu_time_pa4"
+              "fu_time",
+              "fu_time_pa4"
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
               #"water_300m",
@@ -1121,7 +1237,7 @@ dt2 <- dt2 %>%
 # create table - one single column
 tb2 <- dt2 %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4,-MVPA_100,-MVPA_150) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3, -MVPA_Quant_PA4) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
@@ -1281,7 +1397,7 @@ dt3 <- dt3 %>%
 
 tb3 <- dt3 %>%
   dplyr::select(-contains("truncated")) %>%
-  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3,-MVPA_100,-MVPA_150) %>%
+  dplyr::select(-MVPA_Quant_PA1, -MVPA_Quant_PA2, -MVPA_Quant_PA3) %>%
   tbl_summary(
     statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
     digits = all_continuous() ~ 1,
@@ -1400,6 +1516,61 @@ flextable::save_as_docx("Table 2.3. Distribution of participant characteristics 
 
 Create dt8 - new PA1 and PA3 data
 ```{r}
+
+dt8 <- full_df_PA_v2 %>%  dplyr::select(MI,
+                                        Stroke,
+                                        fu_time, 
+                                        MVPA_100,
+                                        MVPA_150,
+                                        MVPA_min_PA2,
+                                        MVPA_min_PA3_v2
+  )
+
+dt8 <- na.omit(dt8) # remove rows for which there are NAs for greeness and blueness
+
+# Convert variable names into desruptive table names 
+varNameDf <- data.frame(
+  varName = c("Myocardial infarction",
+              "Stroke",
+              "MVPA min/week - ENMO (100g)",
+              "MVPA min/week - ENMO (150g)",
+              "MVPA min/week - Machine learning",
+              "MVPA min/week - Activity count",
+              "Follow up time in months"
+  ), 
+  ChartName = c("MI", 
+              "stroke",
+              "MVPA_100", 
+              "MVPA_150",
+              "MVPA_min_PA2",
+              "fu_time"
+              )
+)
+
+
+var_names <- varNameDf %>% 
+    select(varName, ChartName) %>% 
+    tibble::deframe()
+
+dt8 <- dt8 %>% 
+    rename(!!!var_names)
+
+
+tb8 <- dt8 %>%
+  tbl_summary(
+    statistic = all_continuous() ~ "{median} ({p25}, {p75})", 
+    digits = all_continuous() ~ 1,
+    missing = "no"  
+  ) %>%
+  as_flex_table() %>%
+  set_header_labels(label = "Baseline Characteristics")
+
+
+
+# Save 
+#flextable::save_as_docx("" = tb8,  
+               #path = "testTable2_greenspace_bluespace.docx", 
+               #pr_section = sect_properties)
 
 ```
 
