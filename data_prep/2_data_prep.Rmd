@@ -368,11 +368,19 @@ full_df_PA <- inner_join(
     dplyr::select(eid, MVPA_min_PA1, LPA_min_PA1, SB_min_PA1),
   by = "eid")
 
+
 # PA1 data added in January 2025
 full_df_PA_v2 <- inner_join(
   full_df_v2, 
   enmoTSParallel_PA1_v2 %>% 
     dplyr::select(eid, MVPA_100, MVPA_150),
+  by = "eid"
+)
+
+###
+full_df_PA<- inner_join(full_df_PA, 
+  ML_derived_PA2 %>% 
+    dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
   by = "eid"
 )
 
@@ -1041,7 +1049,7 @@ varNameDf <- data.frame(
               "cancer",  
               "syst_bp",  
               "diast_bp",  
-              "hdl_chol",  
+              #"hdl_chol",  
               "glucose_blood_biochem",  
               "overall_health_rating",  
               "triglycerides_0",  
@@ -1128,8 +1136,6 @@ dt2 <- full_df_PA_2 %>%  dplyr::select(
   MVPA_Quant_PA3,
   MVPA_Quant_PA4,  
   MVPA_min_PA1,
-   MVPA_100,
-  MVPA_150,
   MVPA_min_PA2, 
   MVPA_min_PA3,
   MVPA_min_PA4, 
@@ -1297,8 +1303,6 @@ dt3 <- full_df_PA %>%  dplyr::select(
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1,
-  MVPA_100,
-  MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
@@ -1442,8 +1446,6 @@ dt4 <- full_df_PA %>%  dplyr::select(
   MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1,
-  MVPA_100,
-  MVPA_150,
   MVPA_min_PA2,
   MVPA_min_PA3,
  # MVPA_min_PA4, 
@@ -1538,7 +1540,7 @@ Create dt8 - new PA1 and PA3 data
 ```{r}
 
 dt8 <- full_df_PA_v2 %>%  dplyr::select(MI,
-                                        Stroke,
+                                        stroke,
                                         fu_time, 
                                         MVPA_100,
                                         MVPA_150,
@@ -1565,6 +1567,7 @@ varNameDf <- data.frame(
               "MVPA_100", 
               "MVPA_150",
               "MVPA_min_PA2",
+              "MVPA_min_PA3_v2",
               "fu_time"
               )
 )
