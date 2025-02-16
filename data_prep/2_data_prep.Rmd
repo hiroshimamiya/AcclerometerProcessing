@@ -980,7 +980,9 @@ dt <- full_df_PA %>%  dplyr::select(
  glucose_blood_biochem, 
  overall_health_rating, 
  triglycerides_0,
- c_reactive_protein_0
+ c_reactive_protein_0,
+ apo_a_0,
+ med_chol_BP_diab
   ) 
 
 
@@ -1018,7 +1020,9 @@ varNameDf <- data.frame(
               "Blood glucose (biochemistry)",
               "Overall health rating",
               "Triglycerides (baseline)",
-              "C-reactive protein (baseline)"
+              "C-reactive protein (baseline)",
+              "Apolipoprotein A",
+              "Medication for cholesterol, blood pressure, or diabetes"
               #"Body Mass Index",
               #"Two Years Stroke Survival",
               #"Two Years MI Survival",
@@ -1053,7 +1057,9 @@ varNameDf <- data.frame(
               "glucose_blood_biochem",  
               "overall_health_rating",  
               "triglycerides_0",  
-              "c_reactive_protein_0" 
+              "c_reactive_protein_0",
+              "apo_a_0",
+              "med_chol_BP_diab"
               #"BMI",
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
