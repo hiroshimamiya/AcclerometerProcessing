@@ -202,7 +202,7 @@ columns:
 
 full_df <- full_df %>%
   dplyr::select(-diabetes_1, -diabetes_2, -diabetes_3, 
-         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_1, -duration_moderate_activity_2, -duration_moderate_activity_3, -duration_vigorous_activity_1, -duration_vigorous_activity_2, -duration_vigorous_activity_3, -duration_heavy_DIY_1, -duration_heavy_DIY_2, -duration_heavy_DIY_3, -duration_light_DIY_1, -duration_light_DIY_2, -duration_light_DIY_3, -domgarden_1000m_0, -domgarden_300m_0, -greenspace_1000m_0, -domgarden_1000m_1, -domgarden_300m_1, -greenspace_1000m_1, -water_1000m_0, -water_1000m_1, -dist_coast_0, -dist_coast_1, -med_chol_BP_diab_or_exohormones, -med_chol_BP_diab, -HbA1c_blood_biochem)
+         -processed_meat_1, -processed_meat_2, -processed_meat_3, -X191.0.0.1, -duration_moderate_activity_1, -duration_moderate_activity_2, -duration_moderate_activity_3, -duration_vigorous_activity_1, -duration_vigorous_activity_2, -duration_vigorous_activity_3, -duration_heavy_DIY_1, -duration_heavy_DIY_2, -duration_heavy_DIY_3, -duration_light_DIY_1, -duration_light_DIY_2, -duration_light_DIY_3, -domgarden_1000m_0, -domgarden_300m_0, -greenspace_1000m_0, -domgarden_1000m_1, -domgarden_300m_1, -greenspace_1000m_1, -water_1000m_0, -water_1000m_1, -dist_coast_0, -dist_coast_1, -HbA1c_blood_biochem)
 
 ```
 
@@ -930,6 +930,28 @@ table(full_df$cancer)
 
 
 ```
+
+15. Cholesterol and BP medication
+We recode this variable so that, if the individual reported taking any of the medication, than the answer is "yes" and if not (or NA, meaning they do not take any medication, supplement or vitamin as per code https://biobank.ctsu.ox.ac.uk/ukb/label.cgi?id=100045)
+```{r}
+
+# 1:	Cholesterol lowering medication
+# 2:	Blood pressure medication
+# 3:	Insulin
+# -1:	Do not know
+# -3:	Prefer not to answer
+# -7:	None of the above
+
+
+full_df <- full_df %>%
+  mutate(med_chol_BP_diab = case_when(
+    med_chol_BP_diab %in% c(1, 2, 3, -1, -3) ~ "Yes",
+    med_chol_BP_diab %in% c(-7, NA) ~ "No"
+  ))
+
+
+```
+
 
 
 ############ Final exclusion ############
