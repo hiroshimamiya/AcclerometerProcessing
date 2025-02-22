@@ -24,7 +24,7 @@ library(splines)
 library(splines2)
 library(rms)
 library(Greg)
-library(data.table)
+#library(data.table)
 library(readr)
 library(dvmisc)
 library(gtsummary)
@@ -48,12 +48,21 @@ dt3 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds"
 dt8 <- readRDS("/home/yacine/dataframes_AccelerometerProcessing/prepped_dt8.rds")
 dt_original <- dt
 
+nrow(dt)
+nrow(dt2)
+nrow(dt3)
+nrow(dt8)
+
 
 ```
 Histograms
 ```{r}
 summary(dt2$`MVPA min/week - Self-report (IPAQ)`)
 hist(dt2$`MVPA min/week - Self-report (IPAQ)`)
+
+
+
+
 
 par(mfrow=c(4,3))
   hist(dt$`MVPA min/week - ENMO`, main = "Dt, MVPA1"); 
@@ -1663,7 +1672,9 @@ DBP = `Diastolic blood pressure`,
 HDC = `HDL cholesterol`,
 BLG = `Blood glucose (biochemistry)`,
 TG = `Triglycerides (baseline)`,
-CRP = `C-reactive protein (baseline)`
+CRP = `C-reactive protein (baseline)`, 
+APOB = `Apolipoprotein A`, 
+LDC = `LDL direct`
                     )
 
 
@@ -1678,14 +1689,7 @@ dt5$CRP %>% hist()
 
 
 
-# PA1
-fit_pa1_stroke_sa7 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + SBP + DBP + HDC + BLG + TG + CRP, data = dt5)
 
-# PA2
-fit_pa2_stroke_sa7<- coxph(Surv(fu_time, Stroke) ~ mvpa2 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP, data = dt5)
-
-#PA3
-fit_pa3_stroke_sa7 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP , data = dt5)
 
 ```
 
@@ -1694,15 +1698,26 @@ fit_pa3_stroke_sa7 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + 
 
 ```{r}
 # PA1
-fit_pa1_mi_sa7 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP, data = dt5)
+fit_pa1_stroke_sa7 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat + non_oily_fish + SBP + DBP + HDC + LDC  + BLG + TG + CRP, data = dt5)
 
 # PA2
-fit_pa2_mi_sa7 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + BLG + TG + CRP , data = dt5)
+fit_pa2_stroke_sa7<- coxph(Surv(fu_time, Stroke) ~ mvpa2 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + LDC + BLG + TG + CRP, data = dt5)
 
 #PA3
-fit_pa3_mi_sa7 <- coxph(Surv(fu_time, MI) ~ mvpa3 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + SBP + DBP + HDC + BLG + TG + CRP , data = dt5)
+fit_pa3_stroke_sa7 <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + LDC + BLG + TG + CRP , data = dt5)
 
 
+
+
+
+# PA1
+fit_pa1_mi_sa7 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish  + SBP + DBP + HDC + LDC + BLG + TG + CRP, data = dt5) 
+
+# PA2
+fit_pa2_mi_sa7 <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3) + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish + red_meat +non_oily_fish  + SBP + DBP + HDC + LDC + BLG + TG + CRP , data = dt5)
+
+#PA3
+fit_pa3_mi_sa7 <- coxph(Surv(fu_time, MI) ~ mvpa3 + Sex + Age + Race +  deprivation_index + Education +  hh_income + Smoking + Alcohol + pro_meat + fresh_fruit + cooked_vg + oily_fish +red_meat + non_oily_fish + SBP + DBP + HDC + LDC + BLG + TG + CRP , data = dt5)
 ```
 
 
@@ -1711,6 +1726,7 @@ fit_pa3_mi_sa7 <- coxph(Surv(fu_time, MI) ~ mvpa3 + Sex + Age + Race +  deprivat
 6 plots PA1-3, sameas main, except using dt2, in one figure
 ```{r}
 png("images/combined_sa7_PA13_scaled.png", width = 2250, height = 2625, res = 300)
+
 par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
 
 source("plotHR_hiroshiFunction.R")
@@ -1825,7 +1841,7 @@ dev.off()
 
 
 
-# Sensitivity analysis 8
+# Sensitivity analysis 9 - PA1 
 ## Stroke
 ```{r}
 
@@ -1851,9 +1867,7 @@ dt8 <- dt8 %>% rename(fu_time = `Follow up time in months`,
                     BLG = `Blood glucose (biochemistry)`,
                     TG = `Triglycerides (baseline)`,
                     CRP = `C-reactive protein (baseline)`
-                    )
-dt8 <- dt8 %>% 
-  rename(apoA = `Apolipoprotein A` )
+)
 
 
 ```
