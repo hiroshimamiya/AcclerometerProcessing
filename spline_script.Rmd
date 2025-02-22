@@ -9,14 +9,13 @@ We load and/or install the packages we will be using:
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 #Refresh environment 
-
 
 rm(list= ls())
 #install.packages("splines2")
 #install.packages("rms")
 #install.packages('Greg')
+library(Hmisc)
 library(dplyr)
 library(survival)
 library(readr)
@@ -35,12 +34,7 @@ library(broom.helpers)
 library(flextable)
 library(officer)
 library(ggplot2)
-library(splines)
-library(splines2)
 library(survminer)
-
-splines::bs
-splines2::bSpline
 
 #theme_gtsummary_journal("jama")
 ```
@@ -173,6 +167,17 @@ dim(dt3);
 #names (dt3); 
 sum(complete.cases(dt3)); sum(complete.cases(dt3 %>% select(!contains("truncated"))))
 ```
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Main analysis
@@ -1847,6 +1852,9 @@ dt8 <- dt8 %>% rename(fu_time = `Follow up time in months`,
                     TG = `Triglycerides (baseline)`,
                     CRP = `C-reactive protein (baseline)`
                     )
+dt8 <- dt8 %>% 
+  rename(apoA = `Apolipoprotein A` )
+
 
 ```
 
@@ -2005,3 +2013,158 @@ dev.off()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Unadjusted
+
+### Stroke and MI
+Does not include diabetes, bmi and depression and PA4
+```{r}
+fit_pa1_stroke_unadjusted <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa1, 3), data = dt)
+
+fit_pa2_stroke_unadjusted <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa2, 3), data = dt)
+
+fit_pa3_stroke_unadjusted <- coxph(Surv(fu_time, Stroke) ~ rcs(mvpa3, 3), data = dt)
+```
+
+
+### MI
+```{r}
+fit_pa1_MI_unadjusted <- coxph(Surv(fu_time, MI) ~ rcs(mvpa1, 3), data = dt)
+
+fit_pa2_MI_unadjusted <- coxph(Surv(fu_time, MI) ~ rcs(mvpa2, 3), data = dt)
+
+fit_pa3_MI_unadjusted <- coxph(Surv(fu_time, MI) ~ rcs(mvpa3, 3), data = dt)
+```
+
+
+
+
+
+
+### Combined plots for sensitivity analysis 8
+```{r}
+#png("/home/yacine/AcclerometerProcessing/combined_sa0_unadjusted_PA13.png", width = 2250, height = 2625, res = 300)
+par(family = "Arial", ps = 12, cex = 1, mfrow = c(3, 2), oma = c(0, 0, 2, 0), mar = c(4, 4, 2, 1))
+
+source("plotHR_hiroshiFunction.R")
+# PA1 - 100g Stroke
+plotHR2(fit_pa1_stroke_unadjusted,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("A", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 - 100g MI
+plotHR2(fit_pa1_MI_unadjusted,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("B", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+# PA1 - 150g Stroke
+plotHR2(fit_pa2_stroke_unadjusted,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (stroke)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("C", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+# PA1 - 150g MI
+plotHR2(fit_pa2_MI_unadjusted,
+       term = 1,
+      rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("D", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+# PA3 - v2
+## Stroke
+plotHR2(fit_pa3_stroke_unadjusted,
+       term = 1,
+       rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("E", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+
+## MI
+plotHR2(fit_pa3_MI_unadjusted,
+       term = 1,
+       rescaleHR = T, 
+     xlab = "MVPA (minutes/week)", 
+     ylab = "Hazard ratio (MI)", 
+     xlim = c(0, 1500), 
+     ylim = c(0.1, 1.3), 
+     plot.bty = "U", 
+     cex.axis = 1, 
+     cex.lab = 1.2, 
+     lwd.term = 1.5,
+     lty.term = 1,
+     col.se = "lightgrey", 
+     col.dens = "grey")
+fig_label("F", pos = "topleft", cex = 1.5, x_adj = -0.1, y_adj = -0.03)
+
+#dev.off()
+```
