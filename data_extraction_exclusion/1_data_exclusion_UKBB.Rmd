@@ -942,12 +942,35 @@ We recode this variable so that, if the individual reported taking any of the me
 # -3:	Prefer not to answer
 # -7:	None of the above
 
+full_df$med_chol_BP_diab_raw <- full_df$med_chol_BP_diab# to keep an example of coding
 
 full_df <- full_df %>%
   mutate(med_chol_BP_diab = case_when(
     med_chol_BP_diab %in% c(1, 2, 3, -1, -3) ~ "Yes",
     med_chol_BP_diab %in% c(-7, NA) ~ "No"
   ))
+
+table(full_df$med_chol_BP_diab_raw )
+
+
+# 1: Cholesterol lowering medication
+# 2: Blood pressure medication
+# 3: Insulin
+# 4:	Hormone replacement therapy
+# 5:	Oral contraceptive pill or minipill
+# -1:	Do not know
+# -3:	Prefer not to answer
+# -7:	None of the above
+
+full_df$med_chol_BP_diab_or_exohormones_raw <- full_df$med_chol_BP_diab_or_exohormones # to keep an example of coding
+
+full_df <- full_df %>%
+  mutate(med_chol_BP_diab_or_exohormones = case_when(
+    med_chol_BP_diab_or_exohormones %in% c(1, 2, 3, 4, 5, -1, -3) ~ "Yes",
+    med_chol_BP_diab_or_exohormones %in% c(-7, NA) ~ "No"
+  ))
+
+table(full_df$med_chol_BP_diab_or_exohormones_raw )
 
 
 ```

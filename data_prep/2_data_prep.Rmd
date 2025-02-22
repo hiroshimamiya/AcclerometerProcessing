@@ -983,7 +983,8 @@ dt <- full_df_PA %>%  dplyr::select(
  triglycerides_0,
  c_reactive_protein_0,
  apo_a_0,
- med_chol_BP_diab
+ med_chol_BP_diab,
+ med_chol_BP_diab_or_exohormones
   ) 
 
 
@@ -1024,7 +1025,8 @@ varNameDf <- data.frame(
               "Triglycerides (baseline)",
               "C-reactive protein (baseline)",
               "Apolipoprotein A",
-              "Medication for cholesterol, blood pressure, or diabetes"
+              "Medication for cholesterol, blood pressure, or diabetes",
+              "Medication for cholesterol, blood pressure, diabetes, or take exogenous hormones"
               #"Body Mass Index",
               #"Two Years Stroke Survival",
               #"Two Years MI Survival",
@@ -1062,7 +1064,8 @@ varNameDf <- data.frame(
               "triglycerides_0",  
               "c_reactive_protein_0",
               "apo_a_0",
-              "med_chol_BP_diab"
+              "med_chol_BP_diab",
+              "med_chol_BP_diab_or_exohormones"
               #"BMI",
               #"2_years_survival_stroke",
               #"2_years_survival_MI",
