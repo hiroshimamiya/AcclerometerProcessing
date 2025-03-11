@@ -304,7 +304,7 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 ### PA3 - we load PA3
 ```{r}
-PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_data.csv",col_select = -1)
+PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_L2.csv",col_select = -1)
 
 PA3_proportions_data <- PA3_proportions_data %>%
   rename(
@@ -359,7 +359,6 @@ PA3_proportions_data_v2 <- na.omit(PA3_proportions_data_v2)
 
 ### Merge the full_df and PA1 and PA2 df by eids
 ```{r}
-
 full_df_v2 <- full_df
 
 full_df_PA <- inner_join(
@@ -389,7 +388,6 @@ full_df_PA_v2<- inner_join(full_df_PA_v2,
   ML_derived_PA2 %>% 
     dplyr::select(eid, MVPA_min_PA2, LPA_min_PA2, SB_min_PA2),
   by = "eid")
-
 
 ```
 
@@ -734,6 +732,16 @@ levels(full_df_PA$education_level) <- list( "None of the below" = "None of the a
                                     "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
                                     "College or University degree" = "College or University degree") 
 
+
+full_df_PA$overall_health_rating %>% table 
+full_df_PA$overall_health_rating <- factor(full_df_PA$overall_health_rating)
+levels(full_df_PA$overall_health_rating)
+levels(full_df_PA$overall_health_rating) <- list( "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer", 
+                                    "Poor" =  "Poor",
+                                    "Fair" = "Fair",
+                                    "Good" = "Good",
+                                    "Excellent" = "Excellent") 
+
 ```
 
 
@@ -827,9 +835,20 @@ levels(full_df_PA_2$education_level) <- list( "None of the above" = "None of the
                                     "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
                                     "College or University degree" = "College or University degree") 
 
+
+full_df_PA_2$overall_health_rating %>% table 
+full_df_PA_2$overall_health_rating <- factor(full_df_PA_2$overall_health_rating)
+levels(full_df_PA_2$overall_health_rating)
+levels(full_df_PA_2$overall_health_rating) <- list( "Do not know/Prefer not to answer" = "Do not know/Prefer not to answer", 
+                                    "Poor" =  "Poor",
+                                    "Fair" = "Fair",
+                                    "Good" = "Good",
+                                    "Excellent" = "Excellent") 
+
 ```
 
 ### Covariates - reorder for full_df_PA_v2 df
+
 ```{r}
 # Re-order categories 
 full_df_PA_v2$cooked_vg %>% table
@@ -919,8 +938,8 @@ levels(full_df_PA_v2$education_level) <- list( "None of the above" = "None of th
                                     "A levels/AS, NVQ/HND/HNC or equivalent" = "A levels/AS levels or equivalent, NVQ or HND or HNC or equivalent, other professional qualifications",
                                     "College or University degree" = "College or University degree") 
 
-```
 
+```
 
 # Tables 
 
@@ -1453,9 +1472,6 @@ dt4 <- full_df_PA %>%  dplyr::select(
   fu_time, 
   `2_years_survival_stroke`,
   `2_years_survival_MI`,
-    MVPA_Quant_PA1,
-  MVPA_Quant_PA2,  
-  MVPA_Quant_PA3,
   #MVPA_Quant_PA4,  
   MVPA_min_PA1,
   MVPA_min_PA2,
@@ -1464,20 +1480,53 @@ dt4 <- full_df_PA %>%  dplyr::select(
   MI, 
   stroke,
   age_entry_years, 
-  #ethnicity, 
+  ethnicity, 
   sex, 
   education_level,
   #tdi,
   water_300m,
+  water_1000m,
   greenspace_300m,
-  naturalenv_300m
+  greenspace_1000m,
+  naturalenv_300m,
+  naturalenv_1000m,
+  pm2pt5,
+  pm2pt5_absordance,
+  noise_pollution,
+  home_area_pop,
+  home_to_work_0,
+  #home_to_work_1,
+  #home_to_work_2,
+  #home_to_work_3,
+  assessment_centre_0,
+  #assessment_centre_1,
+  #assessment_centre_2,
+  #assessment_centre_3,
+  avg_hh_income,
+  tdi,
+  avg_hh_income,
+  smoking, 
+  alcohol, 
+  processed_meat, 
+  red_meat,
+  oily_fish,
+  non_oily_fish,
+  fresh_fruit,
+  cooked_vg,
+   cancer, 
+   syst_bp,
+   diast_bp,
+   hdl_chol, 
+   ldl_direct_0,
+   glucose_blood_biochem, 
+   overall_health_rating
   )
 
 # Create variable that indicate if the participant has had CVD or not
 dt4 <- dt4 %>%
   mutate(CVD = ifelse(MI == 1 | stroke == 1, "Had CVD", "Never had CVD"))
 
-dt4 <- na.omit(dt4) # remove rows for which there are NAs for greeness and blueness
+#dt4 <- na.omit(dt4) # remove rows for which there are NAs for greeness and blueness
 
 # Convert variable names into desruptive table names 
 varNameDf <- data.frame(
@@ -1487,12 +1536,40 @@ varNameDf <- data.frame(
               "MVPA min/week - ENMO",
               "MVPA min/week - Machine learning",
               "MVPA min/week - Activity count",
-              #"Race", 
+              "Race", 
               "Sex", 
               "Follow up time in months", 
               "Greenspace 300m from residence",
+              "Greenspace 1000m from residence",
               "Water 300m from residence",
-              "Natural env. 300m from residence"
+              "Water 1000m from residence",
+              "Natural env. 300m from residence",
+              "Natural env. 1000m from residence",
+              "Particulate matter air pollution (pm2.5) absordance",
+              "Particulate matter air pollution (pm2.5)",
+              "Noise pollution",
+              "Home area population density (urban or rural)",
+              "Frequency of travelling from home to job",
+              "UK Biobank assessment centre",
+              "Deprivation index", 
+              "Education", 
+              "Household income GBP",
+              "Smoking", 
+              "Alcohol consumption", 
+              "Processed meat",
+              "Red meat",
+              "Fresh fruit", 
+              "Cooked vegetables", 
+              "Oily fish", 
+              "Non-oily fish",
+              "Cancer",
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "HDL cholesterol",
+              "LDL direct",
+              "Blood glucose (biochemistry)",
+              "Overall health rating"
+              
   ), 
   ChartName = c("MI", 
               "stroke",
@@ -1500,23 +1577,40 @@ varNameDf <- data.frame(
               "MVPA_min_PA1", 
               "MVPA_min_PA2",
               "MVPA_min_PA3",
-              #"ethnicity", 
-              #"tdi", 
-              #"education_level", 
-              #"avg_hh_income",
-              #"smoking", 
-             #"alcohol", 
-              #"processed_meat", 
-              #"red_meat",
-              #"fresh_fruit", 
-              #"cooked_vg", 
-              #"oily_fish", 
-              #"non_oily_fish",
+              "ethnicity", 
               "sex", 
               "fu_time", 
               "greenspace_300m",
+              "greenspace_1000m",
               "water_300m",
-              "naturalenv_300m"
+              "water_1000m",
+              "naturalenv_300m",
+              "naturalenv_1000m",
+              "pm2pt5",
+              "pm2pt5_absordance",
+              "noise_pollution",
+              "home_area_pop",
+              "home_to_work_0",
+              "assessment_centre_0",
+              "tdi", 
+              "education_level", 
+              "avg_hh_income",
+              "smoking", 
+              "alcohol", 
+              "processed_meat", 
+              "red_meat",
+              "fresh_fruit", 
+              "cooked_vg", 
+              "oily_fish", 
+              "non_oily_fish",
+              "cancer", 
+              "syst_bp",
+              "diast_bp",
+               "hdl_chol", 
+               "ldl_direct_0",
+               "glucose_blood_biochem", 
+               "overall_health_rating" 
+
               )
 )
 
@@ -1549,7 +1643,6 @@ flextable::save_as_docx("Table 2.3. Distribution of participant characteristics 
 
 
 Create dt8 - new PA1 and PA3 data
-```{r}
 
 dt8 <- full_df_PA_v2 %>%  dplyr::select(MI,
                                         stroke,
@@ -1691,7 +1784,7 @@ tb8 <- dt8 %>%
                #path = "testTable2_greenspace_bluespace.docx", 
                #pr_section = sect_properties)
 
-```
+
 
 
 ```{r}
@@ -1700,7 +1793,7 @@ saveRDS(dt, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt.rds")
 saveRDS(dt2, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt2.rds")
 saveRDS(dt3, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt3.rds")
 saveRDS(dt4, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt4.rds")
-saveRDS(dt8, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt8.rds")
+#saveRDS(dt8, "/home/yacine/dataframes_AccelerometerProcessing/prepped_dt8.rds")
 
 ```
 
