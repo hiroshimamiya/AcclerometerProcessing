@@ -250,7 +250,7 @@ colnames(enmoTSParallel_PA1) <- paste(colnames(enmoTSParallel_PA1), "_PA1", sep 
 colnames(enmoTSParallel_PA1)[1] <- "eid"
 
 ### Added PA1 - January 2025
-enmoTSParallel_PA1_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/outputs/PA1_combined_df.csv", col_select = -1)
+enmoTSParallel_PA1_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/beluga/PA1_combined_df.csv", col_select = -1)
 enmoTSParallel_PA1_v2$MVPA_100 <- enmoTSParallel_PA1_v2$MVPA2_total* 7*24*60
 enmoTSParallel_PA1_v2$MVPA_150 <- enmoTSParallel_PA1_v2$MVPA3_total* 7*24*60
 
@@ -304,7 +304,7 @@ colnames(ML_derived_PA2)[1] <- "eid"
 
 ### PA3 - we load PA3
 ```{r}
-PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_L2.csv",col_select = -1)
+PA3_proportions_data <- read_csv("/home/yacine/UKBB_beluga/PA3_df/PA3_data.csv",col_select = -1)
 
 PA3_proportions_data <- PA3_proportions_data %>%
   rename(
@@ -330,7 +330,7 @@ PA3_proportions_data <- na.omit(PA3_proportions_data)
 
 
 # PA3 added January 2025
-PA3_proportions_data_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/outputs/PA3_L2_one_minute_without_duplicates.csv",col_select = -1)
+PA3_proportions_data_v2 <- read_csv("/home/aayush/PA1_3_new_thresholds/beluga/PA3_L2_one_minute_without_duplicates.csv",col_select = -1)
 
 PA3_proportions_data_v2 <- PA3_proportions_data_v2 %>%
   rename(
