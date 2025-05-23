@@ -1367,6 +1367,7 @@ dt3 <- full_df_PA %>%  dplyr::select(
   MVPA_min_PA2_truncated,
   MVPA_min_PA3_truncated,
   #MVPA_min_PA4_truncated,
+  HbA1c_blood_biochem
   )
 
 # Create variable that indicate if the participant has had CVD or not
@@ -1399,7 +1400,8 @@ varNameDf <- data.frame(
               "Type II diabetes",
               "Depression",
               "Two years stroke survival",
-              "Two years MI survival"
+              "Two years MI survival",
+              "Blood glucose"
               #"Greenspace 300m from residence",
               #"Water 300m from residence",
               #"Natural env. 300m from residence"
@@ -1428,7 +1430,8 @@ varNameDf <- data.frame(
               "diabetes",
               "depression",
               "2_years_survival_stroke",
-              "2_years_survival_MI"
+              "2_years_survival_MI",
+             "HbA1c_blood_biochem"
              # "water_300m",
               #"greenspace_300m",
               #"naturalenv_300m"
@@ -1493,7 +1496,7 @@ dt4 <- full_df_PA %>%  dplyr::select(
   pm2pt5,
   pm2pt5_absordance,
   noise_pollution,
-  home_area_pop,
+ # home_area_pop,
   home_to_work_0,
   #home_to_work_1,
   #home_to_work_2,
@@ -1548,7 +1551,7 @@ varNameDf <- data.frame(
               "Particulate matter air pollution (pm2.5) absordance",
               "Particulate matter air pollution (pm2.5)",
               "Noise pollution",
-              "Home area population density (urban or rural)",
+             # "Home area population density (urban or rural)",
               "Frequency of travelling from home to job",
               "UK Biobank assessment centre",
               "Deprivation index", 
@@ -1589,7 +1592,7 @@ varNameDf <- data.frame(
               "pm2pt5",
               "pm2pt5_absordance",
               "noise_pollution",
-              "home_area_pop",
+              #"home_area_pop",
               "home_to_work_0",
               "assessment_centre_0",
               "tdi", 
